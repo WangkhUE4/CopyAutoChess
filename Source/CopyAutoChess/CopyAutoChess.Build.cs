@@ -9,7 +9,8 @@ public class CopyAutoChess : ModuleRules
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore",
-			"NetworkHelper"
+			"NetworkHelper",
+			"Protobuf",
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

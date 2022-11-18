@@ -3,6 +3,7 @@
 #include "../../CACLib.h"
 #include "../../System/GoodsSys/IGoodsSystem.h"
 #include "../Plugins/NetworkHelper/Source/NetworkHelper/SocketHelper/SocketHelper.h"
+#include "CopyAutoChess/Network/Protobuf/Student.pb.h"
 
 RegisterUIManager(AManagerUIGoods);
 
@@ -26,5 +27,14 @@ void AManagerUIGoods::testPrint(const FString inStr)
 	ptr->connect("47.108.85.170", 3063);
 	delete ptr;
 	ptr = nullptr;
+
+	int32 sid = 666666;
+	FString name = TEXT("XiaoMing");
+	TSharedPtr<School::Student> XiaoMing = MakeShared<School::Student>();
+	XiaoMing->set_sid(sid);
+	XiaoMing->set_name(TCHAR_TO_UTF8(*name));
+	FString _name = XiaoMing->name().c_str();
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("AManagerUIGoods, xiaoming, sid : %d , name : %s"), XiaoMing->sid(), *_name);
+
 }
 
