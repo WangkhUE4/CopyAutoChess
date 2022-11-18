@@ -35,6 +35,13 @@ void AManagerUIGoods::testPrint(const FString inStr)
 	XiaoMing->set_name(TCHAR_TO_UTF8(*name));
 	FString _name = XiaoMing->name().c_str();
 	UE_LOG(LogCopyAutoChess, Warning, TEXT("AManagerUIGoods, xiaoming, sid : %d , name : %s"), XiaoMing->sid(), *_name);
+	//序列化
+	const std::string msg = XiaoMing->SerializeAsString();
+	//反序列化
+	School::Student XiaoMingCopy;
+	XiaoMingCopy.ParseFromString(msg);
+	FString _nameCopy = XiaoMingCopy.name().c_str();
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("AManagerUIGoods, xiaoming Copy, sid : %d , name : %s"), XiaoMingCopy.sid(), *_nameCopy);
 
 }
 
