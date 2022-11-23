@@ -1,0 +1,316 @@
+syntax = "proto3";
+package msg;
+
+import "common.proto";
+
+//塔防物品类型
+enum TDITEMTYPE {
+  TDITEMTYPE_MIN_NUM      		= 0;
+  TDITEMTYPE_CHESS_MAN    		= 1; // 棋子
+  TDITEMTYPE_CHESS_PLAYER 		= 2; // 棋手
+  TDITEMTYPE_CHESS_BOARD  		= 3; // 棋盘
+  TDITEMTYPE_CHESS_EQUIP  		= 4; // 棋子装备
+  TDITEMTYPE_MONEY        		= 5; // 钱
+  TDITEMTYPE_EXP          		= 6; // 经验
+  TDITEMTYPE_MATERIAL     		= 7; // 材料
+  TDITEMTYPE_BLUE_PRINT   		= 8; // 图纸
+  TDITEMTYPE_AUTO_OPEN_CHEST 	= 9; //宝箱自动开启
+  TDITEMTYPE_MAX_NUM      		= 10;
+}
+
+// 挂机产出表
+message OnHookOutPutInfo {
+  repeated OnHookOutPutData Datas = 1;
+}
+
+// Effect_1_Interval , Effect_1_Awards_1_Id , Effect_1_Awards_1_Count
+message OnHookOutPutData {
+  int32             StageId = 1;
+  repeated TDOutPut Effect  = 2;
+}
+
+message TDOutPut {
+  int64           Interval = 1;
+  repeated TDItem Awards   = 2;
+}
+
+
+message TDConsume {
+  int32 Id    = 1;
+  int32 Count = 2;
+  int32 Level = 3;
+}
+
+message TDBuy {
+  repeated TDItem  Awards   = 1;
+  repeated Consume Consumes = 2;
+  repeated TDItem  ExAwards = 3;
+}
+
+
+// 制图工坊塔防防卡池表
+message TDRandCardInfo {
+  repeated TDRandCardData Datas = 1;
+}
+
+message TDRandCardData {
+  int32              Id              = 1;
+  string             Name            = 2;
+  string             StartTime       = 3;
+  string             EndTime         = 4;
+  string             Background      = 5;
+  // Consume_1_Id Consume_1_Count
+  repeated TDConsume Consume         = 6;
+  repeated TDConsume TenDrawConsumes = 7;
+  int32              ChestId         = 8; // 关联制图工坊塔防模式随机掉落池表
+}
+
+// 制图工坊塔防掉落池表
+message TDRandPoolInfo{
+  repeated TDRandPoolData Datas = 1;
+}
+
+message TDRandPoolData {
+  int32  Id        = 1;
+  int32  PoolId    = 2;
+  TDItem AwardItem = 3;
+  int32  Weight    = 4;
+}
+
+//玩家初始化物品
+message PlayerInitchessData{
+  string Id			= 1;
+  int32  Count		= 2;
+}
+
+//棋子对应的转换材料
+message ChessManMaterialData{
+  int32 			Quality	= 1;
+  repeated TDItem 	Awards 	= 2;
+}
+
+// 制图工坊塔防模式配置表
+message TDCardGroupConfigInfo {
+  // ChessBoardNumber_1 ChessBoardNumber_2
+  repeated int32              	ChessBoardCount    		= 1; // 1,3
+  repeated int32              	ChessPlayerCount   		= 2;
+  repeated int32              	ChessManCount      		= 3;
+	
+  //塔防初始化的物品	
+  repeated TDItem             	PlayerInitItems    		= 4;
+  PlayerInitchessData		  	PlayerInitchess			= 5;
+	
+  int32                       	StoreLimit         		= 6;  //物品上限
+  repeated TDChessboardPeople 	PopLimit           		= 7;  //棋盘等级
+  int32                       	ChessBoardLvLimit  		= 8;  //棋盘等级上限
+  int32                       	ChessPlayerLvLimit 		= 9;  //棋子等级上限
+  int32                       	ChessManLvLimit    		= 10; //棋手等级上限
+  int32                       	ChessEquipLimit    		= 11; //棋子装备数量上限
+  int32						  	ChessEquipLvLimit  		= 12; //棋子装备等级上限
+  int32						  	ChessBoardTalentLvLimit 	= 13; //棋盘天赋等级上限
+  TDBuy                       	BuyCard            		= 14;
+  string					  	MapKey 			 		= 15;
+  int32						  	PopSpecialBuffId	 	= 16; //棋盘等级的BuffId
+  int32						  	MaxStage			 	= 17; //最大关卡等级
+  repeated int32			  	CostPoolCount			= 18; //费用对应卡池的数量
+  int64						  	LimitTime				= 19; //挂机最大限制时间
+  repeated ChessManMaterialData ChessManMaterials		= 20; //棋子费用对应的材料
+  string					    ShowRate				= 21; //概率显示
+  string						PvpChessPoolKey			= 22; //内核卡池key
+  string						LimitTimeStage			= 23; //时间阶段限制,客户端用
+}
+
+message ItemTypeLimit {
+  int32 LevelLimit      = 1;
+  int32 CardGroupMinNum = 2;
+  int32 CardGroupMaxNum = 3;
+}
+
+message TDChessboardPeople {
+  int32 Level = 1;
+  int32 Num   = 2;
+}
+
+enum TDLEVELUP_TYPE {
+  TDLEVELUP_TYPE_CHESS_UNLOCK		 = 0;	//棋子、棋盘、棋手升级
+  TDLEVELUP_TYPE_CHESS_WHITE_EQUIP   = 1;	//白装升级
+  TDLEVELUP_TYPE_CHESS_BLUE_EQUIP    = 3;	//蓝装升级
+  TDLEVELUP_TYPE_CHESS_PURE_EQUIP    = 4;	//紫装升级
+  TDLEVELUP_TYPE_CHESS_ORIGiN_EQUIP  = 5;	//橙装升级
+  TDLEVELUP_TYPE_COMPOSE			 = 6;	//装备合成
+
+  TDLEVELUP_TYPE_CHESS_BOARD_TALENT  = 9;
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY 	 = 10; 	//升级类型对应的费用
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY_1 = 11;	//1费棋子升级
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY_2 = 12;	//2费棋子升级
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY_3 = 13;	//3费棋子升级
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY_4 = 14;	//4费棋子升级
+  TDLEVELUP_TYPE_CHESS_MAN_QUALITY_5 = 15;  //5费棋子升级
+}
+
+// 制图工坊塔防升级表
+message TDLevelUpInfo {
+  repeated TDLevelUpData Datas = 1;
+}
+
+message TDLevelUpData {
+  int32                       Id            		= 1; // 唯一值，没其他作用
+  int32                       Level         		= 2;
+  TDITEMTYPE                  Type          		= 3;
+  TDLEVELUP_TYPE              SubType       		= 4;
+  repeated TDConsume          Consumes      		= 5;
+  repeated int32 			  EquipQualityConsumes 	= 6;
+}
+
+// 制图工坊塔防装备合成表
+message TDComposeInfo {
+  repeated TDComposeData Datas = 1;
+}
+
+message TDComposeData {		 
+  int32              RouteId 	 = 1;	//相当于需要合成的物品Id
+  int32              DrawingId 	 = 2;	//图纸Id
+  repeated TDConsume Consumes    = 3;
+  repeated TDItem    Award       = 4;
+}
+
+//塔防技能类型
+enum TDSKILLTYPE {
+	TDSKILLTYPE_LIMIT_MIN	 = 0;
+	TDSKILLTYPE_SKIL 		 = 1;
+	TDSKILLTYPE_EQUIP 		 = 2;
+	TDSKILLTYPE_SPECIAL_BUFF = 3;
+	TDSKILLTYPE_BUFF		 = 4;
+	TDSKILLTYPE_LIMIT_MAX	 = 5;
+}
+
+// 制图工坊塔防技能表
+message TDSkillInfo {
+  repeated TDSkillData Datas = 1;
+}
+
+message SkillItem {
+  int32 		Id		= 1;
+  TDSKILLTYPE 	Type 	= 2;
+  int32 		Level 	= 3;
+  string		Name    = 4;
+  string 		Desc	= 5;
+  string 	    value   = 6;
+}
+
+message TDSkillData{
+  int32          	 Id      = 1;
+  int32          	 ItemId  = 2;
+  TDITEMTYPE     	 Type    = 3;
+  int32          	 Level   = 4;
+  repeated SkillItem Skills  = 5;
+}
+
+// 制图工坊塔防关卡表
+message TDStageInfo {
+  repeated TDStageData Datas = 1; 
+}
+
+message TDStageData {
+  int32  Id         	 = 1;
+  string Name       	 = 2;
+  int32  Level      	 = 3;
+  repeated TDItem Awards = 4;	//通关奖励
+  repeated int32 ItemIds = 5;	//相比上一关卡,挂机产出的额外奖励
+}
+
+
+//制图工坊塔防物品表
+message TDItemInfo {
+  repeated TDItemData Datas = 1;
+}
+
+message TDItemData {
+  int32          	Id      		= 1;
+  TDITEMTYPE     	Type    		= 2;
+  string         	Name    		= 3;
+  string         	Desc    		= 4;
+  int32          	Quality 		= 5;
+  string         	Icon    		= 6;
+  repeated int32	ItemIds			= 7;
+  repeated int32	ChessId			= 8;
+  int32 			Cost			= 9;
+  int32				InitLevel   	= 10;	//初始化等级
+}
+
+message CSReqTDGetOnHookAward {}
+
+message CSRspTDGetOnHookAward {
+  repeated TDItem 	Awards 				= 1;
+  int64	   			OnHookTime	 		= 2; //挂机开始时间
+  map<int64, int64> OnHookTimeRecord 	= 3; //挂机时间记录
+}
+
+// 抽奖
+message CsReqTDDraw {
+  int32 PoolId = 1;
+  bool  Ten    = 2;
+}
+
+message CsRspTDDraw {
+  repeated TDItem    Awards   = 2;
+  repeated TDConsume Consumes = 3;
+}
+
+// 购买卡券
+message CsReqTDBuyCard {
+  int32    CardCount		= 1; //需要购买卡券的数量
+}
+
+message CsRspTDBuyCard {
+  TDBuy BuyCard = 1;
+}
+
+
+message CSNtfTDPlayerInfo {
+  TDPlayerInfo PlayerInfo = 1;
+}
+
+message CSReqTDSetCardGroup {
+  TDITEMTYPE  Type      = 1;
+  TDCardGroup CardGroup = 2;
+}
+
+message CSRspTDSetCardGroup {}
+
+// 升级和突破
+message CSReqTDLevelUp {
+  TDItemId           Id        = 1; // 要升级的物品
+  bool               Equip     = 2; // 是否装备中
+  TDLEVELUP_TYPE     LvUpType  = 3; // 升级类型，
+  repeated TDConsume Consumes  = 4;
+  TDItem           	 BluePrint = 5; // 合成,突破时才需要
+  TDItemId			 ChessId   = 6; // 穿戴装备所属棋手id
+  string			 Slot	   = 7; // 装备槽位
+}
+
+message CSRspTDLevelUp {
+  repeated TDConsume Consumes = 1;
+  repeated TDItem    Awards   = 2;
+}
+
+message CSReqTDEquip {
+  TDItemId  	ChessId 	= 1;
+  string 		Slot    	= 2; // 0-5
+  bool   		TakeOff 	= 3; // 是否脱下
+  TDItemId 		EquipId   	= 4;
+}
+
+message CSRspTDEquip {
+  repeated TDConsume Consumes = 1;
+  repeated TDItem    Awards   = 2;
+}
+
+message TDPlayerInfo {
+  int64           	OnHookTime  		= 1;  //挂机时间
+  int32           	OnHookStage 		= 2;  //挂机关卡等级
+  int32           	LastStage   		= 3;  //最后一次通关等级
+  TDItemGroup		ItemGroup			= 4;  //卡组
+  repeated TDItem 	Items  				= 5;  //背包
+  map<int64, int64> OnHookTimeRecord	= 6;  //挂机时间记录
+}

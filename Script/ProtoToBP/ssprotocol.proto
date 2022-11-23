@@ -1,0 +1,4913 @@
+syntax = "proto3";
+package msg;
+
+import "ssdefine.proto";
+import "result.proto";
+import "common.proto";
+//协议消息说明
+//SSReq消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSReqBody（protocbuf序列化）
+//SSRsp消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSRspBody（protocbuf序列化）
+//SSNtf消息结构：
+//HeadLen(2字节大端序int) + SSHead（protocbuf序列化） + SSNtfBody（protocbuf序列化）
+
+
+
+/*************************消息ID BEG********************************/
+enum SSMsgID {
+  //SSReq消息ID范围为 1-999
+  SS_REQ_BEGIN                             = 0; //保留
+  SS_REQ_PVP                               = 1; //pvp匹配请求 hallsvr->matchsvr hallsvr->teamsvr
+  SS_REQ_APPLY_PVP                         = 2; //pvp对战请求 matchsvr->pvpsvr
+  SS_REQ_PLAYERS_STATUS                    = 3;
+  SS_REQ_SEND_MAIL                         = 4;
+  SS_REQ_GET_MAIL_DATA                     = 5; //获取邮件数据 hallsvr->mailsvr
+  SS_REQ_PLAYERS_BASEINFO                  = 6; //请求玩家基础信息获取 hallsvr->snssvr
+  SS_REQ_GET_NUM_RANK                      = 7; //获取排行榜数据   hallsvr->ranksvr
+  SS_REQ_PLAYER_DETAILINFO                 = 8; //获取玩家详细信息 hallsvr->snssvr
+  SS_REQ_LOGIN                             = 9;
+  SS_REQ_PVP_MATCH_CANCEL                  = 10;
+  SS_REQ_DB_OP                             = 11;
+  SS_REQ_REMOVE_MAIL                       = 12;
+  SS_REQ_APPLY_ORDER_ID                    = 13; //申请订单Id hallsvr->paymentsvr
+  SS_REQ_REPORT_ORDER_INFO                 = 14;
+  SS_REQ_TEAM_GAME                         = 15;
+  SS_REQ_JOIN_TEAM                         = 16;
+  SS_REQ_LEAVE_TEAM                        = 17;
+  SS_REQ_KICKOFF_TEAM_PLAYER               = 18;
+  SS_REQ_TEAM_MSG                          = 19;
+  SS_REQ_TEAM_READY                        = 20;
+  SS_REQ_TEAM_PVP                          = 21;
+  SS_REQ_REPORT_PAY_RESPONSE               = 22; //上报支付回执信息
+  SS_REQ_ADD_AI_TO_TEAM                    = 23;
+  SS_REQ_PLAYER_PVPINFO                    = 24; //获取玩家pvp信息 hallsvr->snssvr
+  SS_REQ_SET_TEAM_MODE                     = 25;
+  SS_REQ_SEARCH_TEAM                       = 26;
+  SS_REQ_APPLY_CHAT                        = 27;
+  SS_REQ_GET_GOODS                         = 28; //获取商品
+  SS_REQ_ACT_GROUP_BUY                     = 29; //更新 活动-团购返利
+  SS_REQ_GET_RECOMMEND_PVP                 = 30; //获取推荐战局 hallsvr->globalsvr
+  SS_REQ_GET_OBSERVE_INFO                  = 31; //获取观战人数
+  SS_REQ_CHALLENGE_AGAIN                   = 32; //再次挑战该赛事
+  SS_REQ_THIRD_PVP_INFO                    = 33; //获得第三方赛事信息
+  SS_REQ_HAVE_THIRD_PVP                    = 34; //是否有第三方比赛
+
+  SS_REQ_CREATE_PLAT_TEMA                  = 50; //创建平台房间
+  SS_REQ_CREATE_BOUNTY_TEMA                = 51; //创建赏金房间
+  SS_REQ_CONTROL_BOUNTY_TASK               = 52; //控制赏金任务
+  SS_REQ_JOIN_VOICE_TEAM                   = 53; //加入语音房间
+
+  SS_REQ_TEAM_INFO                         = 54; // 请求队伍详细信息
+
+  SS_REQ_SEND_RED_PACKET                   = 55; // 微信大玩家发送红包
+  SS_REQ_RECV_RED_PACKET                   = 56; // 微信大玩家领取红包
+  SS_REQ_WX_REDPKT_LIKES                   = 57; // 微信大玩家点赞
+  SS_REQ_CHANGE_SLOT_TEAM                  = 58; // 请求换位
+  SS_REQ_CHANGE_SUB_MODE_TEAM              = 59; // 切换子模式
+  SS_REQ_CONFIRM_CHANGE_SLOT_TEAM          = 60; // 确认换队
+  SS_REQ_CHECK_DUPLICATE_LOGIN             = 61; // 检查重复登录(hallserver)
+  SS_REQ_KICKOFF_PLAYER                    = 62;
+  SS_REQ_PVP_CONFIRM                       = 63; //游戏确认
+  SS_REQ_GET_TRANSLATE                     = 64; //翻译
+  SS_REQ_TEAM_PUNISH_STATUS                = 65; //获取队伍惩罚状态
+  SS_REQ_CANCEL_CHANGE_SLOT                = 66; //取消换位
+  SS_REQ_REMOVE_MAIL_LIST                  = 67; //批量删除邮件
+  SS_REQ_PLAT_ROOM_STAT                    = 68; //房间组队状态
+  SS_REQ_GET_TOURNAMENTS                   = 69; //获取当前正在进行的赛事
+  SS_REQ_ENROLL_TOURNAMENT                 = 70; //玩家赛事报名
+  SS_REQ_REQUIRE_TN_GROUP                  = 72; //请求赛事组
+  SS_REQ_PLAYER_TOURNAMENT_DATA            = 73;
+  SS_REQ_REPORT_TOURNAMENT_GROUP           = 74; //上报玩家对阵信息
+  SS_REQ_GET_ENROLL_PLAYERS                = 75; //获取报名玩家列表
+  SS_REQ_TOURNAMENT_POINT_AWARD            = 76; //获取积分进度奖励
+  SS_REQ_LUCK_STAR_AWARD                   = 77; // 参加幸运星活动
+  SS_REQ_GET_GROUP_INDEX                   = 78; //获取赛事的组id
+  SS_REQ_GET_MATCH_GROUP                   = 79; //获取玩家匹配的战斗组
+  SS_REQ_GET_PLAYER_CUR_GAME               = 80; //获取玩家当前或者即将可以参与的轮次id或者对局Id
+  SS_REQ_UPDATE_TOURNAMENT_RANK            = 81; //更新赛事排行榜
+  SS_REQ_GM_AI_RISE                        = 82; //gm命令 ai晋级
+  SS_REQ_PLAYERS_TOURNAMENTINFO            = 83; //请求玩家锦标赛信息获取 hallsvr->snssvr
+  SS_REQ_CHECK_DUPLICATE_LOGIN_STATUS      = 84; //检查重复登录(statusserver->statusserver)
+  SS_REQ_SEND_MULTIMAIL                    = 85; //发送多人邮件
+  SS_REQ_QUERY_PS_TOURNAMENT_ROOM          = 86; //ps赛事查询
+  SS_REQ_AUTH_ACCOUNT                      = 87; //gateserver请求authserver验证账号
+
+  SS_REQ_TRANS_TO_SERVER                   = 100; //通用透传协议
+
+  SS_REQ_UPDATE_PLAYERS_STATUS             = 300; // 更新玩家状态
+  SS_REQ_SYNC_GM_TIME                      = 301; // GM时间同步
+  SS_REQ_GET_KEY_RANK                      = 303; // 通用获取排行榜
+  SS_REQ_GET_KEY_RANK_ID_LIST              = 304; // 通用获取排行榜-指定用户
+
+  SS_REQ_GUILD_CREATE                      = 360;
+  SS_REQ_GUILD_APPLY                       = 361;
+  SS_REQ_GUILD_HOME                        = 362;
+  SS_REQ_GUILD_APPLY_LIST                  = 363;
+  SS_REQ_GUILD_INFO                        = 364;
+  SS_REQ_GUILD_APPROVE                     = 365;
+  SS_REQ_GUILD_SET_ROLE                    = 366;
+  SS_REQ_GUILD_MODIFY                      = 367;
+  SS_REQ_GUILD_KICKOFF                     = 368;
+  SS_REQ_GUILD_DISMISS                     = 369;
+  SS_REQ_GUILD_EXIT                        = 370;
+  SS_REQ_GUILD_CHAT                        = 371;
+  SS_REQ_GUILD_RECOMMEND_PLAYERS           = 372;
+  SS_REQ_GUILD_INVITE_LIST                 = 373;
+  SS_REQ_GUILD_INVITE                      = 374;
+  SS_REQ_GUILD_LIST                        = 375;
+  SS_REQ_GUILD_LOGIN                       = 380;
+  SS_REQ_GUILD_RESIGN                      = 381;
+  SS_REQ_GUILD_LOGOUT                      = 382;
+  SS_REQ_GUILD_NEW_LOG                     = 383;
+  SS_REQ_GUILD_OWNER_NAME                  = 384;
+  SS_REQ_GUILD_ACTIVE                      = 385;
+  SS_REQ_GUILD_REJECT_INVITE               = 386;
+  SS_REQ_GUILD_GM_OP                       = 387; // gm指令操作
+
+
+  SS_REQ_TEAM_OPT                          = 400; // 队伍操作
+  SS_REQ_OB_TEAM_INFO                      = 401; // OB队伍信息
+  SS_REQ_SWITCH_MODE_IN_TEAM               = 402; // 队伍中切换模式
+  SS_REQ_SWITCHTO_COMMONMATCH              = 403; // 切换到全球匹配
+  SS_REQ_GET_TNROOM_STATE                  = 404; // 获取锦标赛房间状态
+  SS_REQ_UPDATE_WORKSHOP_TICKET            = 405; // 更新玩家创意工坊门票数量
+
+  SS_REQ_REQUIRE_ROBOTS                    = 411; // 请求分配机器人
+  SS_REQ_APPLY_NEW_GAME                    = 412;
+  SS_REQ_CONNECT_STREAM                    = 413;
+  SS_REQ_DISCONNECT_STREAM                 = 414;
+  SS_REQ_PASS_THROUGH                      = 415;
+  SS_REQ_UPDATE_GAMELIB_VERSION            = 416; // hall -> match 请求内核版本号
+
+  SS_REQ_WORKSHOP_MATCH                    = 430; // 发起创意工坊匹配
+  SS_REQ_UPDATE_PLAYER_WORKSHOP_TICKET     = 431;
+
+  SS_REQ_TRANS_TO_AGENT                    = 500; // 透传请求消息至agentserver
+  SS_REQ_TRANS_TO_TEAM                     = 502; // 透传请求消息至teamserver
+  SS_REQ_TRANS_TO_PVP                      = 503; // 透传请求消息至pvpserver
+  SS_REQ_TRANS_TO_HALL                     = 504; // 透传请求消息至hallserver
+
+  SS_REQ_WEB_SHOP_DEAL                     = 520; // 掌上商城交易
+  SS_REQ_BIND_WEB_ACCOUNT                  = 521; // 社区账号绑定
+  SS_REQ_BATTLE_SETTING                    = 522; // 获取战斗配置(创意工坊房间)
+  SS_REQ_CHECK_WORKSHOP_RULE               = 523; // 检查创意工坊房间相关判定
+  SS_REQ_PLAYER_RANK_INFO                  = 524; // 排行榜玩家
+  SS_REQ_MAP_VALIDATION                    = 525; // 检查地图是否可用
+  SS_REQ_REPORT_MAP_STATISTIC              = 526; // 上报地图状态
+  SS_REQ_GET_PLAYERS_VISITED_MAPS          = 527; // 获取玩家游玩过的地图
+  SS_REQ_REPORT_TRANSFER_EVENT             = 528; // 上报平台转账结果
+  SS_REQ_REPORT_VISITING_NUM               = 529; // 上报游玩人数
+  SS_REQ_BIGWINNER_EXPANDMATCH             = 530; // 扩大大赢家场次
+
+  SS_REQ_HANDLE_OFFICIAL_TOKEN             = 550; // 操作官方账号的代币
+  SS_REQ_PUSH_TRANSFER_EVENT               = 551; // 添加转账事件
+  SS_REQ_PLAT_BATTLE_INCONME               = 552; // 战斗分成(平台)
+  SS_REQ_PLAT_CONSUME                      = 553; // 消耗上报(平台)
+  SS_REQ_REPORT_WORKSHOP_ONLINE            = 554; // 创意工坊在线人数上报(平台)
+  SS_REQ_PLAYER_MEDALS                     = 555; // 获取用户勋章信息
+  SS_REQ_UPDATE_NUM_RANK                   = 556; // 通知rankserver更新排行榜数据 hallsvr->ranksvr
+  SS_REQ_GET_SELF_NUM_RANKS                = 557; // 玩家获取自身多个排行榜
+  // 交易相关 560 - 580
+  SS_REQ_EXCHANGE_SELL                     = 560; // 交易出售物品
+  SS_REQ_EXCHANGE_BUY                      = 561; // 交易购买物品
+  SS_REQ_EXCHANGE_SELL_ACK                 = 562; // 交易出售物品确认
+  SS_REQ_EXCHANGE_ORDER_STATE              = 563; // 交易订单状态
+  SS_REQ_EXCHANGE_ORDER_CANCEL             = 564; // 交易取消订单
+  SS_REQ_EXCHANGE_GIFT                     = 565;  // 交易赠送
+  SS_REQ_EXCHANGE_SEND_GIFT                = 566; // 交易赠送-发起
+  SS_REQ_EXCHANGE_RECEIVE_GIFT             = 567; // 交易赠送-接受
+  SS_REQ_EXCHANGE_ORDER_CBSTATE            = 568; // 交易订单回调状态
+  SS_REQ_EXCHANGE_PLAYER_CANEXCHANGE       = 569; // 玩家是否等交易
+  SS_REQ_EXCHANGE_LOAD_PLAYERITEM          = 570; // 交易加载玩家道具
+  SS_REQ_EXCHANGE_LOAD_ITEMSETTYPE         = 571; // 交易加载玩家道具
+  SS_REQ_EXCHANGE_LOAD_ITEMINFO            = 572; // 交易加载玩家道具
+  SS_REQ_EXCHANGE_LOAD_ITEMSETID           = 573; // 交易加载玩家道具
+  SS_REQ_EXCHANGE_ADD_VIPITEM              = 574; // 增加vip物品
+  SS_REQ_EXCHANGE_OPEN_RAND_CHEST          = 575; // 开启宝箱
+  SS_REQ_CHECK_AND_APPLY_HALL              = 576; // 检查用户存在并且分配hallserver
+  SS_REQ_EXCHANGE_LOAD_ITEM_BY_TYPE        = 577; // 加载玩家指定类型道具
+  SS_REQ_EXCHANGE_UPGRADE_PASSPORT         = 578; // 购买通行证
+  SS_REQ_EXCHANGE_CHECK_UPGRADE_PASSPORT   = 579; // 检查是否能够购买通行证
+  SS_REQ_EXCHANGE_CHECK_BUY_PASSPORT_LEVEL = 580; // 检查是否能够购买通行证等级
+  SS_REQ_UPDATE_TEAM_DEBUFF                = 581; // 检查是否能够购买通行证等级
+  SS_REQ_MENTOR_GET_INVITE_MSG             = 582; // 获取师徒 邀请消息
+  SS_REQ_GET_MENTOR_INFO                   = 583; // 获取师傅
+  SS_REQ_MENTOR_GET_RECOMMEND_LIST         = 584; // 获取师傅/徒弟 推荐列表
+  SS_REQ_PUPIL_APPLY_GRADUATE              = 585; // 申请毕业
+  SS_REQ_MENTOR_SHIP_GET_TASK_AWARD        = 586; // 师徒获取奖励
+  SS_REQ_MS_RELIVE_RELATION                = 587; // 师徒解除关系
+  SS_REQ_MS_UPDATE_MENTOR_INVITE           = 588; // 师徒更新 邀请消息
+  SS_REQ_MS_CONFIRM_INVITE_MSG             = 589; // 师徒 确认更新消息
+  SS_REQ_OFFLINE_CONSUMES   			   = 590; // 消耗物品
+  SS_REQ_PULL_EXCHANGE_RECORD   		   = 591; // 拉取交易记录
+  SS_REQ_OB_LOGIN                			     = 592; // 观战服登录pvp
+  SS_REQ_OB_GET_GAME_DATA                	 = 593; // 观战服 获取增量数据
+  SS_REQ_OB_READY                          = 594;  //observer 通知 pvpserver 透传消
+  SS_REQ_OB_PVP_CHAT                       = 595;  //observer 通知 pvpserver 透传消
+  SS_REQ_MS_BECOME_MENTOR                  = 596;  //hall  -> ms 成为师傅
+  SS_REQ_EXCHANGE_CONSUME                  = 597; //龙渊平台消耗活动道具
+  SS_REQ_LOAD_ITEMS_LY                     = 598; // 加载玩家平台活动类型道具
+  //SSRsp消息ID范围为 1001-1999
+  SS_RSP_BEGIN                             = 1000; //保留
+  SS_RSP_FUTURE_CALLBACK                   = 1001; //future事件回调
+  SS_RSP_PVP                               = 1002; //pvp匹配请求 matchsvr->hallsvr
+  SS_RSP_APPLY_PVP                         = 1003; //pvp对战请求 pvpsvr->matchsvr
+  SS_RSP_PVP_MATCH_CANCEL                  = 1004; //pvp匹配取消请求 matchsvr->hallsvr
+  SS_RSP_KICKOFF_TEAM_PLAYER               = 1005;
+  SS_RSP_LEAVE_TEAM                        = 1006;
+  SS_RSP_TEAM_PVP                          = 1007;
+  SS_RSP_ACT_GROUP_BUY                     = 1008; //返回 活动-团购返利
+  SS_RSP_WX_REDPKT_LIKES                   = 1009; //返回 微信大玩家点赞
+  SS_RSP_PVP_CONFIRM                       = 1010; //游戏确认
+  SS_RSP_GET_TRANSLATE                     = 1011; // 翻译
+
+  SS_RSP_UPDATE_WORKSHOP_TICKET            = 1100; // 更新玩家创意工坊门票数量
+
+  SS_RSP_REQUIRE_ROBOTS                    = 1411; // 请求分配机器人
+  SS_RSP_APPLY_NEW_GAME                    = 1412;
+  SS_RSP_CONNECT_STREAM                    = 1413;
+  SS_RSP_DISCONNECT_STREAM                 = 1414;
+  SS_RSP_PASS_THROUGH                      = 1415;
+  SS_RSP_UPDATE_GAMELIB_VERSION            = 1416;
+
+  SS_RSP_TRANS_TO_AGENT                    = 1500; //透传应答消息至agentserver
+  SS_RSP_TRANS_TO_TEAM                     = 1502; //透传应答消息至teamserver
+  SS_RSP_TRANS_TO_PVP                      = 1503; //透传应答消息至pvpserver
+  SS_RSP_TRANS_TO_HALL                     = 1504; //透传应答消息至hallserver
+  SS_RSP_PLAYER_MEDALS                     = 1505; //获取用户勋章信息
+  SS_RSP_TRANS_TO_SERVER                   = 1506; //透传应答消息到指定server
+  SS_RSP_UPDATE_TEAM_DEBUFF                = 1507; //透传应答消息到指定server
+
+  //SSNtf消息ID范围为 2001-2999
+  SS_NTF_BEGIN                             = 2000; //保留
+  SS_NTF_SERVER_NAME                       = 2001; //告知服务端名字
+
+  SS_NTF_HALL_STATUS                       = 2002; //hallsvr状态通知  hallsvr->balancesvr
+
+  SS_NTF_PLAYERS_STATUS                    = 2004;
+  SS_NTF_CONNECT_PLAYER                    = 2005;
+  SS_NTF_DIS_CONNECT_PLAYER                = 2006;
+  SS_NTF_PLAYER_MESSAGE_WRAP               = 2007;
+  SS_NTF_PVP_STATUS                        = 2008;
+  SS_NTF_PVP_MATCH                         = 2009; //pvp匹配通知 matchsvr->hallsvr
+  SS_NTF_PVP                               = 2010; //pvp匹配成功Ntf matchsvr->hallsvr
+  SS_NTF_PVP_MATCH_CANCEL                  = 2011;
+  SS_NTF_PAY                               = 2012; //支付通告         paymentsvr->statussvr->hallsvr
+  SS_NTF_NEW_MAIL                          = 2013; //新邮件           mailsvr->statussvr->hallsvr
+  SS_NTF_NEW_GLOBAL_MAIL                   = 2014; //全局邮件         mailsvr->statussvr->hallsvr
+  SS_NTF_WORLD_CHAT                        = 2015; //世界聊天         hallsvr->statussvr->hallsvr
+  SS_NTF_KICK_OFF_PLAYER                   = 2016; //状态服通知大厅服踢人下线      statussvr->hallsvr
+  SS_NTF_FROZEN_ACCOUNT                    = 2017; //封号             gmsvr->statussvr->hallsvr
+  SS_NTF_NOTICE                            = 2018;
+  SS_NTF_REMOVE_NOTICE                     = 2019;
+  SS_NTF_UNFROZEN_ACCOUNT                  = 2020; //解封账号         gmsvr->statussvr->hallsvr
+  SS_NTF_UPDATE_NUM_RANK                   = 2021; //通知rankserver更新排行榜数据 hallsvr->ranksvr
+  SS_NTF_HALL_SERVER_CLOSING               = 2022; //大厅服正在关闭中
+  SS_NTF_PVP_END                           = 2023;
+  SS_NTF_MARQUEE                           = 2024; //跑马灯           gmsvr->statussvr->hallsvr
+  SS_NTF_REMOVE_MARQUEE                    = 2025; //删除跑马灯       gmsvr->statussvr->hallsvr
+  //    SS_NTF_ORDER_ALPHA_ACTIVITY          = 2026;
+  //    SS_NTF_ORDER_COUNT_ALPHA_ACTIVITY    = 2027;
+  //    SS_NTF_BIND_ALPHA_ACTIVITY           = 2028;
+  //    SS_NTF_PLAYER_COMPETE_ALPHA_ACTIVITY = 2029;
+  SS_NTF_RESET_PLAYER_PVP                  = 2031;
+  SS_NTF_EXPOSE                            = 2032;
+  SS_NTF_CHAT                              = 2033; //聊天通知
+  SS_NTF_NEW_FOLLOWER                      = 2034;
+  SS_NTF_LOST_FOLLOWER                     = 2035;
+  SS_NTF_INVITE_JOIN_TEAM                  = 2036;
+  SS_NTF_LEAVE_TEAM                        = 2037;
+  SS_NTF_KICKOFF_TEAM_PLAYER               = 2038;
+  SS_NTF_JOIN_TEAM                         = 2039;
+  SS_NTF_TEAM_MSG                          = 2040;
+  SS_NTF_TEAM_READY                        = 2041;
+  SS_NTF_TEAM_PVP_END                      = 2042;
+  SS_NTF_ADS                               = 2043;
+  SS_NTF_REMOVE_ADS                        = 2044;
+  SS_NTF_REJECT_JOIN_TEAM                  = 2045;
+  SS_NTF_CLEAR_PLAYER_CACHE                = 2046;
+  SS_NTF_LANGUAGES                         = 2047;
+  SS_NTF_REMOVE_LANGUAGE                   = 2048;
+  SS_NTF_SET_TEAM_MODE                     = 2049;
+  SS_NTF_CHAT_STATUS                       = 2050;
+  SS_NTF_PVP_HISTORY                       = 2051;
+  SS_NTF_TEAM_PLAYER_PVP_END               = 2052;
+  SS_NTF_REFRESH_GOODS                     = 2053; //商品刷新通知
+  SS_NTF_ADD_WHITE_ACCOUNT                 = 2054; //添加白名单      gmsvr->statussvr->hallsvr
+  SS_NTF_DEL_WHITE_ACCOUNT                 = 2055; //删除白名单      gmsvr->statussvr->hallsvr
+  SS_NTF_SWITCH_SYS_SET                    = 2056; //开关控制标记设置_系统      gmsvr->statussvr->hallsvr
+  SS_NTF_SWITCH_PLAYER_SET                 = 2057; //开关控制标记设置_个人      gmsvr->statussvr->hallsvr
+  SS_NTF_WORLD_INVITE                      = 2058; //邀约
+  SS_NTF_AA_REMIND                         = 2059;
+  SS_NTF_AA_BAN                            = 2060;
+  SS_NTF_AA_VERIFY                         = 2061;
+  SS_NTF_CHANGE_DRESS                      = 2062; //装扮变化 hallserver->teamserver
+  SS_NTF_UPDATE_MONEY                      = 2063; //GM更改玩家货币通知
+  SS_NTF_BUFF_ACT                          = 2064; //通知buff活动
+  SS_NTF_UPDATE_BAG                        = 2065; //GM更改玩家背包道具通知
+  SS_NTF_KICKOFF                           = 2066; //GM踢线通知
+  SS_NTF_MASTER                            = 2067;
+  SS_NTF_TEAM_INVITE                       = 2068; //队伍邀约通知
+  SS_NTF_APPLY_WORLD_INVITE                = 2069; //世界邀约通知
+  SS_NTF_MODIFY_NICKNAME                   = 2070; //GM修改昵称通知
+  SS_NTF_CLEAR_FORBIDDEN                   = 2071; //GM解封禁
+  SS_NTF_CLEAR_CHAT                        = 2072; //GM清理聊天内容
+  SS_NTF_IDIP_MODIFY_DIAMOND               = 2073; //idip修改甜甜圈
+  SS_NTF_OBSERVE_STATUS                    = 2074; //观战服状态通知
+  SS_NTF_CANCEL_TEAM                       = 2075; //idip解散自定义队伍
+  SS_NTF_JOIN_VOICE_TEAM                   = 2076; //加入队伍房间
+  SS_NTF_OFFLINE_INVITE_JOINTEAM           = 2077; // 离线邀请
+  SS_NTF_ADD_RECOMMEND_PVP                 = 2078; //加入推荐战局      pvpsvr->globalsvr
+  SS_NTF_REMOVE_RECOMMEND_PVP              = 2079; //从推荐战局中移除   pvpsvr->globalsvr
+  SS_NTF_OBSERVERS                         = 2080; //观战人数增加通知   pvpsvr->globalsvr
+  SS_NTF_PLAYER_DEATH                      = 2081; //向global通知玩家死亡
+  SS_NTF_WX_VVIP_MARQUEE                   = 2082; //微信大玩家跑马灯
+  SS_NTF_WX_REDPKT_SYN                     = 2083; //微信红包活动点赞排行信息
+  SS_NTF_GM_OP_SYN                         = 2084; //hallserver GM操作同步
+  SS_NTF_GM_SYS_MSG                        = 2085; //通知idip系统消息
+  SS_NTF_IDIP_RESET_HEAD_PIC               = 2086; //idip重置玩家头像
+  SS_NTF_TEAM_PVP_MVP                      = 2087; //队伍吃鸡
+  SS_NTF_CHANGE_SUB_MODE                   = 2088; //通知子模式变化
+  SS_NTF_PVP_OBSERVER_DATA                 = 2089; //通知观战玩家数据
+  SS_NTF_GM_REMOVE_MAIL              	   = 2090; //GM删除邮件
+  SS_NTF_PVP_CONFIRM                       = 2091; //玩家游戏确认通知
+  SS_NTF_MATCH_SUCCESS                     = 2092; //匹配成功通知
+  SS_NTF_TEAM_SLOT                         = 2093; //队伍位置变化
+  SS_NTF_CHANGE_TEAM_SLOT                  = 2094; //请求换位
+  SS_NTF_TEAM_SLOT_STAUS                   = 2095; //换队状态
+  SS_NTF_REFUSE_CHANGE_TEAM_SLOT           = 2096; //拒绝换位
+  SS_NTF_DAOJUCHENG_COST                   = 2097; //idip通知道聚城消费
+  SS_NTF_PLAYER_OFFLINE                    = 2098; // 玩家下线
+  SS_NTF_CANCEL_CHANGE_SLOT                = 2099; // 取消换位
+  SS_NTF_VIDEO_CHANGE                      = 2100; // 视频变动
+  SS_NTF_SYS_HELP_REDDOT                   = 2101; // 系统知己红点
+  SS_NTF_PLAYER_HELP_REDDOT                = 2102; // 玩家知己红点
+  SS_NTF_REMOVE_PLAYER_PUNISHMENT          = 2103; //删除玩家封禁
+  SS_NTF_ADD_BANNER                        = 2105; //添加banner
+  SS_NTF_REMOVE_BANNER                     = 2106; //添加banner
+  SS_NTF_TOURNAMENT_BEGIN                  = 2108; //赛事开始
+  SS_NTF_ENROLL_END                        = 2109; //报名结束
+  SS_NTF_TOURNAMENT_END                    = 2110; //赛事结束
+  SS_NTF_TOURNAMENT_MATCH_GROUP            = 2111; // 赛事匹配
+  SS_NTF_TOURNAMENT_GROUP                  = 2112; // 通知赛事组
+  SS_NTF_TOURNAMENT_PVP_ID                 = 2113; // 通知赛事pvpId,每次有赛事pvp生成通知赛事服
+  SS_NTF_PLAYER_PVP_RANK                   = 2114; // pvpServer通知赛事服玩家某场pvp的排名
+  SS_NTF_TOURNAMENT_ROUND_END              = 2115; // 赛事轮次结束通知
+  SS_NTF_PLAYER_OUT                        = 2119; // 赛事服通知hallServer玩家淘汰
+
+  SS_NTF_GM_DELETE_ENROLL_PLAYER           = 2120; //通过GM指令删除报名玩家，仅限测试用！！！
+  SS_NTF_JOIN_TOURNAMENT_ROOM              = 2121; //teamserver 通知 hallserver，玩家需请求加入房间
+  SS_NTF_PLAYER_LOGIN_SUCCESS              = 2122; //玩家登录成功
+  SS_NTF_GM_SET_POINT                      = 2123; //gm设置赛事积分
+  SS_NTF_QUIT_OBSERVE                      = 2124; //退出观战通知      pvpserver->hallserver
+  SS_NTF_INVITE_OBSERVE                    = 2125; //邀请观战通知
+  SS_NTF_REJECT_OBSERVE                    = 2126; //拒绝观战通知
+  SS_NTF_OBSERVE_BEGIN                     = 2127; //玩家开始观战
+  SS_NTF_REPORT_PLAYER                     = 2128; //hall向status上报玩家
+  SS_NTF_EXCEPTION_PVP                     = 2129; //pvp启动后向赛事服通知异常的pvpId
+  SS_NTF_GROUP_ROLLBACK                    = 2130; //固定战斗组当前对局所处pvpServer异常导致对局异常结束后，回退gameId
+  SS_NTF_ADD_ACTIVITY_GROUP                = 2131; //gm添加或者修改活动组
+  SS_NTF_REMOVE_ACTIVITY_GROUP             = 2132; //gm通知移除活动组
+  SS_NTF_RECRUIT_ADDBATTLECOUNT            = 2133; //增加招募战斗计数
+  SS_NTF_RECRUIT_BINDINVITER               = 2144; //通知绑定邀请者
+  SS_NTF_ADD_THIRD_PVP                     = 2145; //添加第三方赛事
+  SS_NTF_DEL_THIRD_PVP                     = 2146; //删除第三方赛事
+  SS_NTF_BIND_THIRD_PVP                    = 2147; //第三方赛事绑定队伍
+  SS_NTF_TOP_TEAM_PVP                      = 2148; //置顶赛事(按队伍)
+  SS_NTF_TOP_PLAYER_PVP                    = 2149; //置顶赛事(按玩家)
+  SS_NTF_SET_RACE_MODE_COUNT               = 2150; //设置赛事类型观战数量
+  SS_NTF_PS4_SERVER_ONLY                   = 2151; //ps4serveronly      gmsvr->statussvr->hallsvr
+  SS_NTF_PVP_SERVER_CLOSING                = 2152; //PVP服正在关闭中
+  SS_NTF_SERVER_HELLO                      = 2153; //服务器注册消息
+  SS_NTF_PLAYER_TEAM                       = 2154; //通知玩家的队伍id
+  SS_NTF_TEAM_SERVER_INFO                  = 2155; //通知serverGate本teamServer信息
+  SS_NTF_GET_CHESS_LIST                    = 2156; //房主点击开始游戏后，如果玩法是组卡玩法，通知所有队员获取组卡玩法的棋组信息
+  SS_NTF_CHESS_LIST                        = 2157; //队伍中的玩家所在大厅服通知队伍服玩家的组卡玩法的棋组信息
+  SS_NTF_TOURNAMENT_HISTORY                = 2158; //通知大厅服赛事历史信息
+  SS_NTF_TOURNAMENT_GM_TOP_RANK            = 2159; //gm通知添加或者删除前8玩家
+  SS_NTF_EXCHANGE_ORDER                    = 2160; //通知交易订单
+  SS_NTF_EXCHANGE_CLEAN_PLAYER             = 2161; // 交易清楚玩家道具
+  SS_NTF_PLAYER_OFFLINE_DATA               = 2162; //玩家离线数据
+  SS_NTF_ADD_BAG_ITEM                      = 2163; //增加背包物品
+  SS_NTF_CHANNEL_CHAT                      = 2164; //通知聊天服频道聊天
+
+  SS_NTF_TEAM_OP                           = 2200; //队伍操作通知
+  SS_NTF_REDIRECT_MATCH_SERVER             = 2201; //重定向matchserver
+  SS_NTF_MATCH_SERVER_CLOSING              = 2202; //matchserver关闭中
+  SS_NTF_ADD_WHITE_LIST                    = 2203; //添加白名单(海外)      gmsvr->statussvr->hallsvr
+  SS_NTF_DEL_WHITE_LIST                    = 2204; //删除白名单(海外)      gmsvr->statussvr->hallsvr
+  SS_NTF_CHAT_MSG                          = 2205; //通知hallserver --> chatserver,玩家发送组队,私聊等
+  SS_NTF_ADD_LUCKSTAR_ACTIVITY             = 2206; //添加幸运星活动(海外)  gmsvr->statussvr->globalsvr
+  SS_NTF_CLOSE_LUCKSTAR_ACTIVITY           = 2207; //关闭幸运星活动(海外)  gmsvr->statussvr->globalsvr
+  SS_NTF_CHANGE_NAME                       = 2208; //修改玩家昵称通知
+  SS_NTF_TEAM_DISMISS                      = 2209; //通知队伍解散
+  SS_NTF_SWITCH_MODE_IN_TEAM               = 2210; //队伍中切换模式
+  SS_NTF_TN_ROOM_PVP_END                   = 2211; //锦标赛房间结束战斗
+  SS_NTF_TEAM_STATE                        = 2212; //队伍状态
+  SS_NTF_SET_RECOMMEND_PVP_COVER           = 2213; // 设置观战推荐对局封面玩家
+  SS_NTF_DEL_RECOMMEND_PVP_COVER           = 2214; // 取消观战推荐对局封面玩家
+  SS_NTF_POP_RECOMMEND_PVP                 = 2215; // 将玩家当前对局观战推荐置顶
+  SS_NTF_DEL_POP_RECOMMEND_PVP             = 2216; // 取消玩家当前对局观战推荐置顶
+  SS_NTF_CLEAN_PLAYER_NATIVE_COUNTRY       = 2217; // 重置玩家祖籍国家通知
+  SS_NTF_ADD_MALL_GOODS                    = 2218; // 增加、修改商城商品信息通知
+  SS_NTF_REMOVE_MALL_GOODS                 = 2219; // 删除商城商品信息通知
+  SS_NTF_CURRENCY_TO_BATTLE                = 2220; // 携带进入战斗的货币
+  SS_NTF_REPORT_RESULT                     = 2221; // 举报结果            agentsvr->statussvr->hallsvr
+  SS_NTF_BIGWINNER_EXPANDMATCH             = 2222; //扩大匹配
+  SS_NTF_PVP_PLAYER_MONEY                  = 2223; // 携带进入战斗的货币
+  SS_NTF_ACCOUNT_REOPEN                    = 2224; // 账号解禁(包含禁言封禁等操作)
+
+  SS_NTF_ENTER_BATTLE_FAIL                 = 2230; // 玩家进入房间失败(门票不足、赏金不足)
+  SS_NTF_WORKSHOP_MATCH_RESULT             = 2231; // 创意工坊匹配结果（通知队伍成员）
+  SS_NTF_BETON_BOUNTY                      = 2232; // 创意工坊 赏金投注广播
+
+  SS_NTF_GUILD_JOIN                        = 2241; // 加入公会通知
+  SS_NTF_GUILD_MEMBER_CHANGE               = 2242; // 成员变化
+  SS_NTF_GUILD_KICKOFF                     = 2243; // 被踢
+  SS_NTF_GUILD_ATTR_CHANGE                 = 2245; // 标志变更
+  SS_NTF_GUILD_ROLE_CHANGE                 = 2246; // 标志变更
+  SS_NTF_GUILD_CHAT                        = 2250; // 公会聊天
+  SS_NTF_GUILD_APPLICANT_CHANGE            = 2251; // 公会申请
+  SS_NTF_GUILD_INVITEE_CHANGE              = 2252; // 公会邀请
+  SS_NTF_GUILD_NEW_INVITE                  = 2253; // 公会邀请
+  SS_NTF_GUILD_NEW_LOG                     = 2254; // 公会日志
+  SS_NTF_GUILD_REJECT                      = 2255; //
+
+  SS_NTF_AD_AWARD                          = 2270; // 观看广告发奖
+  SS_NTF_METRIC                            = 2271; // 上报指标
+
+  // transfer -> pvp
+  SS_NTF_PVPSTATS                          = 2300;
+  SS_NTF_GAME_TERMINATED                   = 2301;
+
+  SS_NTF_UPDATE_GAMELIB_VERSION            = 2310; // pvp->match
+
+  SS_NTF_TNGAME_END                        = 2320; // 锦标赛通知本轮下一局比赛开始时间
+  SS_NTF_PSTN_RESULT                       = 2321; // 通知ps电竞比赛结果
+
+  SS_NTF_UPDATE_NOTICE                     = 2322; // 通知公告更新(群发)
+  SS_NTF_UPDATE_NOTICE_PLAYER              = 2323; // 通知公告更新(玩家)
+
+  SS_NTF_MODIFY_MMR                        = 2324; // 通知更新玩家mmr
+
+  SS_NTF_UI_FORBID                         = 2325; // 通知禁止UI
+
+  SS_NTF_PVP_OVER                          = 2326; // 通知结算排位分数
+  SS_NTF_UPDATE_KEY_RANK                   = 2327; //通知rankserver更新通用排行榜 hallserver->rankserver
+  SS_NTF_SET_KEY_RANK_TTL                  = 2328; //通知rankserver更新通用排行榜ttl
+  SS_NTF_UPDATE_PVP_DATA                   = 2329; //更新pvp数据
+  SS_NTF_OBSERVER_CHEST                    = 2330; //观战宝箱
+  SS_NTF_UPGRADE_PASSPORT                  = 2331; //掌上龙渊购买通行证
+  SS_NTF_UPDATE_KEY_RANK_PREFIX            = 2333; //自定义score更新 排行榜
+  SS_NTF_UPDATE_EXCHANGE_PASSPORT          = 2334; //hallserver->交易服excahnge_passport 更新
+  SS_NTF_TEAM_UPDATE_DEBUFF_TO_PLAYER      = 2336; //广播玩家 房主设置得 debuff
+  SS_NTF_MENTOR_RELATION                   = 2337;  // 师徒 师徒关系建立
+  SS_NTF_BECOME_MENTOR                     = 2338;  // 师徒 成为师傅
+  SS_NTF_PLAYER_MENTOR_INVITE_MSG          = 2339;  // 师徒 师徒服-》大厅服 消息通知
+  SS_NTF_UPDATE_PLAYER_TO_MENTOR_RECOMMEND    = 2340;  // 师徒 师徒服-》大厅服 更新用户到推荐列表
+  SS_NTF_PUPIL_TASK_UPDATE                 = 2341;  // 师徒 师徒服-》大厅服 徒弟任务更新
+  SS_NTF_MENTOR_PUPIL_TASK_UPDATE          = 2342;  // 师徒 师徒服-》大厅服 师傅的徒弟任务更新
+  SS_NTF_MENTOR_LEVEL                      = 2343;  // 师徒 师徒服-》大厅服 师傅等级变化
+  SS_NTF_MS_ACTIVITY_TIME                  = 2344;  // 师徒 大厅服-》师徒服 活跃时间变化
+  SS_NTF_SET_PLAYER_LOG                    = 2345;  //标记玩家 玩家日志全输出
+  SS_NTF_MS_CLEAN_INVITE_MSG               = 2346;  //删除邀请信息
+  SS_NTF_MS_ADD_INTIMACY                   = 2347;  //亲密度增加
+  SS_NTF_GM_MS_ADD_GRADUATE_NUM            = 2348;  //gm增加毕业 徒弟数量
+  SS_NTF_MODIFY_EXCHANGE_RECORD   		   = 2349; // 交易记录更新
+  SS_NTF_OB_PASS_THROUGH                   = 2350;  //pvp 通知 observer 透传消
+  SS_NTF_OB_LEAVE_GAME_EARLY               = 2351;  //pvp 通知 observer 游戏提前离开
+  SS_NTF_OB_PVP_END                        = 2352;  //pvp 通知 observer 游戏结算
+  SS_NTF_OB_PVP_CHAT                       = 2353;   //pvp 通知 observer 聊天
+  SS_NTF_OB_SERVER_INFO                    = 2354;   //OB 通知 hallserver
+  SS_NTF_OB_UPDATE_DURATION                = 2355;   //OB 通知 hallserver
+  SS_NTF_OFFLINE_SELL					             = 2356;   //离线上架
+  SS_NTF_OB_QUIT              					   = 2357;   //离线退出登录
+  SS_NTF_OB_MODIFY_COUNT              		 = 2358;   //离线退出登录
+  SS_NTF_GM_REMOVE_GLOBAL_MAIL			   = 2359;   //删除全服邮件
+}
+
+enum GamelibServerType {
+  PVPServer = 0;
+  AIServer  = 1;
+}
+
+/*************************消息ID END********************************/
+
+/*************************枚举 BEG**********************************/
+// 处罚类型（昵称违规？聊天违规？）
+enum PUNISHTYPE {
+  PUNISHTYPE_NULL = 0;
+  PUNISHTYPE_CHAT = 1; // 聊天
+  PUNISHTYPE_NAME = 2; // 昵称
+}
+
+// 处罚原因（低俗辱骂？恶意推广？）
+enum PUNISHREASON {
+  PUNISHREASON_NULL       = 0;
+  PUNISHREASON_POLITICAL  = 1; // 政治敏感
+  PUNISHREASON_PROHIBITED = 2; // 暴恐违禁
+  PUNISHREASON_PORN       = 3; // 文本色情
+  PUNISHREASON_PROMOTION  = 4; // 恶意推广
+  PUNISHREASON_CURSE      = 5; // 咒骂敌视
+  PUNISHREASON_REFRESH    = 6; // 刷屏灌水
+}
+
+enum PUNISHCODE {
+  PUNISHCODE_NULL           = 0; // 未处理
+  PUNISHCODE_PASS           = 1; // 通过
+  PUNISHCODE_BANNED_CHAT    = 2; // 禁言
+  PUNISHCODE_BANNED_ACCOUNT = 3; // 封号
+  PUNISHCODE_CHANGE_NAME    = 4; // 强制改名
+}
+
+/*************************外包体定义 BEG*****************************/
+//消息SSHead
+message SSHead {
+  SSMsgID         MsgId   = 1;          //消息Id
+  uint32          BodyLen = 2;          //Body长度
+  repeated string Ids     = 3;          //要通知的用户id
+  uint64          Extra   = 4;
+  int64           ts      = 5;          // 发包时间戳 单位ms
+}
+
+//消息SSReqBody
+message SSReqBody {
+  SSReqPvp                           Pvp                           = 1;    //pvp匹配
+  SSReqPvpApply                      PvpApply                      = 2;    //pvp对战申请
+  SSReqPvpMatchCancel                PvpMatchCancel                = 3;    //pvp匹配取消
+  SSReqPvpJoin                       PvpJoin                       = 4;    //pvp对战加入
+  SSReqPlayersStatus                 PlayersStatus                 = 5;   //获取玩家状态
+  SSReqPlayersBaseInfo               PlayersBaseInfo               = 6;   //获取玩家基础信息
+  SSReqPlayerDetailInfo              PlayerDetailInfo              = 7;   //玩家详细信息
+  SSReqSendMail                      SendMail                      = 8;   //发送邮件
+  SSReqGetMailData                   GetMailData                   = 9;   //获取邮件数据
+  SSReqGetNumRank                    GetNumRank                    = 10;   //排行榜
+  SSReqLogin                         Login                         = 11;   //登陆
+  SSReqDbOp                          DbOp                          = 12;
+  SSReqRemoveMail                    RemoveMail                    = 13;
+  SSReqApplyOrderId                  ApplyOrderId                  = 14;   //申请订单Id
+  SSReqReportOrderInfo               ReportOrderInfo               = 15;
+  SSReqTeamGame                      TeamGame                      = 16;
+  SSReqJoinTeam                      JoinTeam                      = 17;    //请求加入组队游戏
+  SSReqLeaveTeam                     LeaveTeam                     = 18;    //请求离开组队游戏
+  SSReqKickOffTeamPlayer             KickOffTeamPlayer             = 19;    //请求剔除队伍玩家
+  SSReqTeamMsg                       TeamMsg                       = 20;    //队伍聊天
+  SSReqTeamReady                     TeamReady                     = 21;    //队伍成员准备
+  SSReqTeamPvp                       TeamPvp                       = 22;    //队伍pvp匹配
+  SSReqReportPayResponse             ReportPayResponse             = 23;    //上报支付回执
+  SSReqAddAiToTeam                   AddAiToTeam                   = 24;
+  SSReqPlayerPvpInfo                 PlayerPvpInfo                 = 25;    //玩家pvp信息
+  SSReqSetTeamMode                   SetTeamMode                   = 26;
+  SSReqSearchTeam                    SearchTeam                    = 27;
+  SSReqApplyChat                     ApplyChat                     = 28;
+  SSReqGetGoods                      GetGoods                      = 29;  // 获取商品信息
+  SSReqActGrpBuy                     GrpBuy                        = 30;  // 活动-团购返利
+  SSReqCreateMatch                   CreateMatch                   = 31;  // 创建赛事
+  SSReqQueryMatch                    QueryMatch                    = 32;  // 查询赛事
+  SSReqCloseMatch                    CloseMatch                    = 33;  // 关闭赛事
+  SSReqJoinVoiceTeam                 JoinVoiceTeam                 = 34;  // 加入语音房间
+  SSReqTeamInfo                      TeamInfo                      = 35;  // 请求队伍信息
+  SSReqGetRecommendPvp               GetRecommendPvp               = 36;  // 获取推荐战局
+  SSReqGetObserveInfo                GetObserveInfo                = 37;  // 获取观战人数
+  SSReqSendRedPacket                 SendRedPacket                 = 38;  // 发送微信大玩家活动红包
+  SSReqRecvRedPacket                 RecvRedPacket                 = 39;  // 领取微信大玩家活动红包
+  SSReqWxRecPktLikes                 WxRecPktLikes                 = 40;  // 同步微信大玩家点赞数
+  SSReqChangeSlotTeam                ChangeSlotTeam                = 41;  // 请求换位
+  SSReqChangeSubModeTeam             ChangeSubModeTeam             = 42;  // 切换子模式
+  SSReqConfirmChangeSlotTeam         ConfirmChangeSlotTeam         = 43;  // 确认换队
+  SSReqCheckDuplicateLogin           CheckDuplicateLogin           = 44;
+  SSReqKickoffPlayer                 KickoffPlayer                 = 45;
+  SSReqPvpConfirm                    PvpConfirm                    = 46;
+  SSReqGetTranslate                  GetTranslate                  = 47;  // 获取翻译
+  SSReqTeamPunishStatus              TeamPunishStatus              = 48;  // 获取队伍惩罚状态
+  SSReqCancelChangeSlot              CancelChangeSlot              = 49;  // 取消换位
+  SSReqRemoveMailList                RemoveMailList                = 50;  // 批量删除邮件
+  int64                              SSStartTime                   = 51;  // ss开始时间
+  SSMsgID                            SSMsg                         = 52;  // ss消息名
+
+  SSReqGetTournaments                GetTournaments                = 53;  // 获取当前进行的所有赛事
+  SSReqEnrollTournament              EnrollTournament              = 54;  // 赛事报名
+  SSReqRequireTNGroup                RequireTNGroup                = 56;  // 请求赛事组
+
+  SSReqPlayerTournamentData          PlayerTournamentData          = 57;
+  SSReqReportTournamentGroup         ReportTournamentGroup         = 58;  // 匹配成功后上报玩家对阵信息
+  SSReqGetEnrollPlayers              GetEnrollPlayers              = 59;  // 获取报名玩家列表
+  SSReqLuckStarAward                 LuckStarAward                 = 60;  // 幸运星奖励
+  SSReqChallengeAgain                ChallengeAgain                = 61;  // 再次挑战该赛事
+  SSReqTournamentPointAward          TournamentPointAward          = 62;  // 领取赛事积分进度奖励
+  SSReqGetGroupIndex                 GetGroupIndex                 = 63;  // 获取赛事级别组index
+  SSReqGetTournamentMatchGroup       TournamentMatchGroup          = 64;  // 获取赛事匹配对局组
+  SSReqGetPlayerCurGame              GetPlayerCurGame              = 65;  // 获取玩家当前可以或者即将可以进行的赛事gameId
+  SSReqUpdateTournamentRank          UpdateTournamentRank          = 66;  // 更新赛事相关排行榜
+  SSReqGMAIRise                      GmAiRise                      = 67;  // gm让固定战斗组内全是ai的按规则晋级
+  SSReqSwitchToCommonMatch           SwitchToCommonMatch           = 68;  // 切换到全球匹配
+  SSReqPlayersTournamentInfo         PlayersTournamentInfo         = 69;  // 获取玩家锦标赛信息
+  SSReqPFData                        ReqPFData                     = 70;   //通用的请求
+
+  SSReqSendMultiMail                 SendMultiMail                 = 71;  // 发送多人邮件
+  SSReqPFPlayerData                  ReqPFPlayerData               = 72;  // 通用玩家的请求
+  SSReqQueryPsTournamentRoom         PsTournamentRoom              = 73;  // ps赛事房间查询
+  SSReqAuthAccount                   AuthAccount                   = 74; // 请求验证账号
+  SSReqGetKeyRank                    GetKeyRank                    = 76; //通用获取排行榜
+  SSReqGetKeyRankIDList              GetKeyRankIdList              = 77; //通用获取排行榜-获取指定用户
+
+  SSMsgPassData                      PassData                      = 100; //消息透传通用结构
+
+
+  SSReqUpdatePlayersStatus           UpdatePlayersStatus           = 200;
+  SSReqSyncGMtime                    SyncGmTime                    = 201;
+
+  SSReqGuildCreate                   GuildCreate                   = 360;
+  SSReqGuildApply                    GuildApply                    = 361;
+  SSReqGuildHome                     GuildHome                     = 362;
+  SSReqGuildApplylist                GuildApplyList                = 363;
+  SSReqGuildInfo                     GuildInfo                     = 364;
+  SSReqGuildApprove                  GuildApprove                  = 365;
+  SSReqGuildSetRole                  GuildRole                     = 366;
+  SSReqGuildModify                   GuildModify                   = 367;
+  SSReqGuildKickoff                  GuildKickoff                  = 368;
+  SSReqGuildDismiss                  GuildDismiss                  = 369;
+  SSReqGuildExit                     GuildExit                     = 370;
+  SSReqGuildChat                     GuildChat                     = 371;
+  SSReqGuildList                     GuildList                     = 372;
+  SSReqGuildRecommendPlayers         GuildRecommendPlayers         = 373;
+  SSReqGuildInviteList               GuildInviteList               = 374;
+  SSReqGuildInvite                   GuildInvite                   = 375;
+  SSReqGuildLogin                    GuildLogin                    = 380;
+  SSReqGuildResign                   GuildResign                   = 381;
+  SSReqGuildLogout                   GuildLogout                   = 382;
+  SSReqGuildNewLog                   GuildLogs                     = 383;
+  SSReqGuildOwnerName                GuildOName                    = 384;
+  SSReqGuildAcitve                   GuildAcitve                   = 385;
+  SSReqGuildRejectInvite             GuildRejectInvite             = 386;
+  SSReqGuildGmOp                     GuildGmOp                     = 387;
+
+  SSReqTeamOP                        TeamOP                        = 400;  //队伍操作
+  SSReqOBTeamBaseInfo                OBTeamBaseInfo                = 401;  //获取OB队伍基本信息
+
+  SSReqSwitchModeInTeam              SwitchModeInTeam              = 420;  // 队伍中切换模式
+  SSReqGetTNRoomState                GetTNRoomState                = 421;
+  SSReqUpdateWorkshopTicket          UpdateWorkshopTicket          = 422;
+
+  //开发平台
+  SSReqGameAndPf                     GameAndPf                     = 500; //游戏与开放平台交付请求信息
+  SSReqHandleOfficialToken           HandleOfficialToken           = 501;
+  SSReqPushTransferEvent             PushTransferEvent             = 502;
+
+  SSReqRequireRobots                 RequireRobots                 = 600;
+  SSReqRegisterPVPSrv                RegisterPVPSrv                = 602;
+  SSReqApplyNewGame                  ApplyNewGame                  = 700;
+  SSReqConnectStream                 ConnectStream                 = 701;
+  SSReqDisconnectStream              DisconnectStream              = 702;
+  SSReqPassThrough                   PassThrough                   = 703;
+  SSReqGameStarted                   GameStarted                   = 704;
+  SSReqGameEnded                     GameEnded                     = 705;
+  SSReqUpdateGamelibVersion          UpdateGamelibVersion          = 706;
+  SSReqCheckWorkshopRule             CheckWorkshopRule             = 720;
+  SSReqWorkshopMatch                 WorkshopMatch                 = 721; // 发起创意工坊匹配
+  SSReqGetPlayersVisitedMaps         GetPlayersVisitedMaps         = 722;
+
+  SSReqPlayerRankInfo                PlayerRankInfo                = 750; // 开放平台排行榜玩家信息
+
+  SSReqReportVisitingNum             ReportVisitingNum             = 751;
+  SSReqPlayerMedals                  PlayerMedals                  = 752;
+  SSReqUPDATENUMRANK                 UpdateNumRank                 = 753;
+  SSReqGetSelfRankNumData            GetSelfRankNumData            = 754;
+  // 交易
+  SSReqExchangeSell                  ExchangeSell                  = 760;
+  SSReqExchangeBuy                   ExchangeBuy                   = 761;
+  SSReqExchangeSellACK               ExchangeSellACK               = 762;
+  SSReqExchangeState                 ExchangeState                 = 763;
+  SSReqExchangeOrderCancel           ExchangeOrderCancel           = 764;
+  SSReqExchangeGift                  ExchangeGift                  = 765;
+  SSReqExchangeSendGift              ExchangeSendGift              = 766;
+  SSReqExchangeReceiveGift           ExchangeReceiveGift           = 767;
+  SSReqExchangeCBStatus              ExchangeCBStatus              = 768;
+  SSReqPlayerCanExchange             PlayerCanExchange             = 769;
+  SSReqExchangePlayerItem            ExchangePlayerItem            = 770;
+  SSReqExchangeItemTypeSet           ExchangeItemSet               = 771;
+  SSReqExchangeItemInfo              ExchangeItemInfo              = 772;
+  SSReqExchangeItemIdSet             ExchangeItemIdSet             = 773;
+  SSAttachInfo                       AttachInfo                    = 774;
+  SSMessageWrap                      MessageWrap                   = 775;
+  SSReqExchangeVipAddItem            ExchangeVipAddItem            = 776;
+  SSReqExchangeOpenRandChest         ExchangeOpenRandChest         = 777;
+  SSReqCheckAndApplyHall             CheckAndApplyHall             = 778;
+  SSReqExchangeItemByType            ExchangeItemByType            = 779;
+  SSReqExchangeUpgradePassport       ExchangeUpgradePassport       = 780;
+  SSReqExchangeCheckUpgradePassport  ExchangeCheckUpgradePassport  = 781;
+  SSReqExchangeCheckBuyPassportLevel ExchangeCheckBuyPassportLevel = 782;
+  SSReqUpdatePveTeamDeBuff           UpdatePveTeamDeBuff           = 783;
+  SSReqMentorGetInviteMsg            MentorGetInviteMsg            = 784;
+  SSReqGetMentorInfo                 GetMentorInfo                 = 785;
+  SSReqMentorGetRecommendList        MentorGetRecommendList        = 786;
+  SSReqPupilApplyGraduate            PupilApplyGraduate            = 787;
+  SSReqMsGetTaskAward                MsGetTaskAward                = 788; //师徒 获取奖励
+  SSReqMsRelieveRelation             MsRelieveRelation             = 789; //师徒 获取奖励
+  SSReqUpdateMentorInvite            UpdateMentorInvite            = 790; //师徒 更新邀请信息
+  SSReqMentorConfirmInviteMsg        MentorConfirmInviteMsg        = 791; //师徒 确认消息
+  
+  SSReqOfflineConsumes				 OfflineConsumes			   = 792;
+  SSReqObLogin                       ObLogin                       = 793; //观战服登录
+  SSReqGetGameData                   GetGameData                   = 794; //观战服登录
+  SSReqPullExchangeRecord			 PullExchangeRecord			   = 795; //拉取交易记录
+  SSReqObChat			             ObPvpChat            		   = 796; //观战 聊天
+  SSReqMsBecomeMentor			     MsBecomeMentor  			   = 797; //成为师傅
+  SSReqExchangeConsumes              ExchangeConsumes              = 798; //龙渊平台活动道具消耗
+}
+
+//消息SSRspBody
+message SSRspBody {
+  RESULT                     ErrCode               = 1;    //错误码  0: 成功  非0：失败
+  string                     ErrMsg                = 2;    //错误提示  ErrCode非0时有意义
+
+  //下面是正式包体
+  SSRspPvpApply              PvpApply              = 3;  // pvp对战申请
+  SSRspFutureCallBack        FutureCB              = 4;  // future回调事件
+  SSRspPvp                   Pvp                   = 5;
+  SSRspPvpMatchCancel        PvpMatchCancel        = 6;
+  SSRspTeamPvp               TeamPvp               = 7;
+  SSRspActGrpBuy             GrpBuy                = 8;   // 活动-团购返利
+  SSRspWxRecPktLikes         WxRecPktLikes         = 9;   // 同步微信大玩家点赞数
+  SSRspPvpConfirm            PvpConfirm            = 10;
+  int64                      SSStartTime           = 11;  // ss开始时间
+  SSMsgID                    SSMsg                 = 12;  // ss消息名
+
+  SSMsgPassData              PassData              = 100; //消息透传通用结构
+
+  SSRspGameAndPf             GameAndPf             = 500; // 游戏与开放平台交付应答信息
+  SSRspRequireRobots         RequireRobots         = 600;
+  SSRspRegisterPVPSrv        RegisterPVPSrv        = 602;
+  SSRspUpdateWorkshopTicket  UpdateWorkshopTicket  = 603;
+  SSRspApplyNewGame          ApplyNewGame          = 700;
+  SSRspConnectStream         ConnectStream         = 701;
+  SSRspDisconnectStream      DisconnectStream      = 702;
+  SSRspPassThrough           PassThrough           = 703;
+  SSRspGameStarted           GameStarted           = 704;
+  SSRspGameEnded             GameEnded             = 705;
+  SSAttachInfo               AttachInfo            = 706;
+  SSMessageWrap              MessageWrap           = 707;
+  //exchange
+  SSReqExchangeOpenRandChest ExchangeOpenRandChest = 777;
+  
+}
+
+//消息SSNtfBody
+message SSNtfBody {
+  SSNtfServerName                 ServerName                 = 1; //通告服务器名
+  SSNtfPlayersStatus              PlayersStatus              = 2; //玩家状态
+  SSNTFPlayerMessageWrap          PlayerMessageWrap          = 3;
+  SSNTFNewConnectPlayer           NewConnectPlayer           = 4;
+  SSNTFDisConnectPlayer           DisConnectPlayer           = 5;
+  SSNtfHallStatus                 HallStatus                 = 6;
+  SSNtfPvpStatus                  PvpStatus                  = 7; //pvp状态通知
+  SSNtfPvpEnd                     PvpEnd                     = 8; //pvp结束
+  SSNtfPvpMatchCancel             PvpMatchCancel             = 9;
+  SSNtfPvpMatch                   PvpMatch                   = 10;
+  SSNtfPvp                        Pvp                        = 11;
+  SSNtfPay                        Pay                        = 12;
+  SSNtfKickOffPlayer              KickOffPlayer              = 13; //状态服通知大厅服踢人下线
+  SSNtfNewMail                    NewMail                    = 14; //新邮件
+  SSNtfFrozenAccount              FrozenAccount              = 15; //封号
+  SSNtfUnFrozenAccount            UnFrozenAccount            = 16; //解封账号
+  SSNtfNotice                     Notice                     = 17;
+  SSNtfRemoveNotice               RemoveNotice               = 18;
+  SSNtfUpdateNumRank              UpdateNumRank              = 19; //通知rankserver更新排行榜数据
+  SSNtfWorldChat                  WorldChat                  = 20; //世界聊天
+  SSNtfHallServerClosing          HallServerClosing          = 21;
+  SSNtfPvpServerId                PvpServerId                = 22;
+  SSNtfPlayerDisconnectPvp        PlayerDisconnectPvp        = 23;
+  SSNtfMarquee                    Marquee                    = 24; //跑马灯
+  SSNtfRemoveMarquee              RemoveMarquee              = 25; //删除跑马灯
+  SSNtfOrderAlphaActivity         OrderAlphaActivity         = 26;
+  SSNtfOrderCountAlphaActivity    OrderCountAlphaActivity    = 27;
+  SSNtfBindAlphaActivity          BindAlphaActivity          = 28;
+  SSNtfPlayerCompeteAlphaActivity PlayerCompeteAlphaActivity = 29;
+  SSNtfResetPlayerPvp             ResetPlayerPvp             = 30;
+  SSNtfPlayerExpose               Expose                     = 31;
+  SSNtfChat                       Chat                       = 32;
+  SSNtfNewFollower                NewFollower                = 33;
+  SSNtfLostFollower               LostFollower               = 34;
+  SSNtfInviteJoinTeam             InviteJoinTeam             = 35;
+  SSNtfLeaveTeam                  LeaveTeam                  = 36; //离开队伍
+  SSNtfKickOffTeamPlayer          KickOffTeamPlayer          = 37;
+  SSNtfJoinTeam                   JoinTeam                   = 38;
+  SSNtfTeamMsg                    TeamMsg                    = 39; //队伍聊天
+  SSNtfTeamReady                  TeamReady                  = 40;
+  SSNtfTeamPvpEnd                 TeamPvpEnd                 = 41;
+  SSNtfAds                        Ads                        = 42;
+  SSNtfRemoveAds                  RemoveAds                  = 43;
+  SSNtfRejectJoinTeam             RejectJoinTeam             = 44;
+  SSNtfClearPlayerCache           ClearPlayerCache           = 45;
+  SSNtfLanguages                  Languages                  = 46;
+  SSNtfRemoveLanguage             RemoveLanguage             = 47;
+  SSNtfSetTeamMode                SetTeamMode                = 48;
+  SSNtfChatStatus                 ChatStatus                 = 49;
+  SSNtfPvpHistory                 PvpHistory                 = 50;
+  SSNtfTeamPlayerPvpEnd           TeamPlayerPvpEnd           = 51;
+  SSNtfRefreshGoods               RefreshGoods               = 52; //商品刷新通知
+  SSNtfAddWhiteAccount            AddWhiteAccount            = 53; //添加白名单
+  SSNtfDelWhiteAccount            DelWhiteAccount            = 54; //删除白名单
+  SSNtfSwitchSystemSet            SwitchSystemSet            = 55; //开关控制标记设置_系统
+  SSNtfSwitchPlayerSet            SwitchPlayerSet            = 56; //开关控制标记设置_个人
+  SSNtfWorldInvite                WorldInvite                = 57; //邀约
+  SSNTFAARemind                   AARemind                   = 58;
+  SSNTFAABan                      AABan                      = 59;
+  SSNTFAAVerify                   AAVerify                   = 60;
+  SSNtfChangeDress                ChangeDress                = 61; //装扮变化通知
+  SSNtfUpdateMoney                UpdateMoney                = 62; //GM更改玩家货币通知
+  SSNtfBuffAct                    BuffActs                   = 63; //通知buff活动
+  SSNtfUpdateBag                  UpdateBag                  = 64; //GM更改玩家物品通知
+  SSNtfKickoff                    Kickoff                    = 65; //GM通知踢人
+  SSNtfTeamInvite                 TeamInvite                 = 66; //队伍邀约
+  SSNtfApplyWorldInvite           ApplyWorldInvite           = 67; //世界邀约通知
+  SSNtfModifyNickName             ModifyNickName             = 68; //GM通知修改昵称
+  SSNtfClearForbidden             ClearForbidden             = 69; //GM通知解封禁
+  SSNtfClearChat                  ClearChat                  = 70; //GM通知清理聊天内容
+  SSNtfIdipModifyDiamond          IdipModifyDiamond          = 71; //idip修改甜甜圈通知
+  //SSNtfObserveStatus       ObserveStatus      = 73;   //观战服状态通知
+  SSNtfJoinVoiceTeam              JoinVoiceTeam              = 74; //通知加入队伍房间
+  SSNtfOfflineInviteJoinTeam      OfflineJoinTeam            = 75; //离线邀请通知
+  SSNtfAddRecommendPvp            AddRecommendPvp            = 76; //加入推荐战局
+  SSNtfRemoveRecommendPvp         RemoveRecommendPvp         = 77; //从推荐战局中移除
+  SSNtfObservers                  Observers                  = 78; //观战人数和玩家存活人数通知
+  SSNtfCancelTeam                 CancelTeam                 = 79; //idip解散自定义队伍
+  SSNtfPlayerDeath                PlayerDeath                = 80; //通知玩家死亡
+  SSNtfGameMarquee                GameMarquee                = 81; //游戏内跑马灯
+  SSNtfWxRedPktSyn                WxRedPktSyn                = 82; //微信红包活动点赞排行信息
+  SSNtfGmOpSyn                    GmOpSyn                    = 83; //hallserver GM操作同步
+  SSNtfGmSysMsg                   GmSysMsg                   = 84; //idip通知系统消息
+  SSNtfIDIPResetHeadPic           IDIPResetHeadPic           = 85; //idip重置玩家头像
+  SSNtfChangeSubMode              ChangeSubMode              = 86; //通知子模式变化
+  SSNtfPvpObserverData            PvpObserverData            = 87; //通知观战玩家数据
+  SSNtfGmRemoveMail         	  GmRemoveMail         	 	 = 88; //删除邮件
+  SSNtfPvpConfirm                 PvpConfirm                 = 89; //游戏确认通知
+  SSNtfMatchSuccess               MatchSuccess               = 90; //匹配成功通知
+  SSNtfTeamSlot                   TeamSlot                   = 91; //通知队伍位置变化
+  SSNtfChangeTeamSlot             ChangeTeamSlot             = 92; //通知玩家换队请求
+  SSNtfTeamSlotStatus             TeamSlotStatus             = 93; //通知换位状态
+  SSNtfRefuseChangeTeamSlot       RefuseChangeTeamSlot       = 94; // 通知拒绝换队请求
+  SSNtfDaoJuChengCost             DaoJuChengCost             = 95; //idip通知道聚城消费
+  SSNtfPlayerOffline              PlayerOffline              = 96; //玩家下线
+  SSNtfCancelChangeSlot           CancelChangeSlot           = 97; //取消换位
+  SSNtfVideoChange                VideoChange                = 98; //视频信息变更
+  SSNtfSysHelpReddot              SysHelpReddot              = 99; // 系统红点
+  SSNtfPlayerHelpReddot           PlayerHelpReddot           = 100; // 玩家红点
+  SSNtfRemovePlayerPunishment     RemovePlayerPunishment     = 101; //删除玩家封禁
+  SSNtfAddBanner                  AddBanner                  = 102; // 添加banner
+  SSNtfRemoveBanner               RemoveBanner               = 103; // 删除banner
+  SSNtfAddWhiteList               AddWhiteList               = 104; //添加白名单(海外)
+  SSNtfDelWhiteList               DelWhiteList               = 105; //删除白名单(海外)
+  SSNtfTournamentBegin            TournamentBegin            = 106; //赛事开始通知
+  SSNtfEnrollEnd                  EnrollEnd                  = 107; //报名结束通知
+  SSNtfTournamentEnd              TournamentEnd              = 108; //赛事结束
+  SSNtfTournamentGroup            TournamentGroup            = 109; //通知赛事组
+  SSNtfTournamentMatchGroup       TournamentPvpMatch         = 110; //
+  SSNtfTournamentPvpId            TournamentPvpId            = 111; //赛事pvpId通知
+  SSNtfPlayerPvpRank              PlayerPvpRank              = 112; //pvpServer通知赛事服玩家排名
+  SSNtfPlayerOut                  PlayerOut                  = 113; //赛事服通知玩家赛事淘汰
+  SSNtfTournamentRoundEnd         RoundEnd                   = 114; //赛事轮次结束
+
+  SSNtfGmDeleteEnrollPlayer       GmDeleteEnrollPlayer       = 116; //通过gm指令删除玩家报名,仅限测试用！！！
+  SSNtfJoinTournamentRoom         JoinTournamentRoom         = 117;
+  SSNtfLoginSuccess               LoginSuccess               = 118;  //通知玩家登录成功
+  SSNtfGmSetPoint                 GmSetPoint                 = 119;  //gm设置赛事分数
+  SSNtfQuitObserve                QuitObserve                = 120;  //退出观战
+  SSNtfInviteObserve              InviteObserve              = 121;  //邀请观战
+  SSNtfRejectObserve              RejectObserve              = 122;  //拒绝观战
+  SSNtfObserveBegin               ObserveBegin               = 123;
+  SSNtfHallReportPlayer           ReportPlayer               = 124;  //上报玩家
+  SSNtfExceptionPvp               ExceptionPvp               = 125;  //通知赛事服异常pvp列表
+  SSNtfGroupRollback              GroupRollback              = 126;  //通知队伍服战斗组状态回退
+  SSNtfActivityGroup              ActivityGroup              = 127;  //添加或者修改活动组
+  SSNtfRemoveActivityGroup        RemoveActivityGroup        = 128; //移除活动组
+  SSNtfRecruitAddBC               RecruitAddBC               = 129;  //招募增加battle数量
+  SSNtfRecruitBindInviter         RecruitBindInviter         = 130;  //招募绑定邀请者
+  SSNtfAddThirdPvpInfo            AddThirdPvpInfo            = 132;  //增加第三方赛事信息
+  SSNtfDelThirdPvpInfo            DelThirdPvpInfo            = 133;  //删除第三方赛事信息
+  SSNtfBindThirdPvpInfo           BindThirdPvpInfo           = 134;  //第三方赛事绑定队伍
+  SSNtfTopTeamPvp                 TopTeamPvp                 = 135;  //置顶赛事(按队伍)
+  SSNtfTopPlayerPvp               TopPlayerPvp               = 136;  //置顶赛事(按玩家)
+  SSNtfSetRaceModeCount           SetRaceModeCount           = 137;  //设置赛事模式观战数量
+  SSNtfPs4ServerOnly              PS4ServerOnly              = 138;  //ps4serveronly
+  SSNtfServerHello                ServerHello                = 139;  //注册服务消息
+  SSNtfPlayerTeam                 PlayerTeam                 = 140;  //通知玩家队伍id
+  SSNtfTeamServerInfo             TeamServerInfo             = 141;  //teamServer信息
+  SSNtfGetChessList               GetChessList               = 142;  //房主点击开始游戏后，如果玩法是组卡玩法，通知所有队员获取组卡玩法的棋组信息
+  SSNtfPlayerChessList            PlayerChessList            = 143;  //队伍中的玩家所在大厅服通知队伍服玩家的组卡玩法的棋组信息
+  SSNtfTournamentHistory          TournamentHistory          = 144;  //通知大厅服赛事历史信息
+  SSNtfTournamentGmTopRank        TournamentGmTopRank        = 145;  //gm通知添加或者删除前8玩家
+  SSNtfExchangeOrder              ExchangeOrder              = 146;  //交易订单
+  SSNtfExchangeCleanPlayer        ExchangeCleanPlayer        = 147;  //交易清除玩家
+  SSNtfPlayerOfflineData          PlayerOfflineData          = 148;  //离线数据
+  SSNtfTeamOP                     TeamOP                     = 200; //队伍操作通知
+  SSNtfTeamDismiss                TeamDismiss                = 201; //通知队伍解散
+
+  SSNtfSwitchModeInTeam           SwitchModeInTeam           = 210;
+
+  SSNtfAdAward                    AdAward                    = 220;
+  SSNtfMetric                     Metric                     = 221;
+  SSNtfUIForbid                   UIForbid                   = 222;
+
+  SSNtfPvpStats                   PvpStats                   = 300;
+  SSNtfGameTerminated             GameTerminated             = 301; // 整场比赛结束
+  SSNtfAddLuckStarActivity        AddLuckStarActivity        = 302;  // Add幸运星活动
+  SSNtfCloseLuckStarActivity      CloseLuckStarActivity      = 303;  //幸运星活动控制开关
+
+  SSNtfChangeName                 ChangeName                 = 304; // 修改玩家昵称
+  SSNtfTNRoomPvpEnd               TNRoomPvpEnd               = 305; // 锦标赛房间结束战斗
+  SSNtfTeamState                  TeamState                  = 306; // 队伍状态发生改变
+  SSNtfCleanPlayerNativeCountry   CleanPlayerNativeCountry   = 307; // 重置玩家祖籍国家
+  SSNtfAddMallGoods               AddMallGoods               = 308; // 增加、修改商城商品信息
+  SSNtfRemoveMallGoods            RemoveMallGoods            = 309; // 删除商城商品信息
+
+  SSNtfUpdateGamelibVersion       UpdateGamelibVersion       = 310;
+
+  SSNtfSetRecommendPvpCover       SetRecommendPvpCover       = 311;// 设置观战推荐对局封面玩家
+  SSNtfDelRecommendPvpCover       DelRecommendPvpCover       = 312;// 取消观战推荐对局封面玩家
+  SSNtfPopRecommendPvp            PopRecommendPvp            = 313;// 将玩家当前对局观战推荐置顶
+  SSNtfDelPopRecommendPvp         DelPopRecommendPvp         = 314;// 取消玩家当前对局观战推荐置顶
+
+  SSNtfLackResourceInTeam         PlayerLackResource         = 320; // 缺少资源
+  SSNftCurrencyToBattle           CurrencyToBattle           = 321; // 携带进入战斗的货币
+  SSNtfWorkshopMatchResult        WorkshopMatchResult        = 322;
+  SSNtfBetOnBounty                BetOnBounty                = 323;
+  SSNtfReportResult               ReportResult               = 324; // 举报结果
+  SSNtfBigWinnerExpandMatch       BigWinnerExpandMatch       = 325; // 扩大匹配
+  SSNtfPvpSetPlayerMoney          PvpSetPlayerMoney          = 326; // 战斗设置玩家的Money
+  SSNtfTNGameEnd                  TNGameEnd                  = 330;
+  SSNtfPsTNResult                 PsTnResult                 = 331; // ps电竞结果上报
+  SSNtfAccountReopen              AccountReopen              = 332; // 解封账号
+
+  SSNtfGuildJoin                  GuildJoin                  = 360;
+  SSNtfGuildMemberChange          MemberChange               = 361;
+  SSNtfGuildKickoff               GuildKickoff               = 362;
+  SSNtfGuildRoleChange            GuildRoleChange            = 363;
+  SSNtfGuildAttrChange            GuildAttrChange            = 364;
+  SSNtfGuildChat                  GuildChat                  = 365;
+  SSNtfNewGuildLog                NewGuildLog                = 366;
+  SSNtfGuildApplicantChange       ApplicaintCange            = 367;
+  SSNtfGuildInviteeChange         InviteeCange               = 368;
+  SSNtfGuildNewInvite             GuildNewInvite             = 379;
+  SSNtfGuildReject                GuildReject                = 380;
+  SSNtfUpdateNotice               UpdateNotice               = 381;
+  SSNtfModifyMMr                  ModifyMMr                  = 382;
+  SSNtfPvpOver                    PvpOver                    = 383;
+  SSNtfUpdateKeyRank              UpdateKeyRank              = 384; //通用排行榜
+  SSNtfSetKeyRankTTl              SetKeyRankTTl              = 385; //通用排行榜设置ttl
+  SSNtfUpdatePvpData              UpdatePvpData              = 386;  //更新pvp数据
+  SSNtfObserverChest              ObserverChest              = 387; //观战宝箱
+  SSNtfSetAuthority               SetAuthority               = 389; //设置官方指定数据
+  SSNtfUpgradePassport            UpgradePassport            = 390; //通知玩家升级通行证
+  SSNtfUpdateExchangePassport     UpdateExchangePassport     = 391; //hallserver->exchangeserver
+  SSNtfUpdateTeamDeBuffToPlayer   UpdateTeamDeBuffToPlayer   = 393;
+  SSNtfUpdateKeyRank              UpdateKeyRankPrefix        = 394; //自定义分数更新排行榜
+  SSNtfMentorRelation             MentorRelation             = 395; //师徒 关系建立
+  SSNtfBecomeMentor               BecomeMentor               = 396; //师徒 成为师傅
+  SSNtfPlayerMentorInviteMsg      PlayerMentorInviteMsg      = 397; //师徒 通知用户消息到来
+  SSNtfUpdatePlayerToMentorRecommend UpdatePlayerToMentorRecommend = 498; //师徒 更新用户到推荐列表
+  SSNtfPupilTaskUpdate            PupilTaskUpdate            = 499; //师徒 徒弟任务更新
+  SSNtfMentorPupilTaskUpdate      MentorPupilTaskUpdate      = 400; //师徒 通知大厅服-》通知客户端 任务更新了
+  SSNtfMentorLevel                MentorLevel                = 401; //师徒 通知大厅服-》通知客户端 师傅等级变化
+  SSNtfMsActivityTime             MsActivityTime             = 402; //师徒 通知师徒服-》更新时间
+  SSNtfSetPlayerLog               SetPlayerLog               = 403; //标记玩家,日志全输出
+  SSNtfMsCleanInviteMsg           MsCleanInviteMsg           = 404; //删除 邀请消息
+  SSNtfMsUpdateIntimacy           MsUpdateIntimacy           = 405; //更新亲密度
+  SSNtfGmMsAddGraduateNum         GmMsAddGraduateNum         = 406; //更新亲密度
+  SSNtfObPassThrough              ObPassThrough              = 407; //pvp->observer 透传协议
+  SSNtfExchangeRecord			  ExchangeRecord			 = 408; //交易记录
+  SSNtfObReady			          ObReady			         = 409; //交易记录
+  SSNtfObLeaveGameEarly			  ObLeaveGameEarly			 = 410; //提前离开游戏
+  SSNtfObPvpEnd			          ObPvpEnd			         = 411; //游戏结束
+  SSNtfObPvpChat			      ObPvpChat			         = 412; //pvp聊天
+  SSNtfObServerInfo			      ObServerInfo 			     = 413; //observer info
+  SSNtfObDuration			      ObDuration 			     = 414; //observer info
+  SSNtfOfflineSell				  OfflineSell				 = 415; //离线上架
+  SSNtfObQuit				        ObQuit				 = 416; //退出观战
+  SSNtfObModifyCount              ObModifyCount              = 417; //修改pvp观战人数
+}
+/*************************外包体定义 END***********************************/
+
+/*************************具体包体REQ&RSP BEG******************************/
+//教学关卡数据
+message PvpTeachData {
+  uint32 PassId = 1; // 教学关卡ID
+  uint32 MapId  = 2; // 教学关卡地图ID
+}
+
+message PvpPassData {
+  bool 	IsPvpTaskMode = 1; //是否是任务模式对局
+}
+
+//pvpMatchReq
+message SSReqPvp {
+  PVPMODE       Mode          = 1;  // pvp模式
+  PvpPlayerData PlayerData    = 2;  // pvp玩家信息
+  string        ApkVersion    = 3;  // 客户端当前版本号
+  uint64        Seq           = 4;
+  uint32        CustomSubMode = 5;  // 自定义房间子模式
+  bool          IsRedirect    = 6;  // 是否重定向
+  bool          IsTouranment  = 7;  // 是否赛事比赛
+  PvpTeachData  TeachData     = 8;   // 教学关卡
+  PvpExtData    PvpExtData    = 9;  // PVP额外数据
+  PvpPassData	PassData	  = 10; //pvp透传数据reqPvp -> 结算
+}
+
+message SSRspPvp {
+  uint64              Seq         = 1;
+  CSDTBriefPunishment Punishment  = 2;
+  bool                IsRedirect  = 3;    //是否重定向
+  string              ErrPlayerId = 4;    //造成pvp失败的玩家
+}
+
+
+//pvpApplyReq
+message SSReqPvpApply {
+  PVPMODE                Mode              = 1;  // pvp模式
+  uint32                 MatchId           = 2;  // 匹配Id
+  uint32                 MapId             = 3;  // mapId
+  MAPTYPE                MapType           = 4;  // mapType
+  repeated PvpPlayerData Players           = 5;  // pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+  uint32                 MatchTime         = 6;  // 匹配消耗的时间
+  uint32                 CampPlayerCount   = 7;  // 阵营人数
+  uint32                 CustomSubMode     = 8;  // 自定义房间子模式
+  string                 PlatAppId         = 9;  // 平台社区id
+  string                 CommunityLogoIcon = 10; // 社区logo icon
+  int64                  CommunityTeamUUID = 11; // 社区组队唯一id
+  bool                   IsTournamentPvp   = 12; // 是否是赛事比赛
+  string                 CustomGameUrl     = 13; // 社区自定义玩法url
+  int32                  CustomGameId      = 14; // 自定义战斗id
+  bool                   UploadStatData    = 15; // 是否上传战斗回合数据
+  TeamDesc               TDesc             = 16; // 锦标赛房间信息，读取前需判空
+  BattleExtData          ExtData           = 17; // 战斗额外的数据
+  bool                   IsWorkshopRoom    = 18; // 是否是创意工坊房间
+
+  int64                  WaitPvpTime       = 19; // 等待申请PVP时间,如果pvp时间超过这个时间可以不处理
+  uint32                 TeamID            = 20; // 队伍ID
+  PvpTeachData           TeachData         = 21; // 教学关卡
+  PvpExtData             PvpExtData        = 22; // PVP额外数据
+  string                 PsEventID         = 23; // ps电竞
+  bool                   IsCardGroup       = 24; //是否为组卡pvp
+  PvpPassData	   		 PassData		   = 25; // pvp透传数据
+}
+
+//pvpApplyRsp
+message SSRspPvpApply {
+  PVPMODE Mode          = 1;    //pvp模式
+  uint32  MatchId       = 2;    //匹配Id
+  uint64  PvpId         = 3;    //pvpId
+  string  PvpTCPSvrAddr = 4;    //pvpTCP服地址  格式：（域名/IP:端口）
+  uint32  CustomSubMode = 5;   //自定义房间子模式
+  int32   GameId        = 6;
+  uint32  PvpServerId   = 7;
+  int64   LibVersion    = 8;  //内核版本号
+  string  Intranet      = 9;   //pvp内网 格式：（域名/IP:端口）
+}
+
+//PvpMatchCancle
+message SSReqPvpMatchCancel {
+  string  Id         = 1;    //Id
+  PVPMODE Mode       = 2;    //模式
+  string  ApkVersion = 3;    //apk版本号
+  bool    OffLine    = 4;    //是否下线取消
+  uint64  Seq        = 5;
+}
+
+message SSRspPvpMatchCancel{
+  uint64 Seq = 1;
+}
+
+//pvpJoinReq
+message SSReqPvpJoin {
+  PVPMODE       Mode          = 1;    //pvp模式
+  uint32        PvpId         = 2;    //pvpId
+  PvpPlayerData Player        = 3;    //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+  uint32        CustomSubMode = 4;    //自定义子模式
+}
+
+//pvpJoinRsp
+message SSRspPvpJoin {
+  PVPMODE Mode          = 1;    //pvp模式
+  uint32  PvpId         = 2;    //pvpId
+  string  Id            = 3;    //账号Id
+  string  PvpTCPSvrAddr = 4;    //pvpTCP服地址  格式：（域名/IP:端口）
+  string  PvpUDPSvrAddr = 5;    //pvpUDP服地址  格式：（域名/IP:端口）
+  uint32  CustomSubMode = 6;    //自定义子模式
+}
+
+//BaseInfo
+message SSReqPlayersBaseInfo {
+  uint64          PfId        = 1;    //
+  repeated string Ids         = 2;    //id列表
+  bool            IsOpenId    = 3;    //false上面是角色id,true上面是openid
+  CHANELTYPE      ChannelType = 4;    //渠道类型(openid需要)
+}
+
+//DetailInfo
+message SSReqPlayerDetailInfo {
+  uint64          PfId        = 1;    //
+  repeated string Ids         = 2;    //id或名字
+  bool            IsOpenId    = 3;    //false上面是角色id,true上面是openid
+  CHANELTYPE      ChannelType = 4;    //渠道类型(openid需要)
+}
+
+//PvpInfo
+message SSReqPlayerPvpInfo {
+  uint64 PfId = 1;    //
+  string Ids  = 2;    //id或名字
+}
+
+//RankInfo
+message SSReqPlayerRankInfo {
+  uint64          PfId = 1;    //
+  repeated string Ids  = 2;    //id或名字
+}
+
+// TournamentInfo
+message SSReqPlayersTournamentInfo {
+  uint64          PfId        = 1;    //
+  repeated string Ids         = 2;    //id列表
+  bool            IsOpenId    = 3;    //false上面是角色id,true上面是openid
+  CHANELTYPE      ChannelType = 4;    //渠道类型(openid需要)
+}
+
+
+
+// TournamentInfo
+message SSReqQueryPsTournamentRoom {
+  uint64     PfId        = 1;    //
+  string     EventID     = 2;
+  uint32     TimeoutInv  = 3;    // 开始时间
+  uint32     TimeoutOp   = 4;
+  int32      PlayerNum   = 5;    // 对局人数
+  int32      SubMode     = 6;
+  string     TeamName    = 7;
+  CHANELTYPE ChannelType = 8;    //渠道类型
+}
+
+message PFDTPsTournamentRoom {
+  uint32 Id = 1;
+}
+
+
+// 创建公会
+message SSReqGuildCreate {
+  string         Name          = 1;
+  int32          Sign          = 2; // 标志
+  string         Notice        = 4; // 公告
+  string         RecruitNotice = 5; // 招募公告
+  repeated int32 Tags          = 6; // 标签
+  string         Country       = 7; // 国家
+  string         Language      = 8; // 语言
+  bool           RequirePermit = 9; // 加入限制
+  int32          RequireCup    = 10; // 最低段位
+  string         ID            = 11;
+  string         Player        = 12;
+  string         PlayerName    = 13;
+  uint32         PlyLv         = 14;
+  uint64         PfId          = 15;    //
+  string         ChannelUsrID  = 16;
+}
+
+message PFDTGuildCreate {
+  PFDTCommonRsp Rsp  = 1;
+  GuildBaseInfo Info = 2;
+}
+
+message PFDTCommonRsp {
+  RESULT Code = 1;
+  string Msg  = 2;
+}
+
+message PFDTGuildLogin {
+  string                 ID    = 1;
+  string                 Name  = 2;
+  GUILDROLETYPE          Role  = 3;
+  repeated GuildChatInfo Chats = 4;
+  int32                  Sign  = 5;
+}
+
+// 申请加入公会
+message SSReqGuildApply {
+  string ID           = 1;    //
+  string Player       = 2;
+  int32  Cup          = 3;
+  bool   IsInvite     = 4;
+  string PlayerName   = 5;
+  string ChannelUsrID = 6;
+  uint64 PfId         = 13;    //
+}
+
+message PFDTGuildApply {
+  PFDTCommonRsp Rsp = 1;
+}
+
+// 公会主页
+message SSReqGuildHome {
+  string ID     = 1;    //
+  string Player = 2;
+  uint64 PfId   = 13;    //
+}
+
+// 上报日志
+message SSReqGuildNewLog {
+  string            ID     = 1;
+  string            Player = 2;
+  repeated GuildLog Logs   = 3;
+}
+
+// 会长改名
+message SSReqGuildOwnerName {
+  string ID         = 1;
+  string Player     = 2;
+  string PlayerName = 3;
+}
+
+message SSReqGuildAcitve {
+  string ID     = 1;
+  string Player = 2;
+  uint32 Active = 3;
+}
+
+message SSReqGuildRejectInvite {
+  string ID     = 1;
+  string Player = 2;
+}
+
+message SSReqGuildGmOp {
+  int32           Op   = 1;
+  string          Pid  = 2;
+  string          Gid  = 3;
+  repeated string Args = 4;
+  uint64          PfId = 13;
+}
+
+message PFDTGuildHome {
+  GuildBaseInfo  Info  = 1; // 基本信息
+  GuildExtraInfo Extra = 2; // 成员ID
+}
+
+// 公会申请列表
+message SSReqGuildApplylist {
+  string ID     = 1;    //
+  string Player = 2;
+  uint64 PfId   = 13;    //
+}
+
+message PFDTGuildApplylist{
+  repeated GuildApplyInfo Infos = 1;
+}
+
+
+// 查看公会
+message SSReqGuildInfo {
+  repeated string IDs  = 1;    //
+  uint64          PfId = 13;    //
+}
+
+message PFDTGuildInfo {
+  repeated GuildBaseInfo info = 1; // 基本信息
+}
+
+// 同意加入
+message SSReqGuildApprove {
+  string ID        = 1;    //
+  string Player    = 2;
+  string Applicant = 3;
+  bool   IsReject  = 4;
+  uint64 PfId      = 13;    //
+}
+
+message PFDTGuildApprove {
+}
+
+// 角色管理
+message SSReqGuildSetRole {
+  string        ID     = 1;
+  string        Player = 2;
+  string        Member = 3;
+  GUILDROLETYPE Role   = 4;
+  string        Name   = 5;
+  uint64        PfId   = 13;    //
+}
+
+message PFDTGuildSetRole {
+}
+
+// 修改信息
+message SSReqGuildModify {
+  string          ID            = 1;
+  string          Player        = 2;
+  string          Name          = 3;
+  int32           Sign          = 4; // 标志背景
+  string          Notice        = 6; // 公告
+  string          RecruitNotice = 7; // 招募公告
+  repeated int32  Tags          = 8; // 标签
+  GUILDPERMITTYPE RequirePermit = 9; // 加入限制
+  int32           RequireCup    = 10; // 最低段位
+  string          MyName        = 11;
+  uint64          PfId          = 13;    //
+}
+
+message PFDTGuildModify {
+}
+
+// 踢出公会
+message SSReqGuildKickoff {
+  string ID     = 1;
+  string Player = 2;
+  string member = 3;
+  uint64 PfId   = 13;    //
+}
+
+message PFDTGuildKickoff {
+}
+
+// 解散公会
+message SSReqGuildDismiss {
+  string ID     = 1;
+  string Player = 2;
+  uint64 PfId   = 13;    //
+}
+
+message PFDTGuildDismiss {
+}
+
+//
+message SSReqGuildExit {
+  string ID         = 1;
+  string Player     = 2;
+  string PlayerName = 3;
+  uint64 PfId       = 13;    //
+}
+
+message PFDTGuildExit {
+}
+
+// 公会聊天
+message SSReqGuildChat {
+  string        ID   = 1;
+  GuildChatInfo Info = 2;
+}
+
+
+// 公会推荐列表
+message SSReqGuildList {
+  string Player   = 1;
+  int32  Cup      = 2;
+  string Country  = 3;
+  uint32 Province = 4;
+  uint64 PfId     = 13;    //
+}
+
+// 公会推荐玩家
+message SSReqGuildRecommendPlayers {
+  string ID       = 1;
+  string Country  = 2;
+  uint32 Province = 3;
+  uint64 PfId     = 13;    //
+}
+
+message SSReqGuildInviteList {
+  repeated string IDs  = 1;
+  uint64          PfId = 13;    //
+}
+
+message SSReqGuildInvite {
+  string          ID   = 1;
+  repeated string IDs  = 2;
+  uint64          PfId = 13;    //
+}
+
+message PFDTGuildList {
+  repeated GuildBaseInfo List = 1;
+}
+
+message PFDTGuildRecommendPlayers {
+  repeated string IDs = 1;
+}
+
+message PFDTGuildInviteList {
+  repeated string IDs = 1;
+}
+
+message PFDTGuildInvite {
+  repeated string IDs = 1;
+}
+
+//
+message SSReqGuildLogin {
+  string       Player  = 1;
+  string       ID      = 2;
+  uint32       Cup     = 3;
+  PLATFORMTYPE Plat    = 4;
+  bool         Ps4Only = 5;
+  string       PlyName = 6;
+  uint32       PlyLv   = 7;
+  string       Country = 8;
+  uint64       PfId    = 13;    //
+  uint32       Hall    = 14;
+}
+
+//
+message SSReqSyncGMtime {
+  int64 dt = 1;
+}
+
+message SSReqGuildLogout {
+  string Player = 1;
+  string ID     = 2;
+}
+
+message SSReqGuildResign {
+  string Player = 1;
+  string ID     = 2;
+  uint64 PfId   = 13;
+}
+
+// 队伍操作
+// SS_REQ_TEAM_OPT
+message SSReqTeamOP {
+  uint64 pfId = 1;
+  TeamOP OP   = 2;
+}
+
+message SSReqOBTeamBaseInfo {
+  uint64 PfId    = 1;
+  int32  MapID   = 2; // 默认值0表示请求全部类型的房间（自定义房间+创意工坊房间）
+  bool   Ps4Only = 3;
+}
+
+message SSReqSwitchModeInTeam {
+  uint64  PfID    = 1;
+  PVPMODE NewMode = 2;
+  uint32  TeamID  = 3;
+  string  captain = 4;
+}
+
+message SSReqGetTNRoomState {
+  uint64 PfID     = 1;
+  uint64 TNID     = 2;
+  string PlayerID = 3;
+}
+
+// 发起创意工坊匹配
+message SSReqWorkshopMatch {
+  uint64        PfID        = 1;
+  int32         MapID       = 2;
+  int32         SubMapID    = 3;
+  bool          PSOnly      = 4;
+  PvpPlayerData CaptainData = 5;
+}
+
+// 获取玩家游玩过的地图
+message SSReqGetPlayersVisitedMaps {
+  uint64          PfID      = 1;
+  repeated string PlayerIDs = 2;
+  bool            IsOpenID  = 3;
+  CHANELTYPE      ChanType  = 4;
+}
+
+// 更新玩家创意工坊门票
+message SSReqUpdateWorkshopTicket {
+  string PlayerID  = 1;
+  uint32 TicketID  = 2;
+  uint32 TicketNum = 3;
+}
+
+message SSRspUpdateWorkshopTicket {
+}
+
+message SSReqReportVisitingNum {
+  uint32             pvpId          = 1;
+  map<uint32, int32> workShopOnline = 2;
+}
+
+message SSReqApplyNewGame {
+  uint64  PVPID     = 1;
+  uint64  PfID      = 2;
+  int32   PlayerNum = 3;
+  PVPMODE Mode      = 4;
+}
+
+message SSRspApplyNewGame {
+  int32  GameID = 1;
+  uint64 PVPID  = 2;
+}
+
+message PFDTApplyNewGame {
+  int32  GameID = 1;
+  uint64 PVPID  = 2;
+}
+
+message PFDTGetTNRoomState {
+  TeamState State = 1;
+}
+
+message PFDTUpdateGamelibVersion {
+  int64 Version = 1;
+}
+
+message PFDTPlatData {
+  int32  Code = 1;  // 错误码 非0表示失败
+  string Data = 2;  // 透传的数据
+}
+
+message PFDTCheckWorkshopRule {
+  BattleExtData ExtData = 1;
+}
+
+message PFDTWorkshopMatch {
+  bool   Success = 1;
+  uint32 TeamID  = 2;
+}
+
+message PFDTUpdatePlayerWorkshopTicket {
+  bool Success = 1;
+}
+
+message SSReqConnectStream {
+  int32  GameID   = 1;
+  string PlayerID = 2;
+}
+
+message SSRspConnectStream {
+  int32  GameID       = 1;
+  int32  StreamHandle = 2;
+  string PlayerID     = 3;
+}
+
+message PFDTConnectStream {
+  int32  GameID       = 1;
+  int32  StreamHandle = 2;
+  string PlayerID     = 3;
+}
+
+message SSReqDisconnectStream {
+  int32 GameID       = 1;
+  int32 StreamHandle = 2;
+}
+
+message SSRspDisconnectStream {
+  int32 GameID       = 1;
+  int32 StreamHandle = 2;
+}
+
+message SSReqPassThrough {
+  bytes          Data          = 1;
+  int32          GameID        = 2;
+  repeated int32 streamHandles = 3;
+}
+
+message SSRspPassThrough {
+}
+
+message SSReqGameStarted {
+  int32 GameID = 1;
+}
+
+message SSRspGameStarted {
+}
+
+message SSReqGameEnded {
+  int32 GameID = 1;
+}
+
+message CSDTExChangePlayer {
+  string Id = 1;
+}
+
+// 出售物品
+message SSReqExchangeSell {
+  uint64             PfId       	= 1;
+  string             ShelfType  	= 2;
+  string             InstanceId 	= 3;
+  uint32             ItemId     	= 4;
+  uint32             ItemCount  	= 5;
+  CSDTExChangePlayer Seller     	= 6;
+  bool				 NotMailConfirm = 7;
+  bool  			 CheckIdentify  = 8;
+  bool				 IsIdentify		= 9;
+}
+
+message PFDTExchangeSell {
+  string                OrderId  = 1;
+  EXCHANGE_STATE        State    = 2;
+  ExchangeCallBackParam CallBack = 3;
+}
+
+message PFDTExchangeOpenRandChest {
+  repeated Award   Awards         = 1; //抽奖奖励
+  repeated Consume Consumes       = 2;
+  repeated Award   CumulateAwards = 3; // 保底奖励
+  repeated Award   RareAwards     = 4; // 珍稀奖励
+}
+
+message PFDTExchangeCheckAndApplyHall {
+  map<string, PFDTExchangeApplyHallData> data = 1;
+}
+
+message PFDTExchangeItemByType{
+  repeated CSDTItem data = 1;
+}
+
+message PFDTExchangeCheckUpgradePassport {
+  bool CanUpgradePassport = 1;
+}
+
+message PFDTExchangeCheckBuyPassportLevel {
+  uint32 CanBuyMaxLevel = 1; //能够购买得最大等级
+}
+
+message PFDTExchangeUpgradePassport {
+  bool IsSuccessful = 1; //是否购买成功
+}
+
+message PFDTOfflineItems{
+  string   Info = 1;
+  repeated CSDTItem Items = 2;	//消耗物品的详细数据
+}
+
+message PFDTUpdateTeamDebuff {
+}
+
+message PFDTExchangeApplyHallData {
+  uint32 ServerId = 1;
+  bool   IsLogin  = 2; //是否需要登录
+  string PlayerId = 3; //用户id
+}
+
+message PFDTUpdateNumRank{
+  map<uint32, UpdateNumRank> data = 1;
+}
+
+message UpdateNumRank {
+  string   Id   = 1;//用户id
+  int32    Rank = 2;//排名
+  RANKTYPE Type = 3;//排行榜分类
+}
+
+
+message PFDTExchangeSellACK {
+  string OrderId  = 1;
+  bool   BackItem = 2;  // 是否退回玩家物品
+}
+
+message SSReqExchangeSellACK {
+  uint64    PfId      = 1;
+  string    ShelfType = 2;
+  string    OrderId   = 3;
+  string    Info      = 4;
+  CSDTItem  Item      = 5;
+  WEBRESULT Result    = 6;
+  string	PlayerId  = 7;
+}
+
+message SSReqExchangeSendGift {
+  uint64    PfId       = 1;
+  string    ShelfType  = 2;
+  string    OrderId    = 3;
+  string    Info       = 4;
+  CSDTItem  Item       = 5;
+  string    SenderId   = 6;
+  string    SenderName = 7;
+  WEBRESULT Result     = 8;
+}
+
+message PFDTExchangeSendGift {
+  string OrderId  = 1;
+  bool   BackItem = 2;  // 是否退回玩家物品
+}
+
+message SSReqExchangeReceiveGift {
+  uint64    PfId      = 1;
+  string    ShelfType = 2;
+  string    OrderId   = 3;
+  string    Info      = 4;
+  WEBRESULT Result    = 5;
+}
+
+message SSReqExchangeVipAddItem {
+  uint64 PfId      = 1;
+  string PlayerId  = 2;
+  uint32 ItemId    = 3;
+  int32  ItemCount = 4; //负的为扣除物品
+}
+
+message SSReqExchangeOpenRandChest {
+  uint64           PfId         = 1;
+  string           playerId     = 2;    //用户id
+  repeated Consume Consumes     = 3;
+  repeated Award   Awards       = 4;    //自选礼包已选择的物品
+  CHEST_OPEN_TYPE  OpenType     = 5;    //开启方式(高阶密藏、低阶密藏)
+  uint32           HallserverId = 6; //大厅服id
+}
+
+message SSRspExchangeOpenRandChest {
+  repeated Award   Awards         = 1; //抽奖奖励
+  repeated Consume Consumes       = 2;
+  repeated Award   CumulateAwards = 3; // 保底奖励
+  repeated Award   RareAwards     = 4; // 珍稀奖励
+}
+
+message SSReqCheckAndApplyHall {
+  uint64          PfId      = 1;
+  repeated string PlayerIds = 2;    //用户id
+}
+
+message SSReqUPDATENUMRANK{
+  uint64     PfId         = 1;
+  string     Id           = 2; //玩家id
+  RANKTYPE   Type         = 3; //排行类型
+  uint32     Number       = 4; //值
+  uint64     Ts           = 5; //更新时间
+  bool       NeedRemove   = 6; //是否删除
+  string     Country      = 7; //国家
+  bool       IsHallServer = 8; //idip删除还是大厅删除
+  uint32     ProvinceId   = 9; //省份ID
+  CHANELTYPE ChannelType  = 10; //渠道类型
+  string     ChannelId    = 11;//渠道id 用于甄别vng_lite渠道，因为通行证等级排行榜需要单独显示
+
+}
+message SSReqGetSelfRankNumData{
+  uint64            PfId        = 1;
+  string            PlayerId    = 2; //用户id
+  repeated RANKTYPE RankTypes   = 3; //拉取得排行榜
+  string            Country     = 4;
+  CHANELTYPE        ChannelType = 5; //渠道类型
+  string            ChannelId   = 6;//渠道id 区分vng_lite需要
+}
+
+// 玩家物品
+message SSReqExchangePlayerItem {
+  uint64 PfId     = 1;
+  string PlayerId = 2;
+  bool   IsReduce = 3; //是否缩减
+}
+
+message PFDTExchangePlayerItem {
+  repeated CSDTItem ItemList = 1;
+  uint32  Total = 2;
+}
+
+//
+message SSReqExchangeItemTypeSet {
+  uint64 PfId     = 1;
+  string PlayerId = 2;
+}
+
+message SSReqExchangeItemByType {
+  uint64            PfId     = 1;
+  string            PlayerId = 2; //玩家id
+  repeated ITEMTYPE Type     = 3;//物品类型
+}
+
+message SSReqExchangeUpgradePassport {
+  uint64 PfId     = 1;
+  string PlayerId = 2; //玩家id
+  uint32 TypeId   = 3;
+  uint32 Period   = 4; //赛季
+  string OrderId  = 5; //订单id
+}
+
+message SSReqExchangeCheckUpgradePassport {
+  uint64 PfId     = 1;
+  string PlayerId = 2; //玩家id
+  uint32 TypeId   = 3; //通行证类型id
+  uint32 Period   = 4; //赛季
+}
+
+message SSReqExchangeCheckBuyPassportLevel {
+  uint64 PfId        = 1;
+  string PlayerId    = 2; //玩家id
+  uint32 MaxBuyLevel = 3; //可购买得最大等级
+}
+message PFDTExchangeItemTypeSet {
+  map<uint32, uint32> ItemTypeSet = 1;
+}
+
+message SSReqExchangeItemIdSet {
+  uint64 PfId     = 1;
+  string PlayerId = 2;
+}
+
+message PFDTExchangeItemIdSet {
+  map<uint32, uint32> ItemIdSet = 1;
+}
+
+enum IDENTIFYFLAG {
+  IDENTIFYFLAG_ALL   = 0;
+  IDENTIFYFLAG_TRUE  = 1;
+  IDENTIFYFLAG_FALSE = 2;
+}
+//
+message SSReqExchangeItemInfo {
+  uint64       PfId              = 1;
+  string       PlayerId          = 2;
+  string       ItemUid           = 3;
+  string       ItemId            = 4;
+  string       LastUid           = 5;
+  uint32       LastId            = 6;
+  uint32       Size              = 7;
+  string       Abrasion          = 8;
+  string       CommonAffixCnt    = 9;
+  string       ExclusiveAffixCnt = 10;
+  IDENTIFYFLAG Identified        = 11; // 是否鉴定
+  bool         MustHaveAffixies  = 12;
+  repeated string ItemUids       = 13;
+}
+
+message PFDTExchangeItemInfo {
+  repeated CSDTItem ItemList = 1;
+  uint32            Total    = 2;
+}
+
+message ExchangeCallBackParam {
+  string OrderId      = 1;
+  int32  CallBackType = 2;
+  int32  Status       = 3;
+  string Remark       = 4;
+}
+
+// 购买物品
+message SSReqExchangeBuy {
+  uint64             PfId      = 1;
+  string             ShelfType = 2;
+  string             OrderId   = 3;
+  CSDTExChangePlayer Buyer     = 4;
+}
+
+message PFDTExchangeBuy {
+  string                OrderId  = 1;
+  EXCHANGE_STATE        State    = 2;
+  ExchangeCallBackParam CallBack = 3;
+}
+
+message PFDTExchangeGift {
+  string                OrderId  = 1;
+  EXCHANGE_STATE        State    = 2;
+  ExchangeCallBackParam CallBack = 3;
+}
+
+message SSReqExchangeState {
+  uint64 PfId      = 1;
+  string ShelfType = 2;
+  string OrderId   = 3;
+}
+
+message PFDTExchangeState {
+  EXCHANGE_STATE State = 1;
+}
+
+// 取消订单
+message SSReqExchangeOrderCancel {
+  uint64 PfId      = 1;
+  string ShelfType = 2;
+  string OrderId   = 3;
+}
+
+message PFDTExchangeOrderCancel {
+  string         OrderId = 1;
+  EXCHANGE_STATE State   = 2;
+}
+
+// 赠送物品
+message SSReqExchangeGift {
+  uint64             PfId       	= 1;
+  string             ShelfType  	= 2;
+  string             InstanceId 	= 3;
+  uint32             ItemId     	= 4;
+  uint32             ItemCount  	= 5;
+  CSDTExChangePlayer Sender     	= 6;
+  CSDTExChangePlayer Receiver   	= 7;
+  bool 				 CheckIdentify 	= 8;
+  bool				 IsIdentify    	= 9;
+}
+
+message SSReqExchangeCBStatus {
+  uint64 PfId      = 1;
+  string ShelfType = 2;
+  string OrderId   = 3;
+}
+
+message PFDTExchangeCBStatus {
+  string OrderId      = 1;
+  int32  CallbackType = 2;
+  int32  Status       = 3;
+  string Remark       = 4;
+}
+
+// 玩家是否能交易
+message SSReqPlayerCanExchange {
+  uint64 PfId               = 1;
+  string PlayerId           = 2;
+  bool   SkipCheckItemLimit = 3; // 跳过物品上限检测
+}
+
+message PFDTPlayerCanExchange {
+  int32  Status = 1;
+  string Reason = 2;
+}
+
+message SSReqCheckWorkshopRule {
+  uint64 PfId = 1;
+  string Id   = 2;
+}
+
+message SSRspGameEnded {
+}
+
+message SSReqRequireRobots {
+  int32                  GameID       = 1;
+  uint64                 PvpID        = 2;
+  repeated PvpPlayerData PvpDatas     = 3;
+  string                 PVPSrvAddr   = 4; // ip:port
+  uint32                 Level        = 5; // 机器人难度等级
+  bool                   Compensation = 6; // 是否是补偿局
+  PVPMODE                Mode         = 7;
+  int64                  Version      = 8; //内核版本号
+}
+
+message SSRspRequireRobots {
+  bool   Success = 1;
+  int32  GameID  = 2;
+  uint64 PvpID   = 3; //pvpid
+}
+
+message SSReqUpdateGamelibVersion {
+  uint64 PfID = 1;
+}
+
+message SSAttachInfo {
+  string FD     = 1;
+  uint64 PfID   = 2;
+  int64  TS     = 3;
+  string Player = 4;
+  uint64 Seq    = 5;
+}
+
+message SSMessageWrap{
+  bytes Data = 1;
+}
+
+//futureCallBack事件
+message SSRspFutureCallBack {
+  uint64                            PfId                          = 1;  // promise id
+  SSMsgID                           ReqMsgId                      = 2;  // req msg id
+  int64                             ts                            = 3;  // 发包毫秒时间戳
+  PFDTPlayersStatus                 RspPlayersStatus              = 4;  // 请求玩家状态信息
+  PFDTPlayersBaseInfo               RspPlayersBaseInfo            = 5;  // 玩家基础信息
+  PFDTPlayerDetailInfo              RspPlayerDetailInfo           = 6;  // 玩家详细信息
+  PFDTCommonRsp                     CommonRsp                     = 7;  //
+  PFDTSendMail                      RspSendMail                   = 10; // 发送邮件
+  PFDTGetMailData                   RspGetMailData                = 11; // 获取邮件数据
+
+  PFDTGetNumRank                    RspGetNumRank                 = 12;
+  PFDTLogin                         RspLogin                      = 13;
+  PFDTDbOp                          RspDbOp                       = 14;
+  PFDTApplyOrderId                  RspApplyOrderId               = 15; // 申请订单Id
+  PFDTTeamGame                      RspTeamGame                   = 16;
+  PFDTJoinTeam                      RspJoinTeam                   = 17;
+  PFDTLeaveTeam                     RspLeaveTeam                  = 18;
+  PFDTKickOffTeamPlayer             RspKickOffTeamPlayer          = 19;
+  PFDTTeamMsg                       RspTeamMsg                    = 20;
+  PFDTTeamReady                     RspTeamReady                  = 21;
+  PFDTReportPayResponse             RspReportPayResponse          = 22;
+  PFDTAddAiToTeam                   RspAddAiToTeam                = 23;
+  PFDTPlayersPvpInfo                RspPlayersPvpInfo             = 24; // 玩家基础信息
+  PFDTSetTeamMode                   RspSetTeamMode                = 25;
+  PFDTSearchTeam                    RspSearchTeam                 = 26;
+  PFDTApplyChat                     RspApplyChat                  = 27;
+  PFDTGetGoods                      RspGetGoods                   = 28; // 获取商品
+  PFDTQueryMatch                    RspQueryMatch                 = 29; // 获取赛事
+  PFDTJoinVoiceTeam                 RspJoinVoiceTeam              = 30; // 加入语音房间
+  PFDTTeamInfo                      RspTeamInfo                   = 31; // 队伍信息
+  PFDTGetRecommendPvp               RspGetRecommendPvp            = 32; // 获取推荐战局
+  PFDTGetObserveInfo                RspGetObserveInfo             = 33; // 获取观战信息
+  PFDTSendRedPacket                 RspSendRedPacket              = 34; // 微信大玩家活动发送红包
+  PFDTRecvRedPacket                 RspRecvRedPacket              = 35; // 微信大玩家活动领取红包
+  PFDTChangeSlotTeam                RspChangeSlotTeam             = 36; // 请求换位
+  PFDTChangeSubModeTeam             RspChangeSubModeTeam          = 37; // 请求修改子模式
+  PFDTConfirmChangeSlotTeam         RspConfirmChangeSlotTeam      = 38; // 确认换队
+  PFDTGetTranslate                  RspGetTranslate               = 39; // 获取翻译
+  PFDTTeamPunishStatus              TeamPunishStatus              = 40; // 获取队伍惩罚状态
+  PFDTCancelChangeSlot              RspCancelChangeSlot           = 41; // 取消换位
+  PFDTTeamOP                        RspTeamOP                     = 42;
+  PFDTOBTeamBaseInfo                RspOBTeamInfo                 = 43;
+  PFDTUpdatePlayersStatus           RspUpdatePlayersStatus        = 44;
+  PFDTSwitchModeInTeam              RspSwitchModeInTeam           = 45; // 队伍中切换模式
+  PFDTGetTournaments                RspGetTournaments             = 46; // 获取正在进行的赛事
+  PFDTEnrollTournament              RspEnrollTournament           = 47; // 赛事报名
+  PFDTRequireTNGroup                RequireTNGroup                = 49; // 请求赛事组
+  PFDTLuckStarAward                 RspLuckStarAward              = 50; // 幸运星奖励
+  PFDTPlayerTournamentData          PlayerTournamentData          = 51; // 拉取玩家比赛信息
+  PFDTReportTournamentGroup         ReportTournamentGroup         = 52; // 匹配成功后上报玩家对阵信息
+  PFDTGetEnrollPlayers              GetEnrollPlayers              = 53; // 获取报名玩家列表
+  PFDTChallengeAgain                ChallengeAgain                = 54; // 再次挑战该赛事
+  PFDTTournamentPointAward          TournamentPointAward          = 55; // 获取积分进度奖励
+  PFDTGroupIndex                    GroupIndex                    = 56; // 返回赛事的groupIndex
+  PFDTTournamentMatchGroup          MatchGroup                    = 57; // 返回玩家匹配战斗组id
+
+  PFDTPlayerCurGame                 PlayerCurGame                 = 58; // 返回玩家当前或者即将可以参与的赛事轮次和id
+  PFDTSwitchToCommonMatch           RspSwitchToCommonMatch        = 59; // 返回切换到全球匹配
+  PFDTConnectStream                 RspConnectStream              = 100;
+  PFDTApplyNewGame                  RspApplyNewGame               = 101;
+  PFDTGetTNRoomState                RspGetTNRoomState             = 102;
+  PFDTUpdateGamelibVersion          RspUpdateGamelibVersion       = 110;
+  PFDTPlatData                      RspPlatData                   = 111; // 开放平台返回的数据
+  PFDTPlayerRankInfo                RspPlayerRankInfo             = 112;
+  PFDTCheckWorkshopRule             RspCheckWorkshopRule          = 120;
+  PFDTWorkshopMatch                 RspWorkshopMatch              = 121;
+  PFDTUpdatePlayerWorkshopTicket    RspUpdatePlayerWorkshopTicket = 122;
+  PFDTPlayersTournametInfo          RspPlayersTournamentInfo      = 123; // 玩家锦标赛信息
+  PFDTPlayersVisitedMaps            RspPlayersVisitedMaps         = 124;
+  PFDTHandleOfficialToken           RspHandleOfficialToken        = 125;
+  PFDTPushTransferEvent             RspPushTransferEvent          = 126;
+  PFDTGetThirdPvpInfo               RspGetThirdPvpInfo            = 127; // 获取第三方赛事
+  PFDTHaveThirdPvp                  RspHaveThirdPvp               = 128; // 是否第三方比赛
+  PFDTPsTournamentRoom              RspPsTournamentRoom           = 129; // 返回ps赛事房间id
+
+  PFDTGuildCreate                   GuildCreate                   = 130;
+  PFDTGuildApply                    GuildApply                    = 131;
+  PFDTGuildHome                     GuildHome                     = 132;
+  PFDTGuildApplylist                GuildApplyList                = 133;
+  PFDTGuildInfo                     GuildInfo                     = 134;
+  PFDTGuildApprove                  GuildApprove                  = 135;
+  PFDTGuildSetRole                  GuildRole                     = 136;
+  PFDTGuildModify                   GuildModify                   = 137;
+  PFDTGuildKickoff                  GuildKickoff                  = 138;
+  PFDTGuildDismiss                  GuildDismiss                  = 139;
+  PFDTGuildExit                     GuildExit                     = 140;
+  PFDTGuildList                     GuildList                     = 141;
+  PFDTGuildRecommendPlayers         GuildRecommendPlayers         = 142;
+  PFDTGuildInviteList               GuildInviteList               = 143;
+  PFDTGuildInvite                   GuildInvite                   = 144;
+  PFDTGuildLogin                    GuildLogin                    = 145;
+  PFDTPlayerMedals                  PlayerMedals                  = 146;
+  PFDTAuthAccount                   AuthAccount                   = 147;
+  PFDTCSReqTrans                    CSReqTrans                    = 148; //CSReq请求相关的callback数据
+  PFDTUpdateNumRank                 UpdateNumRank                 = 149;
+  PFDTGetSelfNumRankDatas           SelfNumRankDatas              = 190; //先放190?
+
+  PFDTExchangeSell                  ExchangeSell                  = 150;
+  PFDTExchangeBuy                   ExchangeBuy                   = 151;
+  PFDTExchangeSellACK               ExchangeSellACK               = 152;
+  PFDTExchangeState                 ExchangeState                 = 153;
+  PFDTExchangeOrderCancel           ExchangeOrderCancel           = 154;
+  PFDTExchangeGift                  ExchangeGift                  = 155;
+  PFDTExchangeSendGift              ExchangeSendGift              = 156;
+  PFDTExchangeCBStatus              ExchangeCBStatus              = 158;
+  PFDTPlayerCanExchange             PlayerCanExchange             = 159;
+  PFDTExchangePlayerItem            ExchangePlayerItem            = 160;
+  PFDTExchangeItemTypeSet           ExchangeItemSet               = 161;
+  PFDTExchangeItemInfo              ExchangeItemInfo              = 162;
+  PFDTExchangeItemIdSet             ExchangeItemIdSet             = 163;
+  PFDTPvpConfirm                    PvpConfirm                    = 164;
+  PFDTGetKeyRank                    GetKeyRank                    = 165;
+  PFDTExchangeOpenRandChest         ExchangeOpenRandChest         = 166;
+  PFDTExchangeCheckAndApplyHall     ExchangeCheckAndApplyHall     = 167;
+  PFDTExchangeItemByType            ExchangeItemByType            = 168;
+  PFDTExchangeCheckUpgradePassport  ExchangeCheckUpgradePassport  = 169;
+  PFDTExchangeCheckBuyPassportLevel ExchangeCheckBuyPassportLevel = 170;
+  PFDTExchangeUpgradePassport       ExchangeUpgradePassport       = 171;
+  PFDTUpdateTeamDebuff              UpdateTeamDebuff              = 172;
+  PFDTMentorInviteMsg               MentorInviteMsg               = 173; // 师徒消息
+  PFDTGetMentorInfo                 GetMentorInfo                 = 174; // 获取师傅信息
+  PFDTMentorGetRecommendList        MentorGetRecommendList        = 175; // 获取师傅/徒弟 推荐表信息
+  PFDTPupilApplyGraduate            PupilApplyGraduate            = 176; // 获取师傅/徒弟 推荐表信息
+  PFDTMsGetTaskAward                MsGetTaskAward                = 178; // 获取师傅/徒弟 获取奖励
+  PFDTMsRelieveRelation             MsRelieveRelation             = 179; // 获取师傅/徒弟 获取奖励
+  PFDTOfflineItems					OfflineItems				  = 180;
+  PFDTObLogin                       ObLogin                       = 181; //观战服登录
+  PFDTPullExchangeRecord			PullExchangeRecord			  = 182; //拉取交易记录
+  PFDTObPvpChat						ObPvpChat			  		  = 183;
+}
+
+message PFDTTeamPunishStatus {
+  bool  Punished           = 1;    //是否有队伍玩家收到惩罚
+  int64 PunishmentDeadline = 2;    //惩罚截止时间
+}
+
+message PFDTGetRecommendPvp {
+  repeated CSDTRecommendPvpInfo Recommends = 1;
+  map<int32, uint32>            ModeIndex  = 2;   //拉取推荐观战的位置。key 是mode,value是mode排序的Index
+}
+
+message PFDTGetThirdPvpInfo{
+  repeated CSDTThirdPvpInfo Info = 1;
+}
+
+message PFDTHaveThirdPvp {
+  bool Have = 1;
+}
+
+message PFDTReportPayResponse {
+  PAYRESULT Result = 1;
+  string    Info   = 2;
+}
+
+message PFDTApplyOrderId{
+  string Id             = 1; //订单id
+  string PayCallBackURI = 2;
+  string Data           = 3; //额外数据
+}
+
+message PFDTPlayersStatus {
+  repeated CSDTPlayerStatusInfo Info = 1;    //信息列表
+}
+
+message PFDTPlayersBaseInfo {
+  repeated CSDTPlayerBaseInfo Info = 1;    //基础信息列表
+}
+
+message PFDTPlayerDetailInfo {
+  repeated CSDTPlayerDetailInfo Infos = 1;    //详细信息
+}
+
+message PFDTPlayersTournametInfo {
+  repeated CSDTPlayerTournamentInfo Infos = 1; //锦标赛相关信息
+}
+
+message PFDTPlayersVisitedMaps {
+  map<string, VisitedMaps> VstMaps = 1;
+}
+
+message PFDTPlayersPvpInfo {
+  repeated CSDTPlayerPvpInfo Info = 1;    //Pvp信息列表
+}
+
+message PFDTPlayerRankInfo {
+  repeated CSDTPlayerRankInfo Info = 1;    //rank信息列表
+}
+
+message PFDTGetNumRank{
+  string                   Id            = 1; //玩家Id
+  RANKTYPE                 Type          = 2; //排行类型
+  int32                    Rank          = 3; //玩家排名
+  uint32                   RankThreshold = 4; //排名阀值
+  uint32                   RankTopCount  = 5; //前几名的数目
+  repeated CSDTNumRankItem items         = 6; //前几名的玩家
+  string                   Country       = 7; //国家代码 国内就是省份
+  CHANELTYPE               ChannelType   = 8; //渠道类型
+}
+
+message PFDTGetSelfNumRankDatas{
+  string                      Id          = 1; //玩家Id
+  repeated PFDTGetSelfNumRank data        = 2;//
+  string                      Country     = 3; //国家代码 国内就是省份
+  CHANELTYPE                  ChannelType = 4; //渠道类型
+  string                      ChannelId   = 5; //渠道类型
+}
+
+message PFDTGetSelfNumRank{
+  RANKTYPE Type = 1; //排行类型
+  int32    Rank = 2; //玩家排名
+}
+
+message PFDTGetKeyRank {
+  repeated CSDTNumRankItem Items         = 1; //前几名的玩家
+  uint64                   Count         = 2; //总共人数
+  uint32                   RankThreshold = 3; //排名阀值
+  uint32                   RankTopCount  = 4; //前几名的数目
+  CSDTNumRankItem          MySelf        = 5; //当前玩家
+}
+
+message PFDTSendMail{
+  uint64 Id        = 1; //邮件Id
+  bool   IsSuccess = 2; //是否发送成功
+  string ErrorDesc = 3; //错误描述
+}
+
+message PFDTLogin{
+  bool                Succeed   = 1;
+  map<string, string> Datas     = 2;
+  string              ErrorDesc = 3;
+}
+
+message PFDTGetGoods {
+  repeated CSDTGoodsInfo Goods = 1;
+}
+
+message RspData{
+  int64          Value = 1;
+  repeated bytes Datas = 2;
+}
+
+message PFDTDbOp{
+  string  Error     = 1;
+  RspData RspData   = 2;
+  RESULT  ErrorCode = 3;
+}
+
+//sspromis future 通用请求
+message SSReqPFData {
+  uint64 PfId = 1;
+}
+
+//sspromis futer 通用玩家请求
+message SSReqPFPlayerData {
+  uint64 PfId     = 1;
+  string PlayerId = 2;
+}
+
+//playerStatus
+message SSReqPlayersStatus {
+  uint64          PfId = 1;    //
+  repeated string Ids  = 2;    //id列表
+}
+
+message SSDTMailAward{
+  uint32 Id    = 1; //物品Id
+  uint32 Count = 2; //数量
+}
+
+message SSReqSendMail{//多个条件的关系为:与
+  uint64                 PfId             = 1;  // promise id
+  string                 Title            = 2;  // 标题
+  string                 Content          = 3;  // 正文
+  int32                  ChannelType      = 4;  // 注册渠道类型(=0时,不含本条件,即所有渠道)
+  int32                  LoginChannelType = 5;  // 登录/分发渠道类型(=0时,不含本条件)
+  string                 Version          = 6;  // 服务器版本号(=""时,发送给所有版本)
+  uint32                 GTECup           = 7;  // 大于等于该段位((=0时,不含本条件)
+  uint32                 LTECup           = 8;  // 小于等于该段位((=0时,不含本条件)
+  uint32                 GTELevel         = 9;  // 大于等于该等级((=0时,不含本条件)
+  uint32                 LTELevel         = 10; // 小于等于该等级((=0时,不含本条件)
+  repeated string        IdList           = 11; // 玩家Id列表(为空,表示用上面的条件筛选;不为空,表示个人邮件,不用上面的条件筛选)
+  repeated SSDTMailAward Awards           = 12; // 附件奖励
+  SOURCE                 AwardSource      = 13; // 奖励原因
+  int64                  SurviveTime      = 14; // 存活时间
+  bool                   Personal         = 15; // true:确定性的多人/单人邮件,flase:使用条件组合筛选出来的全服邮件
+  uint32                 Flag             = 16; // 0代表明文，1代表语言key
+  int64                  TriggerStartTime = 17; // 触发邮件开始时间
+  int64                  TriggerEndTime   = 18; // 触发邮件结束时间
+  repeated string        CountryList      = 19; // 国家代码
+  map<string, string>    Dict             = 20; // 字典
+  repeated string        DownloadList     = 21; // 下载渠道
+  repeated PLATFORMTYPE  PlatformList     = 22; // 平台类型
+  WEBOP                  WebOp            = 30; // 开放平台操作类型
+  string                 WebOpenData      = 31; // 开放平台前端可见数据
+  string                 WebKeptData      = 32; // 开放平台私有数据，前端不可见
+  string                 PlayersRedisKey  = 33; // 玩家列表存储在redis中的key
+  int64                  MustWaitTime     = 34; // 必须等待一段时间才能领取奖励
+  repeated string        ExcludeDownload  = 35; // 下载渠道 除外
+  int64                  StartTime        = 36; // 开始时间
+}
+
+message SSDTMailData{
+  uint64                Id              = 1; // 邮件Id
+  string                Title           = 2; // 邮件标题
+  string                Content         = 3; // 邮件内容
+  repeated Award        Awards          = 4; // 邮件奖励
+  int64                 Ts              = 5; // 邮件时间
+  bool                  Personal        = 6; // true:确定性的多人/单人邮件,flase:使用条件组合筛选出来的全服邮件
+  uint32                Flag            = 7;
+  bool                  MultiPlayer     = 8;
+  SOURCE                AwardSource     = 9;  // 奖励原因
+  repeated string       CountryList     = 10; // 国家代码
+  map<string, string>   Dict            = 11; // 字典
+  repeated string       DownloadList    = 12; // 下载渠道
+  repeated PLATFORMTYPE PlatformList    = 22; // 平台类型
+  WEBOP                 WebOp           = 30; // 开放平台操作类型
+  string                WebOpenData     = 31; // 开放平台前端可见数据
+  string                WebKeptData     = 32; // 开放平台私有数据，前端不可见
+  int64                 MustWaitTime    = 34; // 必须等待一段时间才能领取奖励
+  repeated string       ExcludeDownload = 35; // 下载渠道 除外
+}
+
+message PFDTGetMailData{
+  map<uint64, SSDTMailData> Datas = 1;
+}
+
+message SSReqGetMailData{
+  uint64              PfId             = 1; //promise id
+  map<uint64, uint64> Ids              = 2; //邮件Id列表
+  CHANELTYPE          ChannelType      = 3; //注册渠道类型
+  int64               RegisterTime     = 4;
+  int32               LoginChannelType = 5; //登录/分发渠道类型
+  string              Version          = 6; //版本号
+  uint32              Cup              = 7; //段位
+  uint32              Level            = 9; //等级
+  string              PlayerId         = 10;//玩家ID
+}
+
+//根据邮件内容发送
+message SSReqSendMultiMail{
+  uint64 PfId     = 1;  // promise id
+  string FileName = 2;  // 文件名
+}
+
+message SSReqGetNumRank{
+  string     Id          = 1;
+  RANKTYPE   Type        = 2; //排行榜类型
+  uint64     PfId        = 3;
+  string     Country     = 4;
+  string     RedisDb     = 5;
+  int32      BeginIdx    = 6;
+  int32      EndIdx      = 7;
+  bool       OnlySelf    = 8; // 只获取自己的排名
+  CHANELTYPE ChannelType = 9; //渠道类型
+  string     ChannelId   = 10;//渠道id 区分vng_lite需要
+}
+
+message SSReqLogin{
+  string PlayerId = 1;   //玩家id
+}
+
+message DbOpData {
+  bytes Data = 1;
+}
+
+message DbOp {
+  int32             OpType            = 1;
+  string            CollectionName    = 2;
+  bytes             QueryContent      = 3;
+  bytes             SelectContent     = 4;
+  bytes             UpdateContent     = 5;
+  bytes             UnsetContent      = 6;
+  bytes             PushContent       = 7;
+  bytes             GroupContent      = 8;
+  repeated DbOpData InsertDatas       = 9;
+  repeated DbOpData BulkUpdateDatas   = 10;
+  repeated DbOpData BulkUpsertDatas   = 11;
+  bytes             Sortfields        = 12;
+  int32             Limit             = 13;
+  int32             Skip              = 14;
+  bool              ReturnOld         = 15;
+  bool              UnReturnError     = 16;
+  bool              KeepOrder         = 17;
+  int32             CachePlayerOpType = 18;
+  bool              UnLog             = 19;
+  bool              Global            = 20;
+  bool              Transaction       = 21;
+  bytes             IndexContent      = 22;
+  string            PlayerId          = 23;
+  bool              IndexUnique       = 24;
+  bool              LY                = 25;
+  bool              Upsert            = 26;
+  DbOpData          SaveData          = 27;
+  bool              UnOrdered         = 28;
+  bool              TXOld             = 29;
+}
+
+message SSReqDbOp{
+  uint64 PfId = 1; //promise id
+  DbOp   Op   = 2;
+}
+
+message SSReqRemoveMail{
+  uint64 Id = 1;
+}
+
+message SSReqRemoveMailList{
+  repeated uint64 Ids = 1;
+}
+
+message SSReqUpdatePlayersStatus {
+  uint64                        PfId    = 1;
+  repeated CSDTPlayerStatusInfo players = 2;    //玩家状态
+}
+
+//reqTeamGame
+message SSReqTeamGame {
+  PvpPlayerData PlayerData    = 1;    //玩家信息
+  PVPMODE       Mode          = 2;
+  uint64        PfId          = 3;
+  uint32        CustomSubMode = 4;
+  TeamOPSetting setting       = 5;  //队伍的设置
+}
+
+message PFDTTeamGame {
+  uint32        TeamId  = 1; //队伍id
+  string        VoiceId = 2; //语音房间ID
+  TeamOPSetting setting = 3; //队伍的设置
+}
+
+//reqJoinTeam
+message SSReqJoinTeam {
+  uint64        PfId         = 1;
+  uint32        TeamId       = 2;   //teamId
+  PvpPlayerData PlayerData   = 3;   //玩家信息
+  JOINTEAMTYPE  JoinType     = 4;   //进队方式
+  bool          IsFriend     = 5;   //如果有邀请者,邀请瞬间,被邀请者是否与邀请者是好友关系
+  string        Pwd          = 6;   //加入房间
+  uint64        TournamentID = 7;
+  uint64		PvpID		 = 8;	//pvp对局ID(断线重连需要判断PVPid是否一致)
+}
+
+message PFDTJoinTeam{
+  RESULT                      Result           = 1;
+  uint32                      TeamId           = 2;    //队伍id
+  repeated string             Ids              = 3;    //玩家
+  string                      Captain          = 4;    //队长
+  repeated string             ReadyIds         = 5;    //玩家准备状态数据
+  PVPMODE                     Mode             = 6;
+  uint32                      SelfSlot         = 7;    //槽号(自定义房间用)
+  repeated CSDTTeamSlotPlayer SlotPlayers      = 8;    //成员所在槽号分布
+  string                      VoiceId          = 9;    //语音房间ID
+  uint32                      CustomSubMode    = 10;   //自定义房间子模式
+  TeamOPSetting               setting          = 11;
+  int32                       PlayerNumber     = 12;   //真人数量
+  int32                       AINumber         = 13;   //AI玩家数量
+  TournamentRoom              RoomInfo         = 14;   //锦标赛房间信息
+  CSDTBetData                 BetData          = 15;   //赏金投注信息
+  bool                        CloseReadySwitch = 16; //决定客户端是否可取消准备
+}
+
+//reqLeaveTeam
+message SSReqLeaveTeam {
+  uint64 PfId      = 1;
+  string Id        = 2;    //id
+  bool   IsOffline = 3;  //是否离线
+}
+
+message PFDTLeaveTeam {
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+//reqkickoffTeamplayer
+message SSReqKickOffTeamPlayer {
+  uint64 PfId   = 1;
+  string Id     = 2;    //id
+  string KickId = 3;    //被踢者
+  bool   IsAI   = 4;    //自定义电脑
+  uint32 Slot   = 5;
+}
+
+message PFDTKickOffTeamPlayer {
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+//reqTeamMsg
+message SSReqTeamMsg {
+  uint64         PfId       = 1;
+  string         Id         = 2;    //消息者
+  string         Msg        = 3;    //消息
+  uint32         Emotion    = 4;
+  CHATSOURCETYPE SourceType = 5; //聊天来源类型
+}
+
+message PFDTTeamMsg{
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+message SSReqTeamReady{
+  uint64        PfId       = 1;
+  string        Id         = 2;
+  bool          IsReady    = 3; //准备or取消准备
+  PvpPlayerData PlayerData = 4; //玩家信息(队伍长久存在，需要及时更新)
+}
+
+message PFDTTeamReady{
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+//TeamPvp
+message SSReqTeamPvp {
+  uint32                     TeamId            = 1;
+  PVPMODE                    Mode              = 2;
+  MAPTYPE                    MapType           = 3;  // 地图模式
+  string                     Captain           = 4;  // 队长
+  map<string, PvpPlayerData> Players           = 5;  // 玩家列表
+  string                     ApkVersion        = 6;  // 客户端当前版本号
+  uint32                     CustomSubMode     = 7;  // 自定义房间子模式
+  bool                       IsRedirect        = 8;  // 是否重定向
+  string                     CommunityLogoIcon = 9;  // 社区logoIcon
+  int64                      CommunityTeamUUID = 10; // 社区组队唯一id
+  string                     CustomGameUrl     = 11; // 社区自定义玩法id
+  int32                      BattleType        = 12; // 战斗类型 0:正式 1:沙盒
+  int32                      CustomGameId      = 13; // 自定义战斗id
+  string                     PlatAppId         = 14; // 开放平台对应的社区appid
+  bool                       UploadStatData    = 15; // 是否上传战斗回合数据
+  TeamDesc                   Desc              = 16;
+  bool                       IsTournamentRoom  = 17; // 是否是赛事房间
+  BattleExtData              ExtData           = 18; // 战斗额外的结算数据
+  bool                       IsWorkshopRoom    = 19; // 是否是创意工坊房间
+  string                     PsEventID         = 20; // ps 电竞
+  PvpExtData                 PExtData          = 21; // pvp额外数据
+  PvpPassData	   			 PassData		   = 22; // pvp透传数据
+}
+
+message SSReqApplyOrderId{
+  uint64       PfId           = 1; //promise id
+  CHANELTYPE   ChannelType    = 2; //渠道类型
+  string       PlayerId       = 3; //玩家Id
+  uint32       GoodsId        = 4; //商品Id
+  CURRENCYTYPE CurrencyType   = 5; //货币类型
+  string       LoginIP        = 6; //充值ip
+  string       Country        = 7; //国家
+  string       ServiceVersion = 8; //服务器版本号
+  map<string, string> Attach  = 9; //额外信息
+}
+
+message SSReqReportOrderInfo{
+  uint64 PfId    = 1; //promise id
+  string OrderId = 2;
+  string Info    = 3;
+}
+message SSRspTeamPvp {
+  uint32  TeamId          = 1;
+  PVPMODE Mode            = 2;    //pvp模式
+  uint32  ExceptSecs      = 3;    //预期匹配时间 单位：秒
+  bool    IsRedirect      = 4;    //是否重定向
+  string  MatchRegion     = 5;   //非""为地区匹配.
+  uint32  MatchRegionSecs = 6;//地区匹配时长 单位：秒
+}
+
+message SSReqReportPayResponse {
+  uint64              PfId           = 1;
+  string              Env            = 2;    //环境:"Production"=正式测试,其他=沙盒测试,
+  string              Signature      = 3;    //签名
+  string              Response       = 4;    //客户端支付成功的回执(json)
+  CHANELTYPE          ChannelType    = 5;    //渠道类型
+  string              PlayerId       = 6;    //玩家ID
+  map<string, string> EpicBuy        = 7;    //Epic支付相关的参数
+  string              ServiceVersion = 8; //服务器版本号
+}
+
+message SSReqAddAiToTeam {
+  uint64 PfId     = 1;
+  string Id       = 2;
+  string NickName = 3;
+  int32  Slot     = 4;
+}
+
+message PFDTAddAiToTeam{
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+message SSReqSetTeamMode{
+  uint64        PfId          = 1;
+  string        Id            = 2;
+  PVPMODE       Mode          = 3;
+  uint32        CustomSubMode = 4;
+  TeamOPSetting Setting       = 5;
+}
+
+message PFDTSetTeamMode{
+  RESULT Result = 1;
+  string ErrMsg = 2;
+}
+
+message SSReqSearchTeam{
+  uint64  PfId     = 1;
+  uint32  TeamId   = 2;
+  PVPMODE mode     = 3;
+  bool    isPsOnly = 4;
+}
+
+message PFDTSearchTeam{
+  string       Captain   = 1;
+  uint32       PlayerNum = 2;
+  TeamBaseInfo baseInfo  = 3;
+}
+
+message PFDTTeamOP {
+  bool success = 1; // 是否成功
+}
+
+message PFDTOBTeamBaseInfo {
+  repeated TeamBaseInfo BaseInfo = 1;
+}
+
+message PFDTUpdatePlayersStatus {
+  bool         Success       = 1;
+  PLAYERSTATUS UpdatedStatus = 2;
+}
+
+message PFDTSwitchModeInTeam {
+  repeated string Players = 1;
+}
+
+message SSReqApplyChat{
+  uint64     PfId         = 1;
+  string     Id           = 2;
+  uint32     HallServerId = 3;
+  CHANELTYPE ChannelType  = 4;
+}
+
+message PFDTApplyChat{
+  string SessionId     = 1;
+  string OutNetTCPAddr = 2;
+}
+
+message SSReqGetGoods {
+  uint64 PfId = 1; //promise id
+}
+
+message SSReqActGrpBuy {
+  int64               Ver    = 1;
+  map<uint32, uint32> BuyRec = 2;
+  uint32              ZoneID = 3;
+}
+
+message SSRspActGrpBuy {
+  uint32              Invalid = 1;
+  map<string, uint32> BuyRec  = 2;
+  uint32              ZoneID  = 3;
+}
+
+message SSReqCreateMatch {
+  uint64 PfId         = 1;
+  int32  id           = 2;
+  int32  count        = 3;
+  int64  matchEndTime = 4;
+}
+
+message SSReqQueryMatch {
+  uint64 PfId = 1;
+  int32  id   = 2;
+}
+
+message PFDTQueryMatch {
+  int32           id      = 1;
+  repeated uint32 teamIds = 2;
+}
+
+message SSReqCloseMatch {
+  uint64 PfId = 1;
+  int32  id   = 2;
+}
+
+message SSReqGetRecommendPvp {
+  uint64             PfId         = 1;
+  uint32             MinCup       = 2;
+  uint32             MaxCup       = 3;
+  int32              Mode         = 4;    //模式
+  repeated string    Ids          = 5;    //获取信息的玩家列表
+  uint32             Start        = 6;    //拉取推荐观战的位置，从什么位置开始拉取战局。start从0开始
+  OBSERVELISTTYPE    Type         = 7;    //推荐类型
+  uint32             Zone         = 8;    //玩家所属赛区
+  map<int32, uint32> ModeIndex    = 9;    //拉取推荐观战的位置,每个mode从index开始拉去。key是mode, value是mode排序的Index
+  PLATFORMTYPE       PlatFormType = 10;  //平台类型
+  bool               Ps4Only      = 11;
+}
+
+message SSReqJoinVoiceTeam {
+  uint64 PfId        = 1;
+  uint32 TeamId      = 2;
+  string Id          = 3; //玩家ID
+  uint32 VoiceMemId  = 4;
+  string VoiceUserId = 5;
+}
+
+message PFDTJoinVoiceTeam {
+  uint32                       VoiceMemId  = 1;
+  int32                        Result      = 2;
+  repeated CSDTTeamVoicePlayer VoicePlayer = 3;
+  string                       VoiceUserId = 4;
+}
+
+message SSReqChangeSlotTeam {
+  uint64 PfId   = 1;
+  uint32 TeamId = 2;
+  string Id     = 3; //玩家ID
+  uint32 Slot   = 4;
+}
+
+message SSReqCancelChangeSlot {
+  uint64 PfId   = 1;
+  uint32 TeamId = 2;
+  string Id     = 3; //玩家ID
+  string DesId  = 4;
+}
+
+message PFDTChangeSlotTeam {
+  uint32 Slot               = 1;
+  int64  NextChangeSlotTime = 2;
+}
+
+message PFDTCancelChangeSlot {
+}
+
+message SSReqChangeSubModeTeam {
+  uint64 PfId    = 1;
+  uint32 TeamId  = 2;
+  string Id      = 3; //玩家ID
+  uint32 SubMode = 4;
+}
+
+message PFDTChangeSubModeTeam {
+  int32 SubMode = 1;
+}
+
+message SSReqConfirmChangeSlotTeam {
+  uint64 PfId          = 1;
+  uint32 TeamId        = 2;
+  uint32 IsAgree       = 3;
+  string SendUserId    = 4;
+  string ReceiveUserId = 5;
+}
+
+message PFDTConfirmChangeSlotTeam {
+}
+
+message SSReqTeamInfo {
+  uint64 PfId   = 1;
+  uint32 TeamId = 2;   // 队伍ID
+}
+
+message PFDTTeamInfo {
+  string Data = 1; // 通过teaminfo 透传过来
+}
+
+//获取观战信息
+message SSReqGetObserveInfo {
+  uint64          PfId   = 1;
+  repeated uint64 PvpIds = 2;
+}
+
+message PFDTGetObserveInfo {
+  repeated CSDTObserveInfo Info = 1;
+}
+
+//发送微信大玩家红包
+message SSReqSendRedPacket {
+  uint64                    PfId     = 1;
+  CSDTWxVVipRankItem        UserInfo = 2;
+  repeated CSDTWxRedPktItem RedPkts  = 3;
+}
+
+message PFDTSendRedPacket {
+  repeated string RedPkts = 1;
+}
+
+//领取微信大玩家活动红包
+message SSReqRecvRedPacket {
+  uint64 PfId      = 1;
+  string UId       = 2;
+  string Name      = 3;
+  string RedPktIdx = 4;
+}
+
+message PFDTRecvRedPacket {
+  uint32                  RedPktId = 1;
+  string                  Sender   = 2;
+  uint32                  AwdNum   = 3;
+  bool                    Over     = 4;
+  repeated CSDTRedPktData RankData = 5;
+}
+
+//同步微信大玩家点赞数
+message SSReqWxRecPktLikes {
+  int64               Ver        = 1;
+  int64               RankVer    = 2;
+  map<string, uint32> LocalLikes = 3;
+  map<string, int64>  RedPktVer  = 4;
+}
+
+message SSRspWxRecPktLikes {
+  uint32                      Invalid  = 1;
+  int64                       RankVer  = 2;
+  repeated CSDTWxVVipRankItem LikeRank = 3;
+  map<string, CSDTRedPktInfo> RedPkts  = 4;
+}
+
+message SSReqCheckDuplicateLogin {
+  uint64 PfId           = 1;
+  string Id             = 2;
+  uint32 ServerId       = 3;
+  string ServiceVersion = 4; //服务器版本号
+}
+
+message SSReqKickoffPlayer {
+  uint64 PfId = 1;
+  string Id   = 2;
+}
+
+message SSReqPvpConfirm {
+  string PlayerId = 1;
+  bool   Confirm  = 2;
+  uint64 Seq      = 3;
+  uint64 PfId     = 4;
+}
+message PFDTPvpConfirm {
+  RESULT ErrCode = 1;    //错误码  0: 成功  非0：失败
+  string ErrMsg  = 2;    //错误提示  ErrCode非0时有意义
+}
+
+message SSRspPvpConfirm {
+  uint64 Seq = 1;
+}
+
+message SSReqGetTranslate{
+  uint64 PfId     = 1;
+  string Content  = 2;
+  string Tolangue = 3;
+}
+
+message PFDTGetTranslate{
+  string TranslateStr = 1;
+}
+
+message SSReqTeamPunishStatus {
+  uint64         PfId   = 1;
+  uint32         TeamId = 2;
+  PUNISHMENTTYPE Type   = 3;
+}
+
+message SSReqTournamentPointAward {
+  uint64 pfId         = 1;
+  string Id           = 2;    // 玩家id
+  uint64 TournamentId = 3;    // 赛事id
+  uint32 AwardId      = 4;    // 奖励id
+  uint32 Num          = 5;    // 领取的是哪一个进度
+}
+
+message PFDTTournamentPointAward {
+  repeated Award awards = 1; // 奖励
+  RESULT         result = 2; // 错误码
+}
+
+//开放平台
+message SSReqGameAndPf {
+  SSMsgID MsgId = 1;  //透传消息id
+  uint32  SrcId = 2;  //origin server id
+  uint64  PfId  = 3;  //promise id
+  string  Data  = 4;  //业务数据
+  string  PlrId = 5;  //玩家角色ID
+}
+
+message SSReqHandleOfficialToken {
+  uint64              PfID = 1;
+  repeated TransferOP OPs  = 2;
+}
+
+message PFDTHandleOfficialToken {
+  map<string, uint32> TotalTokenCounts = 1;
+  RESULT              Result           = 2;
+}
+
+// 添加转账事件
+message SSReqPushTransferEvent {
+  uint64        PfID  = 1;
+  TransferEvent Event = 2;
+}
+
+message PFDTPushTransferEvent {
+  RESULT Result = 1;
+}
+
+message SSRspGameAndPf {
+  SSMsgID MsgId   = 1;  //透传消息id
+  uint32  SrcId   = 2;  //origin server id
+  uint64  PfId    = 3;  //promise id
+  uint32  ErrCode = 4;  //错误码
+  string  ErrMsg  = 5;  //错误内容
+  string  Data    = 6;  //业务数据
+  string  PlrId   = 7;  //玩家角色ID
+}
+
+message SSReqRegisterPVPSrv {
+  uint64 PVPID      = 1;
+  bool   IsRegister = 2;
+}
+
+message SSRspRegisterPVPSrv {
+}
+
+
+message SSReqGetTournaments {
+  uint64 PfId       = 1;
+  uint32 DivisionId = 2;    //国籍组ID
+  string PlayerId   = 3;    //玩家ID
+}
+
+message PFDTGetTournaments {
+  map<uint64, CSDTTournament> Tournaments = 1;    //正在进行的赛事
+  map<uint32, uint32>         Points      = 2;    //玩家获得的全局积分
+  TopRank                     TopRank     = 3;    //赛事前八玩家,理论上应该是上一届
+}
+
+//赛事报名
+message SSReqEnrollTournament {
+  uint64         PfId         = 1;
+  uint64         TournamentId = 2;
+  uint64         ClassId      = 3;
+  string         PlayerId     = 4;    //玩家ID
+  repeated Award CheckPoint   = 5;    //需要检查的积分
+}
+
+message PFDTEnrollTournament {
+  RESULT Result      = 1;    //错误码
+  uint32 EnrollCount = 2;    //报名人数
+}
+
+// 拉取赛事组
+message SSReqRequireTNGroup {
+  uint64 PfID         = 1;
+  uint64 TournamentID = 2;
+  uint64 ClassID      = 3;
+  uint64 RoundID      = 4;
+  int32  GroupIdx     = 5;
+}
+
+message PFDTRequireTNGroup {
+  map<string, uint64> Players = 1; // 同赛事组的选手ID
+}
+
+// 拉取玩家比赛信息
+message SSReqPlayerTournamentData {
+  uint64 PfID     = 1;
+  string PlayerID = 2;
+}
+
+message PFDTPlayerTournamentData {
+  CSDTTournament Data = 1;
+}
+
+//匹配成功后上报玩家对阵信息
+message SSReqReportTournamentGroup {
+  uint64              PfID         = 1;
+  uint64              TournamentID = 2;
+  uint64              ClassID      = 3;
+  map<string, uint64> RoundIDs     = 4;
+  uint64              PvpId        = 5;
+  map<string, uint64> GameIds      = 6;
+}
+
+message PFDTReportTournamentGroup {
+  uint32 Index = 1;
+}
+
+//获取报名玩家列表
+message SSReqGetEnrollPlayers {
+  uint64 PfID         = 1;
+  uint64 TournamentId = 2;
+  uint64 ClassId      = 3;
+}
+
+message PFDTGetEnrollPlayers {
+  map<string, uint32> Players = 1;    //报名玩家
+}
+
+// 获取赛事某级别的组id信息
+message SSReqGetGroupIndex {
+  uint64 PfID         = 1;
+  uint64 TournamentId = 2;      // 赛事id
+  uint64 ClassId      = 3;      // 级别id
+}
+
+// 返回赛事级别组id信息
+message PFDTGroupIndex {
+  repeated uint32 GroupIndex = 1;   // 组id列表
+}
+
+//再次挑战该赛事
+message SSReqChallengeAgain {
+  uint64 PfId         = 1;
+  uint64 TournamentId = 2;
+  uint64 OldClass     = 3;
+  string PlayerId     = 4;
+}
+
+message PFDTChallengeAgain {
+}
+
+message SSReqGetTournamentMatchGroup {
+  uint64 PfId         = 1;
+  string PlayerID     = 2;
+  uint64 TournamentID = 3;
+  uint64 ClassID      = 4;
+}
+
+message PFDTTournamentMatchGroup {
+  uint32 GroupIdx   = 1;
+  uint64 GameId     = 2;
+  uint64 RoundID    = 3;
+  bool   IsFighting = 4;
+}
+
+// 获取玩家当前将要可以进行的对局
+message SSReqGetPlayerCurGame{
+  uint64 PfId         = 1;
+  string PlayerID     = 2;
+  uint64 TournamentID = 3;
+}
+
+// 返回玩家当前将要可以进行的对局  0 0 表示当前不能进行赛事战斗
+message PFDTPlayerCurGame{
+  string PlayerID   = 1;
+  uint64 RoundID    = 2;
+  uint64 GameID     = 3;
+  bool   IsFighting = 4;
+}
+
+message PFDTSwitchToCommonMatch {
+  uint32 ExceptSecs = 1;    //预期匹配时间 单位：秒
+}
+// 锦标赛排行榜中的key
+message GroupRankKey {
+  string Prefix        = 1;
+  uint32 MaxGroupIndex = 2;
+}
+
+// 申请更新赛事排行榜
+message SSReqUpdateTournamentRank{
+  uint64                PfId       = 1;
+  string                RedisDbKey = 2;    //赛事排行榜key
+  string                PlayerId   = 3;    //玩家id
+  int64                 Score      = 4;    //赛事排行榜玩家分数
+  bool                  GetRank    = 5;    //是否在更新排行榜后拉取该战斗组内排行
+  bool                  NeedRemove = 6;    //是否移除
+  repeated string       RemoveKeys = 7; //需要移除的redisKey
+  repeated GroupRankKey GroupKeys  = 8;    // 要删除的groupKey
+}
+
+
+
+message SSReqGetKeyRank{
+  uint64 PfId     = 1;
+  string Member   = 2;//获取的成员
+  bool   OnlySelf = 3; // 只获取自己的排名
+  string RedisDb  = 4; //排行榜key
+  int32  BeginIdx = 5;
+  int32  EndIdx   = 6;
+  bool   Reverse  = 7; //true:逆序 false:正序 根据score来排序
+  bool   WithSelf = 8; //是否查询自己
+}
+
+message SSReqGetKeyRankIDList {
+  uint64          PfId    = 1;
+  bool            Reverse = 2; //true:逆序 false:正序 根据score来排序
+  string          RedisDb = 3; //排行榜key
+  repeated string IDList  = 4;//查询的用户id
+}
+
+// gm申请轮次内所有只有ai的战斗组根据规则晋级
+message SSReqGMAIRise{
+  uint64 TournamentId = 1;      // 赛事id
+  uint64 ClassId      = 2;      // 级别id
+}
+
+// 请求切换到全球匹配中
+message SSReqSwitchToCommonMatch{
+  uint64 PfId = 1;
+  string Id   = 2;    //玩家id
+}
+
+
+// 获取用户勋章信息
+message SSReqPlayerMedals{
+  uint64 PfId = 1;
+  string Id   = 2;      // 级别id
+}
+
+// 返回用户勋章信息
+message PFDTPlayerMedals{
+  repeated CSDTItem List = 1;
+}
+
+/*************************具体包体REQ&RSP END******************************/
+
+
+/*************************具体包体NTF BEG**********************************/
+
+//功能
+message SSNtfUIForbid {
+  string          UiName       = 1;
+  bool            IsForbid     = 2;
+  repeated string DownloadList = 3;
+}
+
+message SSNtfTeamDismiss {
+  uint32              TeamId = 1;
+  TEAM_DISMISS_REASON Reason = 2;   // 解散原因
+}
+
+message SSNtfSwitchModeInTeam {
+  PVPMODE NewMode = 1;
+}
+
+//ServerName
+message SSNtfServerName{
+  string ServerName = 1; //服务器名字
+}
+
+//playersStatus
+message SSNtfPlayersStatus {
+  repeated CSDTPlayerStatusInfo players = 1;    //玩家状态
+}
+
+message SSNtfHallStatus{
+  uint32 CurPlayerNum   = 1;    //当前玩家人数
+  uint32 ServerId       = 2;  //ServerId
+  string ServiceVersion = 3;  //服务器版本号
+  bool   IsGray         = 4;    //是否是灰度hallserver
+}
+
+message SSNtfPvpStatus{
+  uint32 CurPlayerNum  = 1;    //当前玩家人数
+  uint32 ServerId      = 2;
+  string ServerGroup   = 3;    //分组ID
+  int32  BattleType    = 4;    //0:正式 1:沙盒
+  uint32 RealPlayerNum = 5;  //真实玩家数
+  uint32 PvpNum        = 6;  //pvp的数量
+  bool   CanApply      = 7;  //是否能分配新的PVP战斗
+}
+
+//pvp匹配成功Ntf
+message SSNtfPvp {
+  RESULT        Result        = 1; //pvp匹配结果
+  uint64        PvpId         = 2; //pvpId
+  string        PvpTCPSvrAddr = 3; //pvpTCP服地址  格式：（域名/IP:端口）
+  uint32        TeamId        = 4; //只针对队伍
+  PVPMODE       Mode          = 5; //pvp模式
+  BattleExtData ExtData       = 6; // 扩展数据
+  uint32        PvpServerId   = 7; // 服务器id
+  PvpExtData    PvpExtData    = 8; // 额外信息
+  string        FailReason    = 9; //匹配失败得结果
+  PvpPassData 	PassData 	  = 10; //透传数据
+}
+
+message SSNTFPlayerMessageWrap{
+  string Fd     = 1;
+  uint32 MsgId  = 2;
+  bytes  Data   = 3;
+  bool   Login  = 4;
+  string Player = 5;  // 玩家ID
+}
+
+message SSNTFNewConnectPlayer{
+  string Fd = 1;
+  string IP = 2;
+}
+
+message SSNTFDisConnectPlayer{
+  string Fd = 1;
+}
+
+
+message SSNtfPvpEnd {
+  PVPMODE           Mode             = 1;  // pvp mode
+  uint64            PvpId            = 2;  // pvpId
+  uint32            MapId            = 3;  // mapId
+  MAPTYPE           MapType          = 4;  // mapType
+  CSDTPvpCampResult CampResult       = 5;  // 阵营结果
+  CSDTPvpStat       PvpStat          = 6;  // 统计
+  uint32            Duration         = 7;  // 用时
+  int64             CreateTime       = 8;  // 开启时间
+  bool              Async            = 9;  // 是否发生不同步
+  int64             EndTime          = 10; // 游戏结束时间
+  repeated uint32   TeamIdList       = 11;
+  uint32            MeleeRule        = 12; // 乱斗规则ID
+  uint32            MvpTeamId        = 13; // mvp
+  uint32            CustomSubMode    = 14; // 自定义子模式
+  string            PvpGroup         = 15; // 战斗所属的pvp组
+  uint64            TournamentID     = 16; // 赛事id
+  uint64            TournamentGameID = 17; // 赛事pvp当前gameid
+  TeamDesc          TDesc            = 18; // 赛事房间信息，其他模式为空
+  bool              IsAudience       = 19; // 消息接收主体是否是观众
+  TEAMGROUP         GroupId          = 20; // 队伍中分组(观众、选手、裁判)
+  uint32            MaxObserveNum    = 21; // 最大观战人数
+  BattleExtData     ExtData          = 22; // 战斗额外的结算
+  PvpTeachResult    TeachResult      = 23; // 教学关卡是否通关
+  PvpExtData        PvpExtData       = 24; // Pvp扩展字段
+  PVPEND_REASON     EndReason        = 25; // 结束原因
+  PlayerExtData     PlayerExtData    = 26; //玩家个人信息
+  PvpPassData		PassData		 = 27; //透传数据
+}
+
+message PlayerExtData {
+  int32             AssistantId = 1; //玩家的辅助系数id
+  uint32            BattleTime  = 2; //战斗总时长
+  repeated AccAffix AccAffix    = 3;
+  bool              IsMsRelation = 4; //本场比赛是否存在 师徒关系
+}
+
+
+message AccAffix {
+  uint32 ChessId = 1;
+  uint32 AffixId = 2;
+  float  Value   = 3;
+  string UID     = 4;
+}
+
+message SSNtfTNRoomPvpEnd {
+  repeated TeamDesc TeamDescList = 1;
+}
+
+message SSNtfTeamState {
+  uint32    TeamID = 1;
+  TeamState State  = 2;
+}
+
+//pvp匹配取消通知
+message SSNtfPvpMatchCancel {
+  uint32  TeamId          = 1;    //teamId
+  string  CancelId        = 2;    //取消玩家id
+  PVPMODE Mode            = 3;    //pvp mode
+  int64   WaitTime        = 4;    //已匹配时间 单位：秒
+  bool    FormMatchServer = 5;    //本消息由matchserver发送
+  uint32  MatchRealNum    = 6;    //取消匹配时的真实人数(TeamServer发)
+  uint32  AI_Num          = 7;    //取消匹配时的AI数(TeamServer发)
+  bool    BoardCast       = 8;    //是否把该消息转播给队伍成员
+  bool    IsTournament    = 9;  //是否是锦标赛
+}
+
+//PvpMatch
+message SSNtfPvpMatch {
+  PVPMODE Mode            = 1;    //pvp模式
+  uint32  ExceptSecs      = 2;    //预期匹配时间 单位：秒
+  string  Captain         = 3;    //队长
+  bool    IsRedirect      = 4;    //是否重定向
+  string  MatchRegion     = 5;   //非""为地区匹配.
+  uint32  MatchRegionSecs = 6;//地区匹配时长 单位：秒
+}
+
+message SSNtfPay{
+  string PlayerId     = 1; //玩家id
+  string OrderId      = 2; //订单Id
+  uint32 GoodsId      = 3; //商品Id
+  uint32 Rmb          = 4; //充值人民币
+  string Ccy          = 5; //实际充值货币类型
+  uint32 ExtraDiamond = 6; //额外的甜甜圈，兼容第海外三方点卡充值
+}
+
+//状态服通知大厅服踢人下线
+message SSNtfKickOffPlayer{
+  string Id = 1; //玩家Id
+}
+
+message SSNtfFrozenAccount{
+  FROZEN_TYPE     Type   = 1;
+  repeated string Ids    = 2; //id列表
+  int64           Time   = 3; //封号截止时间
+  string          Reason = 4; //原因
+}
+
+message SSNtfUnFrozenAccount{
+  FROZEN_TYPE     Type = 1;
+  repeated string Ids  = 2; //id列表
+}
+
+message SSNtfNotice{
+  int64                   Id              = 1;
+  NOTICETYPE              Type            = 2;
+  string                  Title           = 3;
+  string                  Content         = 4;
+  CHANELTYPE              ChannelType     = 5;
+  string                  Label           = 6;
+  LABELTYPE               LabelType       = 7;
+  NOTICESHOWTYPE          ShowType        = 8;  //公告展示方式
+  NOTICECONTENTTYPE       ContentType     = 9;  //公告内容类型
+  string                  PicUrl          = 10; //图片CDN地址
+  string                  SkipUrl         = 11; //图片跳转地址
+  uint32                  Flag            = 12;
+  int64                   EndTime         = 13; //结束时间
+  repeated string         CountryList     = 14; //国家代码
+  NOTICETAP               Tap             = 15; //公告栏目
+  string                  SkipInterface   = 16; //内陆类型
+  uint32                  SkipTab         = 17; //内链页面
+  PICNOTICEJUMPTYPE       PicJumpType     = 18; //图片公告跳转类型
+  repeated GMLanguageInfo WebContent      = 19; //web公告内容
+  repeated string         DownloadList    = 20; //下载渠道
+  repeated PLATFORMTYPE   PlatformList    = 21; //平台类型
+  MAGNETISMTYPE           MagnetismType   = 22; //磁块类型
+  string                  CoverPicUrl     = 23; //封面图
+  string                  Subtitle        = 24; //副标题
+  uint32                  JumpGoodsId     = 25; //跳转的商品Id，配合SkipInterface使用
+  repeated string         ApkVersionList  = 26; //版本 -> 弃用
+  string                  PCSkipUrl       = 27; //pc端图片跳转地址
+  int64                   Time            = 28; //创建时间
+  int64                   Sort            = 29; //排序
+  string                  Version         = 30; //版本号
+  repeated string         ExcludeDownload = 31; // 下载渠道 除外
+  bool                    NeedRedPoint    = 32; // 是否需要显示小红点，true表示需要
+  int64                   StartTime       = 33; //开始时间
+}
+
+message SSNtfRemoveNotice{
+  int64 Id = 1;
+}
+
+message SSNtfAds{
+  int64                 Id              = 1;
+  ADSTYPE               Type            = 2;
+  string                Title           = 3;
+  string                Name            = 4;
+  CHANELTYPE            ChannelType     = 5;
+  uint32                ShowLimit       = 6;    //浏览上限
+  int64                 StartTime       = 7;    //生效时间
+  int64                 EndTime         = 8;    //失效时间
+  uint32                ShowCount       = 9;    //展示次数
+  ADSPAYTYPE            IsPay           = 10;   //是否付费
+  repeated string       CountryList     = 14; // 国家代码
+  repeated string       WhiteList       = 15; // 白名单
+  repeated string       DownloadList    = 16; // 下载渠道
+  repeated PLATFORMTYPE PlatformList    = 17; // 平台类型
+  repeated string       ExcludeDownload = 18; // 下载渠道 除外
+}
+
+message SSNtfRemoveAds{
+  int64 Id = 1;
+}
+
+message SSNtfNewMail{
+  uint64                Id               = 1;
+  string                Title            = 2;    //标题
+  string                Content          = 3;    //正文
+  int32                 ChannelType      = 4; //注册渠道类型(=0时,不含本条件,即所有渠道)
+  int32                 LoginChannelType = 5; //登录/分发渠道类型(=0时,不含本条件)
+  string                Version          = 6; //版本号(=""时,不含本条件)
+  uint32                GTECup           = 7; //大于等于该段位((=0时,不含本条件)
+  uint32                LTECup           = 8; //小于等于该段位((=0时,不含本条件)
+  uint32                GTELevel         = 9; //大于等于该等级((=0时,不含本条件)
+  uint32                LTELevel         = 10; //小于等于该等级((=0时,不含本条件)
+  repeated Award        Awards           = 11;    //奖励
+  int64                 Ts               = 12;    //邮件发送时间
+  bool                  Personal         = 13;
+  uint32                Flag             = 14;
+  bool                  MultiPlayer      = 15;
+  SOURCE                AwardSource      = 16; //奖励原因
+  int64                 TriggerStartTime = 17; //触发开始时间
+  int64                 TriggerEndTime   = 18; //触发开始时间
+  repeated string       CountryList      = 19; // 国家代码
+  map<string, string>   Dict             = 20; //字典
+  repeated string       DownloadList     = 21; // 下载渠道
+  repeated PLATFORMTYPE PlatformList     = 22; // 平台类型
+  WEBOP                 WebOp            = 30; //开放平台操作类型
+  string                WebOpenData      = 31; //开放平台前端可见数据
+  string                WebKeptData      = 32; //开放平台私有数据，前端不可见
+  int64                 MustWaitTime     = 33; //必须等待一段时间才能领取奖励。时间单位为秒
+  bool                  IsReids          = 34; //是否是Redis邮件
+  repeated string       ExcludeDownload  = 35; // 下载渠道 除外
+  MAILTYPE              MailType         = 36; //邮件类型
+  MailExr               MailExr          = 37; //额外条件
+}
+
+message SSNtfUpdateNumRank{
+  string     Id           = 1; //玩家id
+  RANKTYPE   Type         = 2; //排行类型
+  uint32     Number       = 3; //值
+  uint64     Ts           = 4; //更新时间
+  bool       NeedRemove   = 5; //是否删除
+  string     Country      = 6; //国家
+  bool       IsHallServer = 7; //idip删除还是大厅删除
+  uint32     ProvinceId   = 8; //省份ID
+  CHANELTYPE ChannelType  = 9; //渠道类型
+  string     ChannelId    = 10;//渠道id 用于甄别vng_lite渠道，因为通行证等级排行榜需要单独显示
+}
+
+message SSNtfWorldChat{
+  CSDTWorldChat WorldChat = 1;
+}
+
+message SSNtfHallServerClosing{
+
+}
+
+message SSNtfPvpServerId{
+  uint32 ServerId = 1;
+}
+
+message SSNtfPlayerDisconnectPvp{
+  uint64 Fd       = 1;
+  uint32 ServerId = 2;
+}
+
+message SSNtfMarquee{
+  int64                 Id              = 1;
+  CHANELTYPE            ChannelType     = 2;
+  string                Version         = 3;
+  string                Content         = 4;
+  int64                 StartTime       = 5;
+  int64                 EndTime         = 6;
+  int64                 Frequency       = 7;
+  repeated string       CountryList     = 8; // 国家代码
+  uint32                Flag            = 9; //0代表明文，1代表语言key
+  repeated string       DownloadList    = 10; // 下载渠道
+  repeated PLATFORMTYPE PlatformList    = 11; // 平台类型
+  repeated string       ExcludeDownload = 12; // 下载渠道 除外
+}
+
+message SSNtfRemoveMarquee{
+  int64 Id = 1;
+}
+
+message SSNtfOrderAlphaActivity{
+  repeated string Uid = 1;
+}
+
+message SSNtfOrderCountAlphaActivity{
+  uint32 Count = 1;
+}
+
+message AlphaActivityPlayer{
+  string          Uid            = 1;
+  repeated uint32 Charge         = 2;
+  uint32          CompetitionCnt = 3;
+}
+
+message SSNtfBindAlphaActivity{
+  repeated AlphaActivityPlayer Players = 1;
+}
+
+message SSNtfPlayerCompeteAlphaActivity{
+  repeated AlphaActivityPlayer Players = 1;
+}
+
+message SSNtfResetPlayerPvp{
+  uint64 PvpId = 1;
+}
+
+message SSNtfPlayerExpose{
+  string Id        = 1;
+  int64  OffLineId = 2;
+}
+
+message SSNtfChat {
+  string           SenderId     = 1;    //发送者ID
+  uint32           EmotionId    = 2;    //表情ID
+  string           Content      = 3;    //发送内容
+  CHANELTYPE       ChannelType  = 4;    // ps4 Only 额外信息
+  string           ChannelUsrId = 5;    // ps4 Only 额外信息
+  bool             PS4Only      = 6;    // ps4 Only 开关
+  CHATSOURCETYPE   SourceType   = 7;    //聊天来源类型
+  UserRestrictType RestrictType = 8;    // 用户限制类型
+}
+
+//newFans
+message SSNtfNewFollower {
+  string fans = 1;    //fanID
+}
+//lostFans
+message SSNtfLostFollower {
+  string fans = 1;    //fanID
+}
+
+//invitejointeam
+message SSNtfInviteJoinTeam {
+  string          Id                 = 1;    //邀请者id
+  uint32          TeamId             = 2;    //teamId
+  string          ApkVersion         = 3;    //邀请者ApkVersion
+  PVPMODE         Mode               = 4;
+  bool            Punished           = 5;
+  int64           PunishmentDeadline = 6;    //惩罚截止时间
+  WorkshopSetting Workshop           = 7;    //创意工坊
+  bool            Ps4Only            = 8;
+  CHANELTYPE      ChannelType        = 9;
+  string          channelUsrId       = 10;
+}
+
+//LeaveTeamNtf
+message SSNtfLeaveTeam {
+  uint32 TeamId        = 1;    //队伍id
+  string LeavePlayerId = 2;    //离开玩家
+  string Captain       = 3;    //队长
+}
+
+//kickoffTeamplayer
+message SSNtfKickOffTeamPlayer {
+  uint32 TeamId = 1;    //
+  string KickId = 2;    //被踢者
+  bool   IsAI   = 3;    //AI
+  uint32 Slot   = 4;
+}
+
+//JoinTeamNtf
+message SSNtfJoinTeam {
+  uint32    TeamId         = 1;    //队伍id
+  string    Id             = 2;    //新加入玩家
+  PVPMODE   Mode           = 3;    //模式
+  bool      IsAI           = 4;
+  uint32    Slot           = 5;    //槽号(自定义房间用)
+  string    VoiceId        = 6;    //队友语音房间ID
+  bool      ForbidPlayGame = 7;    //玩家是否禁止开始游戏
+  TEAMGROUP GroupId        = 8;    //属于那个组
+}
+
+message SSNtfJoinVoiceTeam {
+  uint32 TeamId      = 1;    //队伍id
+  string Id          = 2;    //新加入玩家
+  uint32 VoiceMemId  = 3;    //腾讯语音使用
+  string VoiceUserId = 4;    //龙渊语音使用
+  string VoiceId     = 5;    //语音房间id
+}
+
+message SSNtfChangeSubMode {
+  uint32 TeamId         = 1;    //队伍id
+  uint32 CustomeSubMode = 2;    //
+}
+
+message SSNtfPlayerOffline {
+  uint32 TeamId = 1;    //队伍id
+  string Id     = 2;    //加入玩家
+}
+
+message SSNtfTeamSlot {
+  repeated CSDTSlotInfo Slots = 1;
+}
+
+message SSNtfChangeTeamSlot{
+  string ReqId   = 1;    //请求换位的ID
+  uint32 ReqSlot = 2;    //请求换位的位置
+  string DesId   = 3;    //目标玩家的ID
+  uint32 DesSlot = 4;    //目标玩家的位置
+}
+
+message SSNtfCancelChangeSlot{
+  string ReqId = 1;    //请求换位的ID
+  string DesId = 2;    //目标玩家的ID
+}
+
+message SSNtfTeamSlotStatus {
+  repeated string Ids    = 1;
+  int32           Status = 2;
+}
+
+message SSNtfRefuseChangeTeamSlot {
+  string RefuseId = 1;
+}
+
+//reqTeamMsg
+message SSNtfTeamMsg {
+  string         Id           = 1;    //消息者
+  string         Msg          = 2;    //消息
+  uint32         Emotion      = 3;
+  string         ChannelUsrID = 4;    //消息者的渠道id
+  CHANELTYPE     ChannelType  = 5;    //消息者的渠道类型
+  bool           PSOnly       = 6;    //消息者的psonly状态
+  CHATSOURCETYPE SourceType   = 7; //聊天来源类型
+}
+
+message SSNtfTeamReady{
+  string Id      = 1; //玩家Id
+  bool   IsReady = 2; //准备or取消准备
+}
+
+message SSNtfTeamPvpEnd{
+  uint64          PvpId     = 1;
+  repeated uint32 Ids       = 2;  // teamId列表
+  uint32          MvpTeamId = 3;  // 吃鸡的队伍
+  TeamDesc        Desc      = 4;
+}
+
+message SSNtfRejectJoinTeam{
+  string Id         = 1;
+  bool   NotReceive = 2;
+}
+
+message SSNtfClearPlayerCache{
+  string Id     = 1;
+  string Reason = 2;
+}
+
+message SSNtfLanguages{
+  string Version = 1; //版本号
+}
+
+message SSNtfRemoveLanguage {
+  string Key = 1;
+}
+
+message SSNtfSetTeamMode {
+  PVPMODE                     Mode          = 1;
+  repeated CSDTTeamSlotPlayer SlotPlayers   = 2;
+  uint32                      CustomSubMode = 3;
+  TeamOPSetting               setting       = 4;
+}
+
+message SSNtfChatStatus {
+  uint32 CurPlayerNum = 1;
+  uint32 ServerId     = 2;
+}
+
+message SSNtfPvpHistory{
+  uint64 PvpId     = 1;
+  string Path      = 2;
+  int64  OffLineId = 3;
+}
+
+message SSNtfTeamPlayerPvpEnd{
+  uint32 TeamId = 1;
+  string Id     = 2;
+  uint64 PvpId  = 3;
+}
+
+//商品信息刷新通知
+message SSNtfRefreshGoods {
+  CSDTGoodsInfo Goods = 1;
+}
+
+//添加白名单通知
+message SSNtfAddWhiteAccount {
+  CHANELTYPE      Type = 1;
+  repeated string Ids  = 2; //id列表
+}
+
+// 队伍操作(广播通知)
+message SSNtfTeamOP {
+  TeamOP                      OP          = 1; // 广播操作
+  repeated CSDTTeamSlotPlayer slotPlayers = 2;
+}
+
+//删除白名单通知
+message SSNtfDelWhiteAccount {
+  CHANELTYPE      Type = 1;
+  repeated string Ids  = 2; //id列表
+}
+
+//开关控制标记设置_系统
+message SSNtfSwitchSystemSet {
+  repeated SWITCHTYPE Type      = 1; //类型
+  bool                Enable    = 2; //功能是否开启
+  string              Title     = 3; // 标题
+  string              Content   = 4; // 内容
+  string              Version   = 5; //服务器版本号
+  int64               StartTime = 6; // 开始时间
+  int64               EndTime   = 7; //关闭时间
+}
+
+// 通知ps4serveronly
+message SSNtfPs4ServerOnly {
+  int32 Ps4ServerOnly = 1; //
+}
+
+//开关控制标记设置_个人
+message SSNtfSwitchPlayerSet {
+  repeated SWITCHTYPE Type    = 1; //类型
+  bool                Close   = 2; //true:关闭
+  string              Id      = 3; //玩家id
+  int64               EndTime = 4; //结束时间
+  string              Title   = 5; // 标题
+  string              Content = 6; // 内容
+}
+
+message SSNtfWorldInvite {
+  CSDTWorldChat WorldInvite = 1;    //
+  INVITETYPE    Type        = 2;
+}
+
+message SSNtfBuffAct {
+  uint32               HallServerId = 1;
+  repeated CSDTBuffAct BuffActs     = 2;
+}
+
+message SSNTFAARemind{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  string ID        = 10;
+}
+
+message SSNTFAABan{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  int64  BeginTime = 10;
+  int64  EndTime   = 11;
+  string ID        = 12;
+}
+
+message SSNTFAAVerify{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  string JsonStr   = 10;
+  string ID        = 11;
+}
+
+message SSNtfChangeDress {
+  map<uint32, uint32> Items        = 1;    //物品
+  uint32              TeamId       = 2;    //队伍ID
+  string              PlayerId     = 3;    //玩家ID
+  uint32              ChessPlrId   = 4;    //棋手id
+  map<uint32, uint32> ChessPlrAttr = 5;    //棋手装扮属性
+}
+
+message SSNtfUpdateMoney {
+  string   Id        = 1;    //玩家ID
+  ITEMTYPE MoneyType = 2;    //货币类型(只能1免费糖果,9付费糖果)
+  uint32   Count     = 3;    //物品数量
+}
+
+message SSNtfUpdateBag {
+  string         Id          = 1;    //玩家ID
+  uint32         ItemId      = 2;    //物品id
+  uint32         Count       = 3;    //物品数量
+  int64          SurviveTime = 4;    //存活时间
+  repeated int64 Para        = 5;    //物品参数(不改变,则设置为空)
+  int64          OfflineId   = 6;
+}
+
+message SSNtfKickoff {
+  string Id = 1;    //玩家ID
+}
+
+message SSNtfModifyNickName {
+  string Id       = 1;    //玩家ID
+  string NickName = 2;    //昵称
+}
+
+message SSNtfClearForbidden {
+  string         Id         = 1;    //玩家ID
+  repeated int32 SwitchTyps = 2;    //开关
+}
+
+message SSNtfClearChat {
+  string Id = 1;    //玩家ID
+}
+
+message SSNtfTeamInvite {
+  repeated string Ids    = 1;    //邀约玩家
+  uint32          TeamId = 2;    //队伍ID
+}
+
+message SSNtfApplyWorldInvite {
+  uint32 TeamId = 1;    //队伍ID
+}
+
+message SSNtfObserveStatus {
+  uint32 PlayerOnlineCount = 1; //在线玩家数量
+
+}
+
+message SSNtfIdipModifyDiamond {
+  int32 ChangeValue = 1;    //改变值
+  int64 OffLineId   = 2;    //
+}
+
+message SSNtfHallReportPlayer {
+  repeated string players = 1;
+}
+
+message SSNtfServerHello {
+  uint32 ServerId   = 1;
+  string ServerName = 2;
+  bool   First      = 3;
+}
+
+message SSNtfTeamsvrPlayers {
+  uint32 ServerId   = 1;
+  string ServerName = 2;
+  bool   First      = 3;
+}
+
+message SSNtfPlayerTeam {
+  string PlayerId = 1;
+  uint32 TeamId   = 2;
+  int64  Ts       = 3;
+}
+
+message SSNtfTeamServerInfo {
+  uint32 ServerId = 1;
+  uint32 TeamNum  = 2;
+  bool   Closing  = 3;
+  int64  Ts       = 4;
+}
+
+message SSNtfAddRecommendPvp {
+  uint64                       PvpId            = 1;
+  int64                        StartTime        = 2;//战斗开始时间
+  PVPMODE                      Mode             = 3;//模式
+  repeated CSDTRecommendPlayer Players          = 4;//达到推荐标准的玩家信息
+  uint32                       TotalPlayerCount = 5;//参战玩家总人数，包括机器人
+  TournamentDesc               Tournament       = 6; //赛事信息
+  uint32                       TeamID           = 7; //房间ID
+  uint32                       SubMode          = 8; //子模式ID
+  uint32                       PvpChestVipLevel = 9; //官方自建房等级
+}
+
+message SSNtfRemoveRecommendPvp {
+  uint64 PvpId = 1;
+}
+
+message SSNtfObservers {
+  uint64 PvpId         = 1;
+  uint32 ObserverCount = 2;
+}
+
+message SSNtfOfflineInviteJoinTeam {
+  uint32 TeamId = 1;   // 队伍ID
+}
+
+message SSNtfCancelTeam {
+  uint32 TeamId = 1;   // 队伍Id
+}
+
+message SSNtfPlayerDeath {
+  string PlayerId = 1;//玩家ID
+  uint64 PvpId    = 2;
+  bool   IsRobot  = 3;
+}
+
+message SSNtfGameMarquee {
+  uint32              MarqueeId = 1; //跑马灯ID
+  map<string, string> Dict      = 2; //字典
+}
+
+message SSNtfWxRedPktSyn {
+  string UId  = 1;
+  string Name = 2;
+  uint32 VLvl = 3;
+}
+
+message SSNtfGmSysMsg {
+  string Content = 1;
+}
+
+message SSNtfGmOpSyn {
+  uint32 ServerId = 1;
+  int64  GMTime   = 2;
+}
+
+message SSNtfDaoJuChengCost {
+  string Id        = 1;
+  uint32 ItemId    = 2;
+  uint32 Count     = 3;
+  int64  OfflineId = 4;
+}
+
+message SSNtfIDIPResetHeadPic {
+  string Id = 1;  // 被重置的玩家id
+}
+
+message SSNtfGmRemoveMail {
+   uint64 			MailId 		= 1;
+   repeated string 	PlayerIds 	= 2;
+}
+
+message SSNtfPvpObserverData {
+  uint32        PvpSvrId = 1;
+  uint64        PvpId    = 2;
+  PvpPlayerData PlrData  = 3;
+  PlayerObServerInfo ObInfo = 4 ;//
+}
+
+message SSNtfPvpConfirm {
+  bool   Confirm = 1;
+  uint32 Index   = 2;
+}
+
+message SSNtfMatchSuccess {
+  map<uint32, PlayerConfirmInfo> Players     = 1;
+  PVPMODE                        Mode        = 2;
+  bool                           IsCardGroup = 3; //是否为卡组局
+}
+
+message PlayerStatFromLib {
+  uint32            PlayerIndex = 1;
+  CSDTPvpPlayerStat Stat        = 2;
+  uint32            Rank        = 3;
+}
+
+message SSNtfPvpStats {
+  int32                      GameID            = 1;
+  repeated PlayerStatFromLib PlayerStats       = 2;
+  uint32                     TargetPlayerIndex = 3;
+  int64                      EndTime           = 4;
+}
+
+message SSNtfGameTerminated {
+  int32                      GameID      = 1;
+  int64                      EndTime     = 2;
+  repeated PlayerStatFromLib PlayerStats = 3;
+}
+
+message SSNtfSysHelpReddot{
+  string Uuid = 1;
+}
+
+message SSNtfPlayerHelpReddot {
+  string Uuid = 1;
+}
+
+// 通知视频信息变更
+message SSNtfVideoChange {
+  VideoInfo     Info        = 1;        // 视频信息
+  VIDEO_OPERATE OperateType = 2;        // 操作类型 0 增加  1 修改 2 删除
+  uint32        ZoneID      = 3;        // 视频所属分区
+}
+
+message SSNtfRemovePlayerPunishment {
+  string PlayerId = 1;
+  uint32 Id       = 2;
+}
+
+message SSNtfUpdateGamelibVersion {
+  int64             GamelibVersion = 1;
+  GamelibServerType ServerType     = 2;
+}
+
+// 添加banner广告图
+message SSNtfAddBanner {
+  int64                 Id              = 1;
+  BANNERTYPE            BannerType      = 2; //banner类型
+  string                PicUrl          = 3; //图片CDN地址
+  string                SkipName        = 4; //跳转大界面名字
+  SKIPTYPE              SkipType        = 5; //跳转类型
+  uint32                SkipTap         = 6; //跳转页面显示分页名字
+  int64                 ShowBeginTime   = 7; //展示开始时间
+  int64                 ShowEndTime     = 8; //展示结束时间
+  uint32                MallGoodsId     = 9; //商城商品Id
+  repeated string       CountryList     = 14; //国家代码
+  repeated uint32       ZoneId          = 15; //投放地区
+  CHANELTYPE            ChannelType     = 16; //登陆渠道
+  repeated string       DownloadList    = 17; //下载渠道
+  repeated PLATFORMTYPE PlatformList    = 18; //平台类型
+  string                PCSkipUrl       = 19; //pc端图片跳转地址
+  repeated uint32       HallModeList    = 20; //大厅模型展示的物品Id
+  int64                 Sort            = 21; //排序
+  string                Version         = 22; //版本号
+  repeated string       ExcludeDownload = 23; //下载渠道 除外
+}
+
+// 删除banner广告图
+message SSNtfRemoveBanner {
+  int64 Id = 1;
+}
+
+// 添加白名单通知(海外)
+message SSNtfAddWhiteList {
+  repeated string Keys = 1;   //白名单keys
+}
+
+// 删除白名单通知(海外)
+message SSNtfDelWhiteList {
+  repeated string Keys = 1; //白名单keys
+}
+
+//赛事开始通知
+message SSNtfTournamentBegin {
+  repeated CSDTNewTournament NewTournaments = 1;    //新赛事
+}
+
+//报名结束通知
+message SSNtfEnrollEnd {
+  repeated CSDTEnrollEnd Tournaments = 1;    //报名结束的赛事
+}
+
+//赛事结束通知
+message SSNtfTournamentEnd {
+  uint64 TournamentId = 1;    //赛事ID
+  SOURCE Reason       = 2;    //结束原因
+}
+
+//赛事轮次首次对局匹配队伍
+message SSNtfTournamentMatchGroup {
+  uint32 Groupx       = 1;
+  uint64 TournamentID = 2;
+}
+
+// 通知team server赛事组信息
+message SSNtfTournamentGroup {
+  uint64                       Id      = 1;    //赛事ID
+  repeated CSDTTournamentClass Classes = 2;    //每级别每轮次对战信息
+}
+
+message SSNtfChatMsg {
+  CHATTYPE Ct = 1;
+  // CSNtfChat        personal    = 5;
+}
+
+message SSNtfTournamentPvpId {
+  uint64 Id         = 1;    //赛事id
+  uint64 ClassID    = 2;    //赛事级别
+  uint64 RoundID    = 3;    //赛事轮次
+  uint32 GroupIndex = 4;    //赛事组index
+  uint64 PvpId      = 5;    //当前要进入的pvpId
+  uint64 GameId     = 6;    //对局id 固定战斗组 这里是正确的，匹配战斗组，这里只是其中一个玩家当前的gameId
+  bool   Gm         = 7;    //gm方式
+}
+
+message SSNtfTournamentRoomID {
+  uint64                       ID      = 1;
+  repeated CSDTTournamentClass Classes = 2;
+}
+
+// pvpServer通知赛事服赛事pvp中玩家的名次
+message SSNtfPlayerPvpRank {
+  uint64 PvpId        = 1;    // pvpId
+  string PlayerId     = 2;    // 玩家id
+  uint32 Rank         = 3;    // 玩家死亡时或者结束时名次
+  uint64 TournamentId = 4;    // 赛事id 下面3个字段 赛事房间最后截止开始时间，房间只有一个人时强制设置排名为1
+  uint64 ClassId      = 5;    // 级别id
+  uint32 GroupIndex   = 6;    // 战斗组index
+  uint64 GameId       = 7;    // 未开始的对局id
+  bool   Gm           = 8;    // gm操作
+  uint32 WinRound     = 9;    // 玩家胜利回合数
+  string ChannelId    = 10;  // 渠道ID
+  uint32 Level        = 11;   // 玩家的等级
+  uint32 Cup          = 12;  // 玩家的段位
+}
+
+// 通知玩家淘汰
+message SSNtfPlayerOut {
+  string PlayerId     = 1;    // 玩家id
+  uint64 TournamentId = 2;    // 赛事id
+  uint64 RoundId      = 3;    // 轮次id
+}
+
+
+//赛事轮次结束通知
+message SSNtfTournamentRoundEnd {
+  uint64                       TournamentId = 1;
+  uint64                       ClassId      = 2;
+  uint64                       RoundId      = 3;
+  map<uint32, CSDTBattleGroup> Groups       = 4;   //下个轮次的战斗分组
+}
+
+message Metric {
+  string          name   = 1;
+  float           value  = 2;
+  repeated string labels = 3;
+  int32           class  = 4;
+  int32           op     = 5;
+  GCMetric        gc     = 6;
+}
+
+message GCMetric {
+  int64          NumGC          = 1;
+  int64          PauseTotal     = 2;
+  repeated int64 PauseQuantiles = 3;
+}
+
+message SSNtfMetric {
+  repeated Metric metrics = 1;
+}
+
+
+message SSNtfGuildJoin {
+  string GuildID   = 1;
+  string Player    = 2;
+  string GuildName = 3;
+  int32  Sign      = 4;
+  bool   Limit     = 5;
+}
+
+message SSNtfGuildReject {
+  string GuildID = 1;
+}
+
+message SSNtfUpdateNotice{
+  string NoticeId    = 1;
+  string Tags        = 2;
+  int32  Status      = 3;
+  string ActivityId  = 4;
+  string ClientEvent = 5;
+}
+
+message SSNtfModifyMMr{
+  int32  mode      = 1;
+  uint32 SetMmr    = 2;
+  int32  ChangeMmr = 3;
+  int64  OffLineId = 4;
+}
+//通用排行榜
+message SSNtfUpdateKeyRank{
+  string          RedisDbKey = 1;    //排行榜key
+  string          member     = 2;    //member
+  uint64          Score      = 3;    //排行榜玩家分数
+  bool            GetRank    = 4;    //是否在更新排行榜后拉取该战斗组内排行
+  bool            NeedRemove = 5;    //是否移除
+  repeated string RemoveKeys = 6;    //需要移除的redisKey
+}
+message SSNtfSetKeyRankTTl {
+  string RedisDbKey = 1;    //排行榜key
+  int32  TTl        = 2;    //过期时间
+}
+
+//更新pvp数据
+message SSNtfUpdatePvpData{
+  uint64           PvpId       = 1;
+  uint32           PvpServerId = 2;
+  string           PlayerId    = 3;
+  UpdatePlayerData PlayerData  = 4; //玩家数据更新
+}
+
+message SSNtfPvpOver {
+  uint64                PvpId       = 1;
+  repeated CSDTCampData Result      = 2;
+  int64                 CreateTime  = 3;
+  PVPMODE               mode        = 4;
+  PlayerExtData         PlayerEx    = 5; //额外信息
+}
+
+message SSNtfGuildMemberChange {
+  repeated string Player   = 1;
+  bool            IsRemove = 3;
+}
+
+message SSNtfGuildApplicantChange {
+  repeated GuildApplicant Applicants = 1;
+  bool                    IsRemove   = 3;
+}
+
+message SSNtfGuildInviteeChange {
+  repeated GuildApplicant Applicants = 1;
+  bool                    IsRemove   = 3;
+}
+
+message SSNtfGuildNewInvite {
+  GuildBaseInfo Info = 1;
+}
+
+message SSNtfGuildKickoff {
+}
+
+message SSNtfGuildRoleChange {
+  repeated GuildPlayerRole Infos = 1;
+}
+
+message SSNtfGuildAttrChange {
+  GuildAttr Attr = 1;
+}
+
+message SSNtfNewGuildLog {
+  repeated GuildLog Logs = 1;
+}
+
+// 公会聊天
+message SSNtfGuildChat {
+  GuildChatInfo Chat = 1;
+}
+
+// 广告发奖
+message SSNtfAdAward {
+  string TransID = 1;
+  string JSON    = 2;
+}
+
+//匹配服hello消息
+message SSNtfMatchServerHello {
+}
+//活动属性
+message ActivityProfile {
+  bool           Open       = 1; //开关
+  int32          LimitCount = 2; //数量上线
+  repeated Award Awards     = 3; //奖励
+}
+
+// 增加幸运星活动
+message SSNtfAddLuckStarActivity{
+  string                       Id           = 1; //ID
+  string                       Name         = 2; //Name
+  PANDORAACTIVITYTYPE          ActivityType = 3; //活动类型
+  int64                        StartTime    = 4; //开始时间
+  int64                        EndTime      = 5; //结束时间
+  map<string, ActivityProfile> Profiles     = 6; //活动属性 {用户分组ID,活动属性}
+  bool                         Open         = 7; //开关
+  int64                        RefreshTime  = 8; //更新时间
+}
+
+// 打开关闭活动
+message SSNtfCloseLuckStarActivity{
+  string Id = 1; //ID
+}
+
+//幸运星奖励
+message SSReqLuckStarAward {
+  uint64 PfId     = 1; //promise id
+  string PlayerId = 2; //玩家Id
+}
+
+message LuckStarAwardData {
+  uint32         ActivityId = 1; //活动ID
+  string         DivisionId = 2; //分组ID
+  repeated Award Awards     = 3; //幸运星奖励
+}
+
+message PFDTLuckStarAward {
+  repeated LuckStarAwardData data = 1;
+}
+
+//修改玩家昵称
+message SSNtfChangeName {
+  string Id       = 1;    //玩家ID
+  string NickName = 2;    //昵称
+}
+
+//通过GM指令删除报名玩家
+message SSNtfGmDeleteEnrollPlayer {
+  string PlayerId     = 1;    //玩家ID
+  uint64 TournamentId = 2;    //賽事ID
+}
+
+//通知其他Server玩家登录成功
+message SSNtfLoginSuccess {
+  string PlayerId = 1;    //玩家ID
+}
+message SSNtfJoinTournamentRoom {
+}
+
+// gm设置赛事积分
+message SSNtfGmSetPoint {
+  string PlayerId     = 1;    //玩家id
+  uint32 ZoneId       = 2;    //区域id
+  uint64 TournamentId = 3;    //赛事id
+  uint64 ClassId      = 4;    //级别id
+  uint64 RoundId      = 5;    //轮次id
+  uint32 PointId      = 6;    //积分id
+  uint32 PointNum     = 7;    //积分数量
+}
+
+message SSNtfQuitObserve {
+  uint64 PvpId = 1;
+}
+
+// 设置观战推荐对局封面玩家
+message SSNtfSetRecommendPvpCover {
+  string PlayerId = 1;    //玩家id
+}
+// 取消观战推荐对局封面玩家
+message SSNtfDelRecommendPvpCover {
+  string PlayerId = 1;    //玩家id
+}
+// 将玩家当前对局观战推荐置顶
+message SSNtfPopRecommendPvp {
+  string PlayerId = 1;    //玩家id
+}
+// 取消玩家当前对局观战推荐置顶
+message SSNtfDelPopRecommendPvp {
+  string PlayerId = 1;    //玩家id
+}
+
+//邀请观战
+message SSNtfInviteObserve {
+  string          Inviter      = 1;
+  uint64          PvpId        = 2;
+  string          ApkVersion   = 3;
+  PVPMODE         Mode         = 4;    //游戏模式
+  uint64          TNClassRound = 5;    // 赛事轮次ID
+  WorkshopSetting WSSetting    = 6;
+  bool            Ps4Only      = 7;
+  CHANELTYPE      ChannelType  = 8;
+  string          channelUsrId = 9;
+}
+
+//拒绝观战
+message SSNtfRejectObserve {
+  string Invitee    = 1;
+  bool   NotReceive = 2;
+}
+
+//开始观战通知
+message SSNtfObserveBegin {
+  uint64 PvpId = 1;
+}
+
+// 本局锦标赛结束
+message SSNtfTNGameEnd {
+  int64  NextGameStartTime = 1;  // -1表示不存在下一局
+  uint64 TournametID       = 2;
+  uint64 TournamentGameID  = 3;
+}
+
+// ps电竞结束
+message SSNtfPsTNResult {
+  string              EventID = 1;
+  repeated PsTnResult players = 2;
+}
+
+message PsTnResult {
+  string ChannelUsrID = 1;
+  uint32 Rank         = 2;
+}
+
+// 有玩家缺少门票、赏金
+message SSNtfLackResourceInTeam {
+  uint32          TeamID            = 1;
+  repeated string LackTicketPlayers = 2;
+  repeated string LackBountyPlayers = 3;
+  repeated string LackMoneyPlayers  = 4;
+}
+
+message  SSNftCurrencyToBattle {
+  string pid           = 1;
+  uint32 pvpServerId   = 2;
+  uint64 pvpId         = 3;
+  int32  currencyId    = 4;
+  int32  currencyNum   = 5;
+  int32  costBountyNum = 6;
+  int32  costTicketNum = 7;
+}
+
+// 创意工坊匹配结果（通知队伍成员）
+message SSNtfWorkshopMatchResult {
+  bool   Success = 1;
+  uint32 TeamID  = 2;
+}
+
+// 赏金房间投注通知
+message SSNtfBetOnBounty {
+  CSDTBetData BetData = 1;
+}
+
+// 字段和SetPlayerMoney(PvpId,玩家Index,可用货币数量,门票数量)接口一致
+message SSNtfPvpSetPlayerMoney {
+  string PlayerId    = 1;
+  uint32 PvpServerId = 2;
+  uint64 PvpId       = 3;
+  int32  Money       = 4;
+  int32  Ticket      = 5;
+}
+
+//重置玩家祖籍国家
+message SSNtfCleanPlayerNativeCountry {
+  string Id = 1;    //玩家ID
+}
+
+// 异常pvpId列表
+message SSNtfExceptionPvp {
+  repeated uint64 PvpList = 1; // 异常的pvp列表
+}
+
+// 固定战斗组当前对局所处pvpServer异常导致对局异常结束后，回退gameId
+message SSNtfGroupRollback {
+  uint64 TournamentId   = 1;    //赛事id
+  uint64 ClassId        = 2;    //级别id
+  uint32 GroupIdx       = 3;    //组index
+  int64  LastPvpEndTime = 4;    //上个对局结束时间,会设置成异常时间点，这样就可以从异常开始再倒计时10分钟
+  uint64 GameID         = 5;    //正在或者将要进行的id 固定战斗组
+}
+
+//新增、修改商城商品信息
+message SSNtfAddMallGoods {
+  MallGoodsData Data = 1;
+}
+
+//删除商城商品信息
+message SSNtfRemoveMallGoods {
+  uint32 Id        = 1;
+  uint32 MallTabId = 2;
+  uint32 Zone      = 3;
+}
+
+//gm通知添加或者修改活动组
+message SSNtfActivityGroup {
+  ActivityGroup group = 1; // 一个活动组的数据
+}
+
+//gm通知移除活动组
+message SSNtfRemoveActivityGroup {
+  uint32 Group = 1;
+}
+
+// 招募增加battle数量
+message SSNtfRecruitAddBC {
+  uint32 Group    = 1;
+  string PlayerId = 2;
+}
+
+// 招募绑定邀请者
+message SSNtfRecruitBindInviter {
+  uint32 Group    = 1;
+  string PlayerId = 2;
+}
+
+// 添加第三方赛事
+message SSNtfAddThirdPvpInfo {
+  uint64 ID            = 1;    //赛事标识码
+  string Title         = 2;    //赛事标题
+  string Content       = 3;    //赛事描述
+  string BigPic        = 4;    //大图url(置顶图片)
+  string SmallPic      = 5;    //小图url(房间图片)
+  string RecommendIcon = 6;  //推荐图标
+  string PreShowPic    = 7;    //预告图标
+  int64  PvpStartTime  = 8;  //比赛时间
+  int64  PvpEndTime    = 9;  //比赛结束队伍
+  int32  RaceMode      = 10;  //观战赛事模式
+}
+
+// 删除第三方赛事
+message SSNtfDelThirdPvpInfo {
+  uint64 ID = 1;    //赛事标识码
+}
+
+// 绑定赛事房间
+message SSNtfBindThirdPvpInfo {
+  uint64 ID     = 1;    //赛事标识码
+  uint32 TeamID = 2;    //队伍ID
+}
+
+// 置顶队伍的PVP
+message SSNtfTopTeamPvp {
+  uint32 TeamID = 1;    //队伍ID
+}
+
+// 置顶队伍的PVP
+message SSNtfTopPlayerPvp {
+  string PlayerID = 1;  //玩家ID
+}
+
+// 设置赛事观战推荐数量
+message SSNtfSetRaceModeCount {
+  int32  RaceMode = 1;  //赛事模式
+  uint32 Count    = 2;  //赛事模式数量
+}
+
+// 删除赛事观战推荐数量
+message SSNtfDelRaceModeCount {
+  int32 RaceMode = 1;  //赛事模式
+}
+
+/* ------ 举报结果 -------*/
+message PunishResultData {
+  PUNISHCODE PunishCode = 1;    //处罚种类（封号？禁言？）
+  int64      PunishTime = 2;    //处罚时间(秒)
+}
+
+// 举报结果
+message SSNtfReportResult {
+  string                    ViolatorId   = 1;    //被举报人
+  string                    ReporterId   = 2;    //举报人
+  int32                     PunishType   = 3;    //处罚类型（昵称违规？聊天违规？）
+  int32                     PunishReason = 4;      //处罚原因（低俗辱骂？恶意推广？）
+  int64                     SuspendTime  = 5;        //处理时间
+  repeated PunishResultData PunishResult = 6;      //处理结果
+}
+
+// 房主点击开始游戏后，如果玩法是组卡玩法，通知所有队员获取组卡玩法的棋组信息
+message SSNtfGetChessList {
+  int32  MapId  = 1;    // 组卡玩法地图
+  uint32 TeamID = 20;   // 队伍ID
+}
+
+// 队伍中的玩家所在大厅服通知队伍服玩家的组卡玩法的棋组信息
+message SSNtfPlayerChessList {
+  uint32         TeamID          = 1;
+  string         PlayerID        = 2;
+  uint32         CommonIndex     = 3; //自定义卡组玩法选择的公有棋组序号
+  repeated int32 CustomChessList = 4; //自定义卡组玩法的自定义卡组
+}
+
+message SSNtfBigWinnerExpandMatch{
+  uint32 Id = 1;    //大赢家轮次ID
+}
+
+// 通知大厅服赛事历史信息
+message SSNtfTournamentHistory {
+  TournamentHistory History = 1;    // 历史数据
+  bool              Add     = 2;    // 是否是添加
+}
+
+// gm通知添加或者删除前8玩家
+message SSNtfTournamentGmTopRank {
+  bool            Add        = 1;    // true添加  false删除
+  string          PeriodZone = 2;    // 届数_赛区
+  repeated string Ids        = 3;    // 玩家id列表，按顺序从一名到第八名
+}
+
+message SSNtfExchangeOrder {
+  string             OrderId = 1;
+  CSDTItem           Item    = 2;
+  EXCHANGE_ORDER_OPT Opt     = 3;
+}
+
+message SSNtfAddBagItem {
+  repeated CSDTBagItem Bag = 1;
+}
+
+message SSNtfExchangeCleanPlayer {
+  string PlayerId = 1;
+}
+
+message  SSNtfPlayerOfflineData {
+  uint32              type      = 1;
+  string              offLineId = 2;
+  map<string, string> Para      = 3;
+}
+
+message PFDTAuthAccount {
+  bool   Success       = 1;  //验证是否成功
+  string ErrorDesc     = 2;   //错误信息
+  bool   IsWhitePlayer = 3; //白名单用户
+  bytes  Result        = 4;   //验证结果
+}
+
+message SSReqAuthAccount {
+  uint64     PfId  = 1;  //promise id
+  CSReqLogin Login = 2; //登陆数据
+}
+
+message PFDTCSReqTrans {
+  int32 CSmsgId = 1;
+  bytes BodyBuf = 2;
+}
+
+message SSNtfObserverChest{
+  PVPMODE mode             = 1; //模式
+  uint32  PvpChestVipLevel = 2; //官方自建房等级
+  uint64  PvpId            = 3;//pvpid
+}
+
+message SSNtfSetAuthority{
+  uint32 Level = 1; //等级
+}
+
+message SSNtfUpgradePassport{
+  uint32 TypeId = 1; //通行证类型
+  uint32 Period = 2; //赛季
+}
+
+message SSNtfUpdateExchangePassport {
+  string PlayerId = 1;
+  uint32 TypeId   = 2; //通行证类型
+  uint32 Period   = 3; //赛季
+}
+
+message SSReqUpdatePveTeamDeBuff {
+  uint64           PfID     = 1;
+  repeated uint32  BuffIds  = 2;
+  string           PlayerId = 3; //队长id
+}
+
+message SSRspUpdatePveTeamDeBuff {
+}
+
+message SSNtfUpdateTeamDeBuffToPlayer {
+  repeated uint32  BuffIds = 1;
+}
+
+message SSReqUpdateMentorInvite {
+  uint64                    PfID     = 1;
+  repeated MentorInviteMsg  Datas    = 2; //邀请信息
+  string                    Id       = 3; // 信息主人
+  MENTORSHIP                Type     = 4; // 邀约类型
+  string                    InviteId = 5; // 发送人的id
+}
+
+message SSReqMentorGetInviteMsg {
+  uint64           PfId         = 1;
+  string           PlayerId     = 2;    //用户id
+}
+
+message PFDTMentorInviteMsg {
+  repeated MentorInviteMsg Infos = 1 ;//消息
+}
+
+message SSReqGetMentorInfo {
+  uint64           PfId         = 1;
+  string           PlayerId     = 2;    //用户id
+}
+
+message PFDTGetMentorInfo {
+  repeated MentorInfo Infos = 1 ;//消息
+}
+
+message SSReqMentorConfirmInviteMsg {
+  uint64           PfId           = 1;
+  string           PupilId        = 2;    //徒弟id
+  string           MentorId       = 3;    //师傅id
+  bool             IsAccept       = 4;    // 接受or 拒绝
+  MENTORSHIP       InviteMsgType  = 5;    // 确认消息的类型
+  repeated uint32  CompleteTasks  = 6;    //徒弟确认的时候 才会发
+}
+
+
+message SSNtfBecomeMentor {
+  string          MentorId    = 1;//师傅id
+  uint32          Mmr         = 2;//师傅mmr
+  string          Region      = 3; //地区
+  uint32          Level       = 4;//玩家等级
+}
+
+message SSReqMsBecomeMentor {
+  uint64           PfId           = 1;
+  string           MentorId    = 2;//师傅id
+  uint32           Mmr         = 3;//师傅mmr
+  string           Region      = 4; //地区
+  uint32           Level       = 5;//玩家等级
+}
+
+message SSNtfMentorRelation {
+  string          MentorId    = 1;//师傅id
+  string          PupilId     = 2;//徒弟id
+  PUPILSTAT       Stat        = 3; //关系状态
+  uint32              type      = 4; //离线处理得
+  string              offLineId = 5; //离线处理得
+  map<string, string> Para      = 6; //离线处理得
+  int64               AddIntimacy = 7; //增加的亲密度
+}
+
+
+message SSNtfPlayerMentorInviteMsg {
+  repeated MentorInviteMsg Infos = 1 ;//消息
+}
+
+message SSNtfUpdatePlayerToMentorRecommend { //将玩家推送到 推荐列表
+  MENTORRECOMMEND                           RecommendType  = 1; //推送数据类型
+  map<string,AddRecommendData>              Players        = 2; //添加推荐榜的 数据
+  string                                    Region         = 3; //类型为1时 需要传入
+  bool                                      IsRemove       = 4; //是否删除
+}
+
+message SSReqMentorGetRecommendList {
+  uint64                    PfId         = 1;
+  uint32                    StartIdx     = 2;//分页开始值
+  string                    Region       = 3; //区域
+  MENTORSHIP                Type         = 4 ; // 推荐表类型
+}
+
+message PFDTMentorGetRecommendList {
+  repeated CSDTMentorRecommendPlayer           PlayerId     = 1;    //用户id
+  uint32                                       Count        = 2; //总共
+}
+
+message SSReqPupilApplyGraduate {
+  uint64                    PfId         = 1;
+  string                    MentorId     = 2;
+  string                    PupilId      = 3;
+  MENTORSHIP                Type         = 4 ; // 由谁发起得
+  bool                      IsAutoGraduate =5 ; //是否自动毕业
+}
+
+message PFDTPupilApplyGraduate {
+    PUPILSTAT               Stat        = 1;
+}
+
+message SSNtfPupilTaskUpdate {
+  PFDTTaskDetail                         Task      = 1 ;// 任务id
+  string                                 MentorId  = 2;//师傅id
+  string                                 PupilId   = 3; //徒弟
+  MENTORSHIP                             MsType    = 4; //
+}
+
+message SSNtfMentorPupilTaskUpdate { //将玩家推送到 推荐列表
+  repeated CSDTTaskItem                  Tasks      = 1 ;// 任务id
+  string                                 PupilId    = 2; //徒弟id
+}
+
+
+message SSReqMsGetTaskAward {
+  uint64                    PfId         = 1;
+  string                    MentorId     = 2;
+  string                    PupilId      = 3;
+  repeated uint32           TaskId       = 4; //任务id
+  MENTORSHIPTASK            TaskType     = 5; //领取的任务类型 必穿
+}
+
+message PFDTMsGetTaskAward {
+  uint32                    type      = 1; //离线处理得
+  string                    offLineId = 2; //离线处理得
+  map<string, string>       Para      = 3; //离线处理得
+  repeated Award            Awards    = 4; //奖励
+}
+
+message SSReqMsRelieveRelation {
+  uint64                    PfId         = 1;
+  string                    MentorId     = 2;
+  string                    PupilId      = 3;
+  MENTORSHIP                MsShip       = 4; //由谁提出
+}
+
+message PFDTMsRelieveRelation {
+  PUPILSTAT            Stat      =1 ;//徒弟状态
+  int64                PunishTime = 2; //惩罚时间
+}
+
+message SSNtfSetPlayerLog {
+  string        PlayerId  =1;//玩家id
+  bool          Switch    =2;//开启关闭
+}
+
+message SSNtfMentorLevel { //将玩家推送到 推荐列表
+  MENTORLEVEL   Level = 1; //是否等级更新
+}
+
+message SSNtfMsActivityTime { //更新玩家 活跃时间
+  string MentorId = 1; //师傅id
+  string PupilId  = 2; //徒弟id
+}
+message SSNtfAccountReopen {
+  string PId = 1; //玩家id
+  repeated PUNISHCODE PunishCode = 2; //解封类型
+}
+
+message SSNtfMsCleanInviteMsg {
+  string TargetId = 1; //删除的id
+  repeated string Ids = 2; //删除的信息 为空则全部删除
+}
+message SSNtfMsUpdateIntimacy {
+  string MentorId = 1; //师傅id
+  string PupilId  = 2; //徒弟id
+  int64  Intimacy = 3; //全量亲密度
+  int64  IntimacyTime = 4; //增加过后的亲密度的时间
+  MENTORSHIP  MsType = 5; //
+  bool        IsGm   = 6; //是否gm
+}
+
+message SSNtfGmMsAddGraduateNum {
+  string MentorId  =1; //师傅id
+  uint32 Num       = 2; //添加的毕业人数
+}
+
+ //观战服
+message SSReqObLogin {
+  uint64                    PfId               = 1;
+  string                    PlayerId           = 2;    //玩家游戏ID
+  uint64                    PvpId              = 3;    //pvp id
+  string                    ApkVersion         = 4;    //apk版本号
+  string                    PvpResourceVersion = 5;    //资源版本号
+  uint32                    Level              = 6;    //玩家等级
+  CHANELTYPE                ChanelType         = 7;    //玩家渠道类型
+  PLATFORMTYPE              PlatformType       = 8;    //玩家登录平台
+  string                    OpenId             = 9;    //玩家open id，国服玩家专有
+  int64                     GamelibVersion     = 10;    //新增内核版本号
+}
+
+//观战战相关
+message ObPvpInfo {
+  uint64                      PvpId                 = 1; //pvpId
+  int32                       Round                  = 2; //回合数
+  int32                       CbIdx                  = 3; // task pool index of core callback
+  uint32                      MapId                  = 4; //地图id
+  MAPTYPE                     MapType                = 5; //地图类型
+  string                      ApkVersion             = 6; //版本信息
+  string                      PvpResourceVersion     = 7; //资源版本号
+  map<string,PvpPlayerData>   PlayerMap              = 8; // plrid -> playerInfo, only real players
+  map<uint32,PvpPlayerData>   PlayerIndex            = 9; // 只有战斗的玩家 index -> playerInfo, real players and robots
+  map<int32,PvpPlayerData>   Players                = 10; // 战斗、观战玩家 streamHandle -> playerInfo, real players and robots
+  map<string,uint32>          IndexMapping           = 11; //player id -> player index
+  PVPSTATUSTYPE               Status                 = 12; //pvp对局状态
+  int64                       CreateTime             = 13; //创建时间
+  int64                       StartTime              = 14; //开始时间
+  uint32                      CustomSubMode          = 15; //子模式
+  uint32                      MeleeRule              = 16; // 梦境模式的子模式
+  string                      UniqueId               = 17; //语音唯一id
+  uint32                      MaxObserveCount        = 18; //本局最大同时观战人数
+  BattleExtData               ExtData                = 19; //战斗扩展数据
+  string                      PlatAppId              = 20; //社区平台id
+  int32                       CustomGameId           = 21; //自定义战斗id
+  string                      CommunityLogoIcon      = 22; //社区的logoIcon
+  int64                       CommunityTeamUUID      = 23; //社区组队唯一id
+  bool                        UploadStatData         = 24; // 是否上传战斗回合数据
+  CSDTPvpStat                 Stat                   = 25; // 存储回合数据
+  bool                        IsVng                  = 26; // 是否有vng的玩家参加
+  bool                        IsWorkshopRoom         = 27; // 是否创意工坊房
+  bool                        IsVngBattle            = 28; // 是否有vng battle的玩家参加// PvpTeachData
+  PvpTeachData                TeachData              = 29; // 新手教学
+  bool                        TeachWin               = 30; // 新手教学是否通关
+  PvpExtData                  PvpExtData             = 31; // 额外数据
+  bool                        IsTournamentPvp        = 32; // 是否是赛事pvp
+  TeamDesc                    TeamDesc               = 33; // 赛事房间信息
+  uint32                      TeamID                 = 34; // 组队ID
+  string                      PsEventID              = 35; // ps 电竞
+  PlayerExtMap                PlayerExtMap           = 36; // 玩家扩展数据
+  PVPMODE                     Mode                   = 37; // 模式
+  uint32                      PvpSvrId               = 38; // pvpsvr id
+  int32                       MaxGameSecs            = 39; // 最长游戏时间
+  int32                       SeqUpdate              = 40; // 帧同步频率 单位：毫秒
+  bytes                       TcpKey                 = 41; //tcp秘钥
+  int32                       LocalDistanceToUTC     = 42; //这个东西似乎不会变？
+}
+
+message PFDTObLogin {
+  ObPvpInfo                 ObPvpInfo      = 1; //obpvpInfo
+}
+
+//观战服 获取全量包
+message SSReqGetGameData {
+  uint64                    PfId               = 1;
+  string                    PlayerId           = 2;    //战斗玩家游戏ID 存在的玩家id
+  uint64                    PvpId              = 3;    //pvpid
+  OBPassThroughData         ObThrough          = 4;    // 透传必须要的消息
+}
+
+message SSNtfObPassThrough {
+  string                    PlayerId           = 1;    //玩家游戏ID 存在的玩家id
+  uint64                    PvpId              = 2;    //pvpid
+  uint32                    SvrId              = 3; //podid
+  bytes                     Data               = 4;  //消息
+  OBPassThroughData         ObThrough          = 5;    // 透传必须要的消息
+}
+
+message SSNtfObReady {
+  string                    PlayerId           = 1;    //玩家游戏ID 存在的玩家id
+  uint64                    PvpId              = 2;    //pvpid
+  uint32                    SvrId              = 3;    //podid
+  bytes                     Data               = 4;    //消息
+  OBPassThroughData         ObThrough          = 5;    // 透传必须要的消息
+}
+
+message SSNtfObLeaveGameEarly {
+  string                    PlayerId           = 1;    //玩家游戏ID 存在的玩家id
+  uint64                    PvpId              = 2;    //pvpid
+  uint32                    SvrId              = 3;    //podid
+  uint32                     PlayerIdx          = 4;    //玩家索引
+}
+
+message SSNtfObPvpEnd {
+  uint64                    PvpId              = 1;    //pvpid
+  uint32                    SvrId              = 2;    //podid
+  PVPMODE                   Mode               = 3; //模式
+  CSDTPvpCampResult         CampResult         = 4;    //阵营结果
+}
+
+message SSReqObChat{
+  uint64	PfId 		  = 1;
+  string 	ObPlayerId 	= 2;
+  PvpPlayerData PlayerData = 3;
+  string         Content     = 4;
+  uint32         Emotion     = 5;
+  CHATTYPE       ChatType    = 6;
+  uint64         PvpId       = 7;
+  int32          QuickChat   = 8;
+  string         CheckWorlds = 9; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+  CHATSOURCETYPE SourceType  = 10; //聊天来源类型
+}
+
+message PFDTObPvpChat{
+  uint32   NextSendTime = 1;
+  CHATTYPE ChatType     = 2;
+  int64    SilenceTime  = 3; // 禁言时间
+}
+
+message SSNtfObPvpChat {
+  uint64                    PvpId              = 1;    //pvpid
+  uint32                    SvrId              = 2;    //podid
+    CSNtfPvpChat            Data               = 3; //聊天
+}
+
+message SSNtfObServerInfo {
+  string                 PlayerId = 1;
+  PlayerObServerInfo     Data = 2;
+}
+
+message SSNtfObDuration {
+  string                 PlayerId = 1;
+  uint64                 PvpId    = 2;
+  uint32                 Duration = 3;
+}
+message SSNtfObQuit{
+  string                 PlayerId = 1;
+  uint64                 PvpId    = 2;
+}
+/*************************具体包体NTF END**********************************/
+
+
+
+/*************************服务器内部自行使用的**********************************/
+// ss直接消息传递
+message SSMsgPassData {
+  SSMsgID MsgId      = 1;  //透传消息id
+  uint32  SrcId      = 2;  //origin server id
+  uint64  PfId       = 3;  //promise id
+  string  ServerName = 4; //目标服务的名字
+  string  PlayerId   = 5; //用户id
+}
+
+message SSReqOfflineConsumes{
+  string  					PlayerId   					= 1; //用户id
+  bool 						IsNtfBagUpdate				= 2; //是否通知客户端背包更新
+  repeated 		Consume 	Consumes 					= 3; //消耗
+}
+message SSNtfOfflineSell{
+  string  	   PlayerId   	= 1; //用户id
+  string       OrderId		= 2; //订单号
+  string 	   ShelfType    = 3; 
+  string 	   ItemUId      = 4; //物品instanceId
+  uint32	   ItemId       = 5; //物品id
+}
+
+message SSNtfExchangeRecord{
+  EXCHANGE_STATE TypeId	= 1;
+}
+
+message SSReqPullExchangeRecord{
+  uint64	PfId 		= 1;
+  string 	PlayerId 	= 2;
+}
+
+message PFDTPullExchangeRecord{
+	int32	BalanceCount	= 1;
+	int32	SaleCount		= 2;
+}
+
+message SSReqExchangeConsumes {
+  uint64 PfId 		= 1;
+  string PlayerId   =2;
+  repeated Consume Consumes = 3;
+}
+
+message SSNtfObModifyCount {
+  string                 PlayerId = 1;
+  int32                  Count    = 2;
+  uint64                 PvpId    = 3;
+}
+
+/*************************服务器内部自行使用的**********************************/

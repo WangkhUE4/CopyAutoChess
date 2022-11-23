@@ -1,0 +1,8 @@
+syntax = "proto3";
+package School;
+
+message Student
+{
+	optional int32 sid = 1;
+	optional string name = 2;
+}

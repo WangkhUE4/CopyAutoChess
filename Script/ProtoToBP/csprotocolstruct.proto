@@ -1,0 +1,4834 @@
+syntax = "proto3";
+package msg;
+
+import "result.proto";
+import "common.proto";
+
+
+//协议消息说明
+//CSReq消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSReqBody（protocbuf序列化）
+//CSRsp消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSRspBody（protocbuf序列化）
+//CSNtf消息结构：
+//HeadLen(1字节) + CSHead（protocbuf序列化） + CSNtfBody（protocbuf序列化）
+
+message CSReqVerifyRealName {
+  string RealName = 1; // 真实姓名
+  string IDNumber = 2; // 身份证号
+  string ClientID = 3;
+}
+
+message CSRspVerifyRealName {
+  bool Success = 1;
+  bool IsAdult = 2;
+}
+
+message CSReqFakePay {
+  uint32 ItemID = 1;
+}
+
+message CSRspFakePay {
+
+}
+
+message CSNtfVerifyRealName {
+
+}
+
+/*************************外包体定义 BEG*****************************/
+
+
+//客户端序列号
+message CSBodySeq {
+  uint64 Seq = 1;
+}
+
+/*************************枚举 BEG*********************************/
+//客户端上传TLOG类型
+enum TLOGTYPE {
+  TLOGTYPE_NONE                  = 0;
+  TLOGTYPE_BATTLE_FORMATION      = 1;    // 查看阵容
+  TLOGTYPE_SHARE                 = 2;    // 分享
+  TLOGTYPE_AUTO_BATTLE           = 3;    // 托管
+  TLOGTYPE_SEC_SOCIAL            = 4;    // 社交（腾讯安全）
+  TLOGTYPE_CHARGE                = 5;    // 甜甜圈购买
+  TLOGTYPE_SINGLEROUNDFLOW       = 6;    // 回合日志
+  TLOGTYPE_GVOICE                = 7;    // 语音
+  TLOGTYPE_PAILIANTU             = 8;    // 拍脸图
+  TLOGTYPE_SKIP_CG_GUIDE         = 9;    // 跳过引导CG
+  TLOGTYPE_FORCE_BATTLE_GUIDE    = 10;   // 强制战斗引导
+  TLOGTYPE_CLICK_STRONGER        = 11;   // 点击我要变强
+  TLOGTYPE_CLICK_STRONGER_OPTION = 12;   // 点击我要变强选项
+  TLOGTYPE_TOURNAMENT_SIGNUP     = 13;  // 锦标赛报名
+  TLOGTYPE_COMMON_INVTITE        = 14;  // 公共邀约
+}
+
+//app version升级类型
+enum VERSIONUPGRADETYPE {
+  VERSIONUPGRADETYPE_NULL     = 0; //无需升级
+  VERSIONUPGRADETYPE_FORCE    = 1; //强制升级
+  VERSIONUPGRADETYPE_OPTIONAL = 2; //可选升级
+}
+
+enum PASSPORTLEVALAWARD {
+  LEVELAWARD_ALL    = 0;    //全部领取
+  LEVELAWARD_FREE   = 1;    //免费部分
+  LEVELAWARD_CHARGE = 2;    //付费部分
+}
+
+enum ALPHA_ACTIVITY_STATE {
+  ALPHA_ACTIVITY_STATE_NOT_PARTICIPATE = 0;
+  ALPHA_ACTIVITY_STATE_CAN_GET         = 1;
+  ALPHA_ACTIVITY_STATE_AWARDED         = 2;
+}
+
+// 服务器手机号绑定type
+enum BINDSWITCHTYPE {
+  BINDSWITCHTYPE_NULL = 0; // 不绑定
+  BINDSWITCHTYPE_CAN  = 1; // 可以绑定
+  BINDSWITCHTYPE_TIPS = 2; // 弹窗绑定
+  BINDSWITCHTYPE_MUST = 3; // 必须绑定
+}
+
+// 每日有奖分享类型
+enum DailyShareType {
+  UserInfo         = 0;    // 个人信息分享
+  FriendRank       = 1;    // 好友排行榜
+  PVPCount         = 2;    // 对局数分享
+  Chess            = 3;    // 棋子图鉴分享
+  Calendar         = 4;    // 老黄历分享
+  RankUpgrade      = 5;    // 段位升级分享
+  PVPTop3          = 6;    // pvp第一名第二名第三名分享
+  FriendInvite     = 7;    // 同玩好友邀请奖励
+  PassLevelShar    = 8;    // 通行证每日等级分享
+  PassTaskCommon   = 9;  // 通行证通用任务分享
+
+  PTaskMoney       = 10; //通行证金币任务分享
+  PTaskScatter     = 11; //通行证星罗棋布任务分享
+  PTaskRecruitArmy = 12; //通行证招兵买马任务分享
+  PTaskArmyTeeth   = 13; //通行证全副武装任务分享
+
+  Max_NUM          = 14;    // 最大
+}
+
+// 发送验证码类型
+enum VERIFICATIONCODETYPE {
+  BIND_PHONE     = 0; //绑定手机号
+  GET_OLD_PLAYER = 1; //获取老账号
+}
+
+enum WxVVipAwardTYPE {
+  DAILY_RWD    = 0;    //普通日奖励
+  DAILY_V_RWD  = 1;    //VIP日奖励
+  WEEKLY_V_RWD = 2;    //VIP周奖励
+}
+
+// 私聊频道消息类型
+enum PriChatType{
+  NormalMsg = 0; //正常消息
+  FollowNtf = 1; //好友关注通知
+}
+
+//拼图活动奖励类型
+enum PUZZLE_AWARD_TYPE {
+  AWARD_NORMAL = 0;//正常
+  FLIP_CARDS   = 1;//翻牌
+  GROUP_AWARD  = 2;//组奖励
+  BIG_AWARD    = 3;//大奖
+}
+/*************************具体包体REQ&RSP BEG******************************/
+//登陆Req
+
+enum PLAYER_BIND_STATUS {
+  PLAYER_NOT_BIND        = 0; // 暂未绑定
+  PLAYER_UN_BIND         = 1; // 已经解绑
+  PLAYER_PS_ALREADY_BIND = 2; // 已经绑定
+}
+
+/*
+ 广告随机折扣
+*/
+message RandDiscount {
+  uint32 ID            = 1;  // 奖励ID
+  int32  Times         = 2;  // 可用次数
+  int64  AvailableTime = 3;  // 有效时间
+  uint32 Rate          = 4;  // 折扣率
+}
+
+//登陆Rsp
+message CSRspLogin {
+  string                      	Id                       = 1;    //用户id
+  string                      	UsrName                  = 2;    //用户名
+  string                      	SessionId                = 3;    //用于客户端游戏中重连服务器
+  CSDTBase                    	Base                     = 4;    //玩家基础信息
+  CSDTStat                    	Stat                     = 5;    //统计信息
+  repeated CSDTItem           	Items                    = 6;    //玩家拥有道具
+  CSDTNoticeInfo              	Notice                   = 7;    //公告内容
+  map<string, string>         	MapLoginDatas            = 8;    //登录成功后获取的渠道相关数据
+  int64                       	ServerTime               = 9;    //服务器时间
+  string                      	ServiceAppId             = 10;   //客服 Appid
+  string                      	ServiceKey               = 11;   //客服 Key
+  int32                       	LocalDistanceToUTC       = 12;   //当地时间与UTC时间相差秒数
+  CSDTExtra                   	Extra                    = 13;   //额外信息
+  CSDTMarquee                 	Marquee                  = 14;   //跑马灯
+  repeated CSDTChessPlayer    	ChessPlayers             = 15;
+  uint32                      	EvalWeekMoneyLimit       = 16;   //每周战斗获得糖果阈值
+  map<uint32, uint32>         	Chess                    = 17;   //棋子被合成过的最大星级
+  string                      	RefreshTimeDaily         = 18;   //每日刷新时间点
+  uint32                      	RefreshTimeWeekly        = 19;   //每周几刷新
+  uint32                      	WorldChatLimit           = 20;   //聊天段位限制
+  repeated CSDTCommonRandList 	CommonRandList           = 21;   //通用物品随机队列
+  CSDTAdsInfo                 	Ads                      = 22;   //广告内容
+  CSDTPassport                	Passport                 = 23;   //通行证信息
+  float                       	DiamondCoefficient       = 24;   //付费糖果转化系数
+  map<uint32, uint32>         	FirstCharge              = 25;   //首充信息
+  bool                        	DiamondCovertMoney       = 26;   //是否需要将甜甜圈转化为糖果
+  int64                       	AlphaActivityBeginTime   = 27;
+  int64                       	AlphaActivityEndTime     = 28;
+  CSDTSeason                  	Season                   = 29;
+  CSDTActivity                	Activity                 = 30;   //活动数据
+  CSDTMelee                   	Melee                    = 31;
+  CSDTPermission              	Permission               = 32;
+  int64                       	CommentBeginTime         = 33;
+  int64                       	CommentEndTime           = 34;
+  repeated SWITCHTYPE         	SwitchSystemSet          = 35;   //开关控制标记设置_系统
+  repeated SWITCHTYPE         	SwitchPlayerSet          = 36;   //开关控制标记设置_个人
+  ChannelFunctionData         	ChannelFunction          = 37;   //渠道功能开关
+  repeated MallTabData        	MallTabs                 = 38;   //商城栏位
+  LAUNCHTYPE                  	LaunchType               = 39;   //启动类型
+  CHANNELVIPTYPE              	ChannelVipType           = 40;   //渠道vip类型
+  bool                        	BattleIncompatibleSwitch = 41;   //战斗不互通开关
+  map<uint32, uint32>         	PayRecord                = 42;   //玩家充值记录
+  CSDTSignData                	SignData                 = 43;   //每日签到活动数据
+  map<uint32, uint32>         	Settings                 = 44;   //设置相关
+  repeated string             	SysMsgs                  = 45;   //gm系统消息
+  uint32                      	VoiceMark                = 46;   //语音开关配置标记
+  WxVVipData                  	WxVVVip                  = 47;   //微信大玩家
+  uint64                      	ObservePvpId             = 48;   //观战ID
+  string                      	UniqueId                 = 49;   //添加唯一ID
+  int32                       	IdipAreaID               = 50;   //idip区域id
+  repeated int32              	FastChatList             = 51;   //快捷聊天预设文本
+  repeated CSDTPunishment     	Punishment               = 52;   //玩家当前受到的惩罚
+  CSDTAddictionInfo           	Addiction                = 53;   //沉迷信息
+  repeated MultiPlayer        	MultiPlayers             = 54;   //玩家待选择的角色
+  CSDTBannerInfo              	Banners                  = 55;   //banner内容
+  repeated CSDTTaskItem       	ObserveTasks             = 56;   //观战任务
+  string                      	PandoraUrl               = 57;  //幸运星url
+  bool                        	OpenBindOssPlayer        = 58;   //绑定tx玩家开关
+  repeated uint32             	FavouriteWSMaps          = 59;   //收藏的创意工坊地图（数组元素为地图id）
+  repeated uint32             	ShortcutWSMaps           = 60;   //创意工坊地图的快捷入口（数组元素为地图id）
+  repeated ScoredMap          	ScoredWSMaps             = 61;   //已评分的地图
+  CSDTRecruitData             	RecruitData              = 62;  //招募数据
+  repeated string             	RecommendCollect         = 63;   //个人收藏阵容
+  string                      	RecommendSet             = 64;   //个人设置的推荐阵容
+  CSDTTasks                   	Tasks                    = 65;   //成就奖杯任务
+  string                      	CliReportPublishKey      = 66;   //客户端举报接口公钥
+  PlayerGuildInfo             	GuildInfo                = 67;   //公会
+  bool                        	GetVngCommentAward       = 68;
+  map<string, string>         	ExtraPara                = 69;   //透传的各种参数
+  CSDTTeachData               	Teach                    = 70;  //教学关卡
+  string                      	ServerEnv                = 71;  //服务器环境
+  CSDTBigWinnerData           	BigWinner                = 72;  //大赢家
+  string                      	ChannelUsrId             = 73;  //玩家的CID
+  RandDiscount                	AdDiscount               = 75;  //广告折扣
+  PLAYER_BIND_STATUS          	PsBindStatus             = 76;
+  CSDTPlayerPvpData           	PlayerPvpData            = 77; //玩家pvp数据
+  repeated GmBan              	GmBans                   = 78;//gm封禁信息
+  bool                        	EnableBalance            = 79; // 是否能使用零钱包
+  repeated CSDTPassportHistory	PassportHistory	   	   	 = 80; //通行证历史数据
+  uint32                        PassportRefreshTimeWeekly= 82; //通行证周刷新时间
+}
+
+// 绑定tx玩家,角色展示信息
+message TxPlayerInfo {
+  string Id            = 1; //id
+  string Name          = 2; //昵称
+  uint32 HeadPic       = 3; //头像
+  uint32 HeadPicFrame  = 4; //头像框
+  uint32 Level         = 5; //等级
+  uint32 MMR           = 6; //杯段
+  uint32 Diamond       = 7; //甜甜圈数量
+  uint32 Money         = 8; //糖果数量
+  uint32 PassportLevel = 9; //通行证等级
+  bool   IsTxPlayer    = 10; //是否是腾讯玩家
+}
+
+//查询腾讯绑定账号
+message CSReqGetTxPlayer {
+  string TxPlayerId         = 1; // 腾讯玩家Id
+  string BlackboxInviteCode = 2; // 小黑盒邀请码
+}
+
+message CSRspGetTxPlayer {
+  repeated TxPlayerInfo Players = 1; //玩家待选择的角色
+}
+//选择绑定Tx玩家
+message CSReqChooseTxPlayer {
+  bool IsTxPlayer = 1; // 是否选择腾讯玩家
+}
+
+
+message CSDTExchangePassportGoodsData {
+  uint32 Id    = 1;
+  uint32 Count = 2;
+}
+
+message CSDTPassportTask {
+  uint32 Id       = 1; //任务ID
+  uint32 Progress = 2; //任务进度
+  bool   GetAward = 3; //是否领奖
+}
+
+message CSDTPassport {
+  uint32                                 Level               = 1;
+  uint32                                 Star                = 2;
+  PASSPORTTYPE                           Type                = 3;
+  repeated uint32                        LevelAwards         = 4;
+  repeated uint32                        LevelChargeAwards   = 5;
+  repeated CSDTPassportTask              WeeklyFreeTasks     = 6;
+  repeated CSDTPassportTask              WeeklyChargeTasks   = 7;
+  repeated CSDTPassportTask              SeasonTasks         = 8;
+  uint32                                 WeekIndex           = 9;   //当前赛季第几周
+  uint32                                 Period              = 10;  //周期
+  repeated CSDTExchangePassportGoodsData BuyData             = 11;
+  repeated CSDTPassportTask              DailyRefreshTasks   = 12;  //每日刷新任务
+  repeated CSDTPassportTask              WeeklyRefreshTasks  = 13;  //每周刷新任务
+  uint32                                 WeekBattleStar      = 14; //每周战星
+  repeated CSDTBuyPassportActivity       BuyPassportActivity = 15; //通行证直购活动
+  uint32                                 Coefficient         = 16; //积分加成
+  int64                                  BeginTime           = 17; //当前赛季通行证开始时间
+  int64                                  EndTime             = 18; //当前赛季通行证结束时间
+  repeated uint32                        TypeIds             = 19; //通行证类型IDList
+  uint32                                 LastBuyConsumes     = 20; //上次购买通行证花费
+  bool                                   IsRecommend         = 21; //是否被投放(显示更优推荐方案)
+  repeated CSDTPassportTask              DayFreeTasks        = 22;// 日免费任务
+  repeated CSDTPassportTask              DayChargeTasks      = 23;// 日付费任务
+  uint32                                 WeekTaskBattleStar  = 24; //周任务战星
+  uint32                                 DayTaskBattleStar   = 25; //周任务战星
+  map<string, uint32>                    PassportCardNum     = 26; //通行证卡号
+  map<string, CSDTPassportCard>          AdvancePassport     = 27;//预购通行证 客户端自己 计算还剩多少次数
+}
+
+message CSDTBuyPassportActivity {
+  uint32       GroupId   = 1;
+  ACTIVITYTYPE Type      = 2;
+  int64        BeginTime = 3;
+  int64        EndTime   = 4;
+  bool         Open      = 5;
+}
+
+message CSDTBase {
+  uint32                       HeadPic             = 1;
+  uint32                       Scene               = 2;
+  uint32                       ChessPlayer         = 3;
+  uint32                       DamageEffect        = 4;
+  uint32                       ChatBubble          = 5;
+  uint32                       Level               = 6;
+  uint32                       Exp                 = 7;
+  map<uint32, uint32>          CurShowItems        = 8;
+  int64                        Birthday            = 9; //出生日期
+  PLATFORMTYPE                 LastPlatFormType    = 10;//玩家上次登录平台
+  string                       Country             = 11;
+  int64                        RefreshCountryTime  = 12;
+  string                       NativeCountry       = 13; // 祖籍国家
+  int64                        ResetHeadPicTime    = 14; // idip重置头像时间
+  int32                        ChangeCountryNumber = 15; // 修改国家的次数
+  uint32                       Province            = 16; // 省份
+  int64                        NextSetProvinceTime = 17; // 下次可以设置省份的时间
+  uint32                       ChangeProvinceTimes = 18; // 修改省份次数
+  CSDTItem                     Medal               = 19; // 佩戴的勋章
+  map<uint32, CSDTCurShowItem> CurShowItem         = 20; // 装扮{key,ITEM_TYPE}
+  string                       ChessPlayerUId      = 21; // 棋手的ChessPlayer的instanceid
+  PlayerMentorShipInfo         MentorShipInfo      = 22; // 师徒信息
+  int64                        TotalDuration       = 23; // 新得总时长
+  EXCHANGESTATE 			   ExchangeState	   = 24; //拍卖行状态
+}
+
+message CSDTPermission {
+  HISTORYPVPSHOWPERMISSION ShowPvpHistory = 1;  //查看历史战绩权限
+}
+
+message CSDTExtra {
+  uint32              SetNameCount        = 1; //修改名字的次数
+  repeated uint32     Guids               = 2;
+  uint32              EvalWeekMoney       = 3;   //战斗获得的糖果奖励
+  uint32              EvalWeekMoneyLimit  = 4;
+  bool                DailyFirstWin       = 5;
+  bool                ChatShielding       = 6;   //私聊屏蔽标识
+  //uint32               FansCount          = 7;
+  uint32              WeekExp             = 8;
+  map<uint32, int64>  ExpBonus            = 9;  //经验加成
+  map<uint32, int64>  CandyBonus          = 10; //糖果加成
+  bool                FirstBuyEgg         = 11; //是否是首次购买扭蛋
+  uint32              WeekIndex           = 12;
+  bool                EnableNewPlayerMode = 13;
+  map<uint64, string> HistoryPvp          = 14;
+  uint32              HistoryPvpShowLimit = 15;
+  uint32              LotteryCount        = 16; //抽奖次数
+  map<uint32, uint32> EggCount            = 17; //扭蛋抽取次数
+  uint32              WeekBattleStar      = 18; //每周战星上限
+  map<uint32, uint32> EggLowQualityCounts = 19; //玩家连续未抽中高质量物品次数{eggid:count}
+  bool                CompleteInfoInput   = 20;
+  //string               PhoneNumber        = 21; //绑定的手机号
+  int64               BindPhoneNumberTime = 22; //绑定时间
+  string              BlackboxInviteCode  = 23; //黑盒邀请码
+  string              SharingCode         = 24; //分享码
+  int64               SharingBeginTime    = 25; //分享活动开始时间
+  int64               SharingEndTime      = 26; //分享活动结束时间
+  map<int32, string>  ShareReward         = 27;
+  uint32              BindOldPlayerCount  = 28; //绑定老账号次数
+  uint32              MidasZoneId         = 29;
+  OBSERVEPRIVILEGE    ObservePrivilege    = 30;
+  bool                TencentTest         = 31;
+  repeated uint32     Questionnaires      = 32; //玩家已经答过的问卷
+  repeated string     ENotices            = 33; // 入口公告图片路径，默认取第一个元素ENotices[0]
+  FRIENDINVISIBLE     FriendInvisible     = 34; //好友不可见
+  string              BindTxPlayerId      = 35; // 绑定腾讯角色ID(空则没有绑定过)
+  bool                NtfBindTxPlayer     = 36; // 提示绑定腾讯账号
+  uint32              NewPlayerGuideFlag  = 37; // 新手引导(PC用)
+  int64               NewPlayerGuideTime  = 38; // 新手引导时间(PC用)
+  bool                PsOnly              = 39;
+  int32               PsServerOnly        = 40;
+  map<int32, uint32>  ABTestData          = 41; // ABTestData数据
+  bool                IsCancel            = 42; //是否取消注销
+}
+
+message CSDTTeachPass {
+  bool Win = 1;  //是否通关
+}
+
+message CSDTTeachData {
+  map<uint32, CSDTTeachPass> Pass = 1; //关卡数据
+}
+
+message CSDTBigWinnerData {
+  bool   IsDailyAward = 1;  //是否领取低保
+  uint32 SeasonId     = 2;  //赛季ID
+  uint32 SeasonScore  = 3;  //赛季积分
+}
+
+
+
+message CSReqApplyHallServer{
+  int64        Ts           = 1;
+  string       DeviceId     = 2;
+  string       ChannelId    = 3;    //渠道Id
+  string       ApkVersion   = 4;    //客户端当前版本号
+  PLATFORMTYPE PlatformType = 5;    //平台类型
+}
+
+message CSRspApplyHallServer{
+  bytes          Key      = 1;    //秘钥
+  uint32         ServerId = 2;    //服务器id
+  CSDTNoticeInfo Notice   = 3;    //公告内容
+}
+
+//heart req
+message CSReqHeart {
+  uint64 time = 1;    //时间
+}
+
+message CSRspHeart {
+  uint64 time          = 1;    //时间
+  uint64 NowServerTime = 2;    //服务器当前时间
+}
+
+message CSReqVersionCheck{
+  PLATFORMTYPE PlatformType   = 1;    //平台类型
+  string       ApkVersion     = 2;    //客户端当前版本号
+  string       ChannelId      = 3;    //渠道Id
+  int64        GamelibVersion = 4;    //内核版本号
+}
+
+message CSRspVersionCheck{
+  VERSIONUPGRADETYPE  UpgradeType          = 1;    //升级方式
+  string              UpgradeAddress       = 2;    //升级地址
+  string              NewApkVersion        = 3;    //最新apk版本号
+  string              ApkCdnUrl            = 4;    //apk cdn资源路径
+  string              UpgradeContent       = 5;    //更新内容
+  string              VerifyGateAddr       = 6;     //跳转地址
+  map<string, string> LanMd5List           = 7;     //多语言md5码
+  string              ZoneCdn              = 8;     //cdn地址
+  string              ZoneSlaveCdn         = 9;     //备用cdn地址
+  int64               ServerGamelibVersion = 10;   //服务器内核版本号
+  string              PlatUrl              = 11;   //开放平台地址
+  string              PlatAppId            = 12;   //开放平台id
+  string              PlatAppSecret        = 13;   //开放平台秘钥
+  string              ConsumesUrlWeb       = 14;   //拍卖行
+  string              ConsumesUrlApp       = 15;   //拍卖行
+  string              AssetUrl             = 16; //资源地址
+  string              AssetVersion         = 17; //资源版本
+  string              PvpResourceVersion   = 18; //资源版本号
+}
+
+message CSReqFreeFlow {
+  string       AppId        = 1;
+  string       AccessToken  = 2;
+  string       OpenId       = 3;
+  CHANELTYPE   ChannelType  = 4;
+  PLATFORMTYPE PlatformType = 5;
+}
+
+message CSRspFreeFlow {
+
+}
+
+message CSReqTlogEvent {
+  TLOGTYPE       TlogType      = 1;
+  repeated int64 TlogParamList = 2;
+  string         TlogStr       = 3;
+  CSDTRoundItem  TlogRoundItem = 4;
+}
+
+message CSRspTlogEvent {
+
+}
+
+message CSReqResourceVersionCheck{
+  string       ApkVersion   = 1;    //客户端当前版本号
+  PLATFORMTYPE PlatFormType = 2;    //平台类型
+  string       ChannelId    = 3;    //渠道Id
+}
+
+message CSRspResourceVersionCheck{
+  string              ApkVersion      = 1;    //Apk版本号
+  string              ResourceVersion = 2;    //资源版本号
+  string              Cdn             = 3;    //Cdn链接地址
+  string              SlaveCdn        = 4;    //备Cdn链接地址
+  string              UpgradeContent  = 5;    //更新内容
+  int32               AearIdWX        = 6;    //微信区服ID
+  int32               AearIdQQ        = 7;    //QQ区服ID
+  repeated string     PvpAddresses    = 8;    //pvp分组代表测速地址
+  map<string, string> Regions         = 9;    //区域测速点
+}
+
+message CSReqGetNumRank {
+  RANKTYPE   Type         = 1;    //排行榜类型
+  string     Country      = 2;    //国家 如果是腾讯渠道 省份ID
+  uint64     TournamentId = 3;    //赛事id
+  uint64     ClassId      = 4;    //级别id
+  uint64     RoundId      = 5;    //轮次id 在获取轮次排行或者组内排行才填充
+  bool       SelfRank     = 6;    //只拉取自己的名次
+  uint32     GroupIndex   = 7;    //组id
+  CHANELTYPE ChannelType  = 8;    //玩家渠道类型
+  string     TargetPlayer = 9;    //指定玩家排名--SelfRank为TRUE并且这个字段不为空 则拉取指定玩家
+}
+
+message CSReqGetSelfNumRankData {
+  repeated RANKTYPE Type         = 1;    //排行榜类型
+  string            Country      = 2;    //国家 如果是腾讯渠道 省份ID
+  CHANELTYPE        ChannelType  = 3;    //玩家渠道类型
+  string            TargetPlayer = 4;    //指定玩家排名
+}
+
+message CSRspGetNumRank {
+  RANKTYPE                 Type          = 1;    //排行榜类型
+  int32                    Rank          = 2;    //玩家的排名
+  repeated CSDTNumRankItem items         = 3;    //前几名的玩家
+  uint32                   RankThreshold = 4;    //排名阀值
+  uint32                   RankTopCount  = 5;    //前几名的数目
+  string                   Country       = 6;    //国家
+  CHANELTYPE               ChannelType   = 7;    //渠道类型
+}
+
+message CSRspGetSelfNumRankData {
+  repeated CSDTGetSelfNumRank data = 1;
+}
+message CSDTGetSelfNumRank {
+  RANKTYPE   RankType    = 1;    //排行榜类型
+  int32      Rank        = 2;    //玩家的排名
+  string     Country     = 6;    //国家
+  CHANELTYPE ChannelType = 7;    //渠道类型
+}
+
+message CSReqWorldChat{
+  string         Content       = 1; //聊天内容
+  uint32         Emotion       = 2; //表情
+  WORDCHAT       WorldChatType = 3; //普通世界聊天 0, 创意工坊 1
+  CHATSOURCETYPE SourceType    = 4; //聊天来源类型
+  string         CheckWorlds   = 5; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+  string         ChannelID     = 6; //频道ID
+}
+
+message CSRspWorldChat{
+  int64          NextSendTime = 1;
+  int64          SilenceTime  = 2; // 禁言时间
+  string         Reason       = 3; // 禁言原因
+  CHATSOURCETYPE SourceType   = 4; //聊天来源类型
+}
+
+message CSReqExpose{
+  string Id      = 1; // 被举报的玩家id
+  string Content = 2; //被举报的内容
+  string PicUrl  = 3;     //被举报的玩家头像URL
+}
+
+message CSRspExpose{
+}
+
+//relationBaseInfo
+message CSReqPlayersBaseInfo {
+  repeated string Ids      = 1;    //id列表
+  bool            IsOpenId = 2;    //false上面是角色id,true上面是openid(渠道类型和查询者相同)
+}
+
+message CSRspPlayersBaseInfo {
+  repeated CSDTPlayerBaseInfo Info = 1;    //基础信息列表
+}
+
+//player DetailInfo
+message CSReqPlayerDetailInfo {
+  repeated string Ids      = 1; //id或用户名
+  bool            IsOpenId = 2; //false上面是角色id,true上面是openid(渠道类型和查询者相同)
+}
+
+message CSRspPlayerDetailInfo {
+  repeated CSDTPlayerDetailInfo Infos = 1;
+}
+
+// 锦标赛相关的信息
+message CSReqPlayersTournamentInfo {
+  repeated string Ids      = 1;    // id列表
+  bool            IsOpenId = 2;    // false上面是角色id, true上面是openid(渠道类型和查询者相同)
+}
+
+message CSRspPlayersTournamentInfo {
+  repeated CSDTPlayerTournamentInfo Infos = 1;    // 锦标赛相关的信息
+}
+
+message CSReqReadMail{
+  uint64 Id = 1;
+}
+
+message CSRspReadMail{
+  uint64 Id = 1;
+}
+
+message CSReqGetMailAward{
+  uint64 Id = 1;
+}
+
+message CSRspGetMailAward{
+  repeated uint64 Id     = 1;
+  repeated Award  Awards = 2;    //奖励
+}
+
+//处理开放平台邮件
+message CSReqDealWebMail {
+  uint64    Id     = 1;  //邮件id
+  WEBRESULT Result = 2;  //处理结果
+}
+
+message CSRspDealWebMail {
+  uint64 Id = 1;
+}
+
+message CSReqBuyEgg {
+  uint32 Count = 1;    //购买数量
+  uint32 EggId = 2;    //扭蛋ID
+  uint32 Index = 3;    //价格档索引
+}
+
+message CSRspBuyEgg {
+  repeated Consume Consumes = 1;    //消耗
+  repeated Award   Awards   = 2;    //奖励
+}
+
+//扭蛋抽奖
+message CSReqEggLottery {
+  uint32 Count = 1;    //抽取数量
+  uint32 EggId = 2;    //扭蛋ID
+}
+
+message CSRspEggLottery {
+  repeated Consume Consumes        = 1;    //消耗
+  repeated Award   Awards          = 2;    //抽到的奖励
+  uint32           LowQualityCount = 3;    //连续未抽中高质量物品次数
+}
+
+// 队伍操作(这里只包含了OB系统新增的操作类型)
+message CSReqTeamOP {
+  TeamOP OP = 1;  //操作
+}
+
+// 队伍基本信息
+message CSReqOBTeamInfo {
+  int32 MapID = 1;  // 默认值0表示请求全部类型的房间（自定义房间+创意工坊房间）
+}
+
+// 队伍基本信息
+message CSRspOBTeamInfo {
+  repeated TeamBaseInfo BaseInfo = 1;
+}
+
+// 上报玩家头像url
+message  CSReqReportHeadIconUrl {
+  string IconUrl = 1;
+}
+
+message CSReqUserNameSet {
+  string UserName = 1;    //用户名
+}
+
+message CSRspUserNameSet {
+  uint32           Count    = 1;    //修改名字的次数
+  repeated Consume Consumes = 2;    //消耗列表
+}
+
+message CSReqUserNameRandom {
+  string UserName = 1;    //用户名
+}
+message CSRspUserNameRandom {
+  string UserName = 1;    //用户名
+}
+
+message CSReqHeadPicSet {
+  uint32 HeadPic = 1;    //头像
+}
+
+message CSRspHeadPicSet {
+}
+
+//Pvp req
+message CSReqPvp {
+  PVPMODE Mode               = 1;    //pvp模式
+  string  ApkVersion         = 2;
+  string  PvpResourceVersion = 3;
+  uint32  CustomSubMode      = 5;    //自定义子模式
+  uint64  TournamentId       = 6;    //赛事下,赛事id
+  uint32  BattlePassId       = 7;     //战役关卡ID
+  uint32  BigWinnerId        = 8;     //大赢家场次id
+  uint32  SubMode            = 9;     //子模式id,通用
+  uint32  ActivityGroupId    = 10;   // 活动ID
+}
+
+message CSRspPvp {
+  CSDTBriefPunishment Punishment = 1;    //惩罚信息
+}
+
+message CSReqDressChessPlayer {
+  uint32 ChessPlayerId = 1;   //棋手Id
+  uint32 ItemId        = 2;   //道具Id
+}
+
+message CSRspDressChessPlayer {
+}
+
+message CSReqDressScene {
+  uint32 Id         = 1;   //道具Id
+  string InstanceId = 2;   //道具uid
+}
+
+message CSRspDressScene {
+}
+
+//Pvp login req
+message CSReqPvpLogin {
+  uint64           PvpId              = 1;    //pvpId
+  string           Id                 = 2;    //玩家id
+  uint32           VersionCode        = 3;    //版本号
+  string           ApkVersion         = 4;
+  string           PvpResourceVersion = 5;
+  string           DeviceId           = 6;
+  int32            GameId             = 10;
+  int64            GamelibVersion     = 11;
+  UserRestrictType RestrictType       = 12; // 用户限制类型
+}
+
+message CSRspPvpLogin {
+  uint64                 PvpId              = 1;    //pvpId
+  uint32                 MaxGameSecs        = 2;    //最大游戏时间 单位：秒
+  uint32                 SeqUpdate          = 3;    //服务器帧同步频率 单位：毫秒
+  repeated PvpPlayerData Players            = 4;    //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+  bytes                  TcpKey             = 5;    //tcp秘钥
+  uint32                 CurSeq             = 6;    //当前最新帧序号
+  uint32                 LoadingUILeftTime  = 7;    //loadingUI剩余等待时间 单位：秒
+  repeated string        ReadyPlayers       = 8;    //loadingUI界面中已经ready玩家
+  int64                  CreateTime         = 9;    //pvp创建时间
+  int32                  LocalDistanceToUTC = 10;   //当地时间与UTC时间相差秒数
+  uint32                 MeleeRule          = 11;
+  PVPMODE                Mode               = 12;
+  string                 PvpVoiceId         = 13;
+  uint32                 PvpVoiceMemId      = 14;
+  string                 CampVoiceId        = 15;
+  uint32                 CampVoiceMemId     = 16;
+  uint32                 CustomSubMode      = 17;  // 自定义子模式
+  uint32                 PlayerIndex        = 18;
+  TEAMGROUP              TeamGroup          = 19;  // 战斗中的身份
+  string                 PvpVoiceUserId     = 20;
+  string                 CampVoiceUserId    = 21;
+  int64                  GameStartTime      = 22;  // 本场比赛开始时间（区别于CreateTime)
+  string                 CommunityLogoIcon  = 23;  // 社区logo icon
+  string                 OpenPlatAppId      = 24;  // 开放平台appid
+  bool                   IsTournamentRoom   = 25;  // 是否是锦标赛房间
+  BattleExtData          ExtData            = 26;
+  uint64                 TournamentId       = 27;   // 赛事id
+  UserRestrictType       RestrictType       = 28; // 用户限制类型
+  uint32                 TeachPassId        = 29;  // 教学关卡ID
+  uint64                 TournamentRoundId  = 30;  // 赛事轮次id
+  PvpExtData             PvpExtData         = 31;  // 扩展字段
+}
+
+message CSReqPvpSeqs {
+  uint32 BeginSeqIndex = 1;    //请求的帧开始序号
+}
+
+enum SEQTYPE {
+  SEQTYPE_GAMETIME_MAX          = 0;    //游戏最大时长
+  SEQTYPE_OFFLINE               = 1;    //掉线
+  SEQTYPE_MOVE_CHESSMAN         = 2;
+  SEQTYPE_LOCK_SHOP             = 3;
+  SEQTYPE_REFRESH_SHOP          = 4;
+  SEQTYPE_ADD_PLAYER_EXP        = 5;
+  SEQTYPE_COMPOSE_EQUIPMENT     = 6;
+  SEQTYPE_EQUIP_CHESSMAN        = 7;
+  SEQTYPE_PICK_EQUIPMENT        = 8;
+  SEQTYPE_ROUND_READY           = 9;
+  SEQTYPE_ON_LINE               = 10;
+  SEQTYPE_MOVE_CHESS_PLAYER     = 11;
+  SEQTYPE_GIVE_UP               = 12;
+  SEQTYPE_CHANGE_BATTLE_SETTING = 13;
+  SEQTYPE_SELECT_EQUIPMENT      = 14;   //装备选择
+}
+
+//Pvp end req
+message CSReqPvpEnd {
+  uint64            PvpId             = 1;    //pvpId
+  CSDTPvpCampResult CampResult        = 2;    //阵营数据统计
+  CSDTPvpStat       Stat              = 3;    //pvp统计
+  PVPMODE           Mode              = 4;
+  int64             PVPStartTime      = 5;    //pvp开始时间
+  string            PlatAppId         = 6;    //社区appId 对应开放平台侧
+  int32             CustomGameID      = 7;
+  int64             CommunityTeamUUID = 8; //社区组队唯一id
+}
+
+message CSRspPvpEnd {
+}
+
+message CSReqPvpRoundEnd {
+  uint64                PvpId      = 1;    //pvpId
+  repeated CSDTRoundEnd RoundItems = 2;    //当前回合数据
+}
+
+message CSRspPvpRoundEnd {
+}
+
+message CSReqPlayerFinish{
+  uint64           PvpId        = 1; //pvp id
+  string           ReporterId   = 2; //上报者
+  CSDTPlayerFinish PlayerFinish = 3; //大逃杀数据
+}
+
+message CSRspPlayerFinish{
+}
+
+message CSReqPlayerQuit{
+
+}
+
+message CSRspPlayerQuit{
+
+}
+
+//观战聊天登录
+message CSReqObserveChatLogin {
+  uint64 PvpId    = 1;
+  uint32 PvpSvrId = 2;
+}
+
+//出售物品
+message CSReqSellItem {
+  repeated CSDTItem Items = 1;  //出售的道具
+}
+
+message CSRspSellItem {
+  repeated Award   Awards   = 1;  //奖励
+  repeated Consume Consumes = 2;  //消耗
+}
+
+message CSReqGetEvalAward{
+  uint64          PvpId         = 1;
+  repeated uint32 RobotRankList = 2;
+}
+
+message CSDTEvalAward{
+  repeated Award Awards = 1;
+}
+
+// PVE结算数据
+message PVEEvalData {
+  uint32 Score    = 1; //本次积分
+  uint32 AddScore = 2; //增加积分
+}
+
+message CSRspGetEvalAward{
+  map<string, CSDTEvalAward> PlayerAwards = 1;
+  map<uint32, CSDTEvalAward> RobotAwards  = 2;
+  map<string, uint32>        PlayerRates  = 3;
+  map<string, uint32>        BuffRates    = 4;
+  map<string, CSDTEvalAward> PvpIncomes   = 5; // 局内收益
+  CSDTEvalAward              TotalJackpot = 6; // 总奖金池
+  map<string, PVEEvalData>   PveEval      = 7; //pve结算
+}
+
+//购买通行证等级
+message CSReqBuyPassportLevel {
+  uint32 Level = 1;    //购买等级
+}
+
+message CSRspBuyPassportLevel {
+  repeated Consume Consumes = 1;   //购买等级消耗
+  uint32           NewLevel = 2;    //购买后的等级
+}
+
+//升级通行证
+message CSReqUpgradePassport {
+  uint32 Id          = 1;    //升级类型
+  uint32 DeductionId = 2;  //代金券ID
+  string InstanceId  = 3;  //代金券uid
+}
+
+message CSRspUpgradePassport {
+  repeated Consume Consumes = 1;    //升级消耗
+  repeated Award   Awards   = 2;    //升级奖励
+  repeated uint32  TypeIds  = 3;  //通行证类型IDList
+}
+
+//获取通行证等级奖励
+message CSReqGetPassportLevelAward {
+  uint32             Level   = 1;    //战阶（通行证等级）level为0表示获取全部可领取奖励
+  PASSPORTLEVALAWARD GetType = 2;    //领取类型
+}
+
+message ChargeLevelSegment {
+  uint32 MinLevel = 1;    //区间最小等级
+  uint32 MaxLevel = 2;    //区间最大等级
+}
+
+message CSRspGetPassportLevelAward {
+  repeated Award              Awards       = 1;    //获取的奖励
+  uint32                      MaxLevel     = 2;    //领取的免费最大等级
+  repeated ChargeLevelSegment ChargeLevels = 3;    //领取的付费等级区间
+}
+
+//获取通行证任务奖励
+message CSReqGetPassportTaskAward {
+  uint32 Id = 1;    //任务ID
+}
+
+message CSRspGetPassportTaskAward {
+  repeated Award Awards = 2;    //奖励
+}
+
+//获取当前可展示的商品信息
+message CSReqGetEggs {}
+
+message CSRspGetEggs {
+  repeated uint32 Eggs = 1;    //需要展示的商品{优先级\格子ID:商品ID}
+}
+
+message CSReqUseChessPlayer{
+  uint32 Id         = 1;
+  string InstanceId = 2;
+}
+
+message CSRspUseChessPlayer{
+
+}
+
+message CSReqGuidReport{
+  repeated CSDTGuide Guides = 1;
+}
+
+message CSRspGuidReport{
+
+}
+
+message CSReqStaticsReport{
+  string              EventName = 1;  //事件名
+  map<string, string> Params    = 2;  //参数
+}
+
+message CSRspStaticsReport{
+
+}
+
+message CSReqGetCodeAward{
+  string Code = 1; //兑换码
+}
+
+message CSRspGetCodeAward{
+  string         Code   = 1; //兑换码
+  repeated Award Awards = 2; //奖励
+}
+
+message CSReqRoundReport{
+  uint32 Round = 1;
+}
+
+message CSRspRoundReport{
+
+}
+
+message CSReqLoadingProgress{
+  uint32 Progress = 1;
+}
+
+message CSRspLoadingProgress{
+
+}
+
+message CSReqPvpChat{
+  string         Content     = 1;
+  uint32         Emotion     = 2;
+  CHATTYPE       ChatType    = 3;
+  uint64         PvpId       = 4;
+  int32          QuickChat   = 5;
+  string         CheckWorlds = 6; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+  CHATSOURCETYPE SourceType  = 7; //聊天来源类型
+}
+
+message CSRspPvpChat{
+  uint32   NextSendTime = 1;
+  CHATTYPE ChatType     = 2;
+  int64    SilenceTime  = 3; // 禁言时间
+}
+
+message CSReqWXBlessBag{
+  uint32 actId    = 1;  //活动id
+  uint32 noticeId = 2;  //活动id
+}
+
+message CSRspWXBlessBag{
+  string URL = 1;
+}
+
+message CSReqShareReward{
+  DailyShareType Typ = 1;
+}
+
+message CSRspShareReward{
+}
+
+// 召回奖励
+message CSReqRecallReward{
+  string Openid = 1;  //玩家
+}
+
+message CSRspRecallReward{
+  repeated Award GetAward = 1;
+}
+
+// 已经召回玩家
+message CSReqRecalledPlayer{
+}
+
+message CSRspRecalledPlayer{
+  repeated string OpenidList = 1;
+}
+
+
+//棋子合成上报
+message CSReqChessCombine {
+  uint32 ChessId = 1;    //棋子ID
+  uint32 Star    = 2;    //星级
+}
+
+message CSRspChessCombine {
+}
+
+//申请订单ID
+message CSReqApplyOrderId{
+  uint32              GoodsId     = 1; //商品id
+  string              Data        = 2; //额外数据
+  CHANELTYPE          ChannelType = 3; //渠道类型
+  map<string, string> TxMBuy      = 4; //腾讯直购参数
+  map<string, string> Attach      = 5; //渠道购买扩展参数
+}
+
+message CSRspApplyOrderId{
+  string              OrderId        = 1;    //订单id
+  uint32              GoodsId        = 2;    //商品id
+  string              PayCallBackURI = 3;    //支付回调URI
+  string              Data           = 4;    //额外数据
+  map<string, string> TxMBuy         = 5;    //腾讯直购参数
+  string              ChannelUsrId   = 6;    //玩家的渠道ID
+}
+
+//上报订单信息
+message CSReqReportOrderInfo{
+  string OrderId = 1; //订单id
+  string Info    = 2; //订单上报描述
+}
+
+message CSRspReportOrderInfo{
+}
+
+//配置物品
+message CSReqSetItem {
+  uint32 ItemId     = 1;
+  string InstanceId = 2;
+}
+
+message CSRspSetItem {
+}
+
+//取消配置物品
+message CSReqUnsetItem {
+  uint32 ItemId     = 1;
+  string InstanceId = 2;
+}
+
+message CSRspUnsetItem {
+  uint32 NewId = 1;    //新展示的物品ID
+}
+
+//配置棋手相关属性
+message CSReqSetChessPlayer {
+  uint32 ChessPlayerId  = 1;    //棋手ID
+  uint32 ItemId         = 2;    //物品ID
+  string ChessPlayerUId = 3;  //棋手唯一ID
+  string InstanceId     = 4;  //物品唯一ID
+}
+
+message CSRspSetChessPlayer {
+}
+
+//取消配置棋手相关属性
+message CSReqUnsetChessPlayer {
+  uint32 ChessPlayerId  = 1;    //棋手ID
+  uint32 ItemId         = 2;    //物品ID
+  string ChessPlayerUId = 3;  //棋手唯一ID
+  string InstanceId     = 4;  //物品UId
+}
+
+message CSRspUnsetChessPlayer {
+  uint32 NewId = 1;    //新展示的物品
+}
+
+//请求随机展示物品
+message CSReqRandomItem {
+}
+
+message CSRspRandomItem {
+  map<uint32, uint32> Ids = 1;
+}
+
+//购买或者兑换特价礼包
+message CSReqBuyGoods {
+  uint32   GiftId = 1; //礼包ID
+  uint32   Count  = 2; //数量
+  SHOPTYPE Type   = 3; //商店类型
+}
+
+message CSRspBuyGoods {
+  repeated Consume Consumes = 1;
+  repeated Award   Awards   = 2;
+}
+//获取好友列表
+message CSReqGetFansList {
+  uint32 BeginIndex = 1;    //开始位置
+}
+
+message CSRspGetFansList {
+  repeated string IdList = 1;
+}
+
+//关注玩家
+message CSReqFollowPlayer {
+  string Id = 1;    //玩家ID
+}
+
+message CSRspFollowPlayer {
+
+}
+
+//取消关注玩家
+message CSReqUnfollowPlayer {
+  string Id = 1;    //玩家ID
+}
+
+message CSRspUnfollowPlayer {}
+
+// 设置好友不可见
+message CSReqSetFriendInvisible {
+  FRIENDINVISIBLE Invisible = 1;
+}
+
+message CSRspSetFriendInvisible {
+  FRIENDINVISIBLE Invisible = 1;
+}
+
+//聊天
+message CSReqChat {
+  string         ReceiverId  = 1;    //接收者ID
+  string         Content     = 2;    //聊天内容
+  uint32         EmotionId   = 3;    //表情ID
+  PriChatType    PriType     = 4;    // 聊天类型
+  CHATSOURCETYPE SourceType  = 5; //聊天来源类型
+  string         CheckWorlds = 6; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+}
+
+message CSRspChat {
+  string         Content    = 1;
+  CHATSOURCETYPE SourceType = 2; //聊天来源类型
+}
+
+//players status info
+message CSReqPlayersStatusInfo {
+  repeated string Ids = 2;    //id列表
+}
+
+message CSRspPlayersStatusInfo {
+  repeated CSDTPlayerStatusInfo Info = 1;//信息列表
+}
+
+//req teamgame
+message CSReqTeamGame {
+  PVPMODE       Mode    = 1; // 模式
+  TeamOPSetting setting = 2;  // 房间设定(自定义房间)
+}
+
+message CSRspTeamGame {
+  uint32        TeamId  = 1; //teamId
+  string        VoiceId = 2; //语音房间ID
+  TeamOPSetting Setting = 3;
+}
+
+message CSReqSetTeamMode {
+  PVPMODE       Mode    = 1; //模式
+  TeamOPSetting Setting = 2;
+}
+
+message CSRspSetTeamMode {
+}
+
+//req invitejointeam
+message CSReqInviteJoinTeam {
+  repeated string Ids      = 1;    //id
+  PVPMODE         Mode     = 2;    //模式
+  WorkshopSetting Workshop = 3;    //创意工坊
+}
+
+message CSRspInviteJoinTeam {
+  PVPMODE Mode    = 1;    //模式
+  uint32  TeamId  = 2;    //teamid
+  string  VoiceId = 3;    //语音房间ID
+}
+
+//joinTeam
+message CSReqJoinTeam {
+  uint32       TeamId       = 1;    //teamId
+  JOINTEAMTYPE JoinType     = 2;    //进队方式
+  bool         IsFriend     = 3;    //如果有邀请者,邀请瞬间,被邀请者是否与邀请者是好友关系
+  string       Pwd          = 4;    //需要密码
+  string       OpenId       = 5;    //平台OpenId
+  string       Token        = 6;    //平台组队的token
+  uint64       TournamentID = 7;    //赛事ID
+}
+
+message CSRspJoinTeam {
+  uint32                      TeamId           = 1;    //id
+  repeated string             Ids              = 2;    //玩家
+  string                      Captain          = 3;    //队长
+  repeated string             ReadyIds         = 4;    //玩家准备状态数据
+  PVPMODE                     Mode             = 5;    //模式
+  uint32                      SelfSlot         = 6;
+  repeated CSDTTeamSlotPlayer SlotPlayers      = 7;    //成员所在槽号分布
+  JOINTEAMTYPE                JoinType         = 8;    //回传
+  bool                        IsFriend         = 9;    //回传
+  string                      VoiceId          = 10;   //语音房间ID
+  TeamOPSetting               Setting          = 11;   //队伍的基础设定
+  int32                       PlayerNumber     = 12;   // 真人数量
+  int32                       AINumber         = 13;   // AI玩家数量
+  TournamentRoom              RoomInfo         = 14;   // 锦标赛房间信息
+  CSDTBetData                 BetData          = 15;   // 赏金投注信息
+  bool                        CloseReadySwitch = 16; //决定客户端是否可取消准备
+}
+
+//leaveTeam
+message CSRspLeaveTeam {
+  uint32 TeamId = 1;    //id
+}
+
+//kickoff team player
+message CSReqKickOffTeamPlayer {
+  string Id   = 1;    //playerid
+  bool   IsAI = 2;    //是否为自定义电脑
+  uint32 Slot = 3;    //槽号
+}
+
+//team msg
+message CSReqTeamMsg {
+  string         Msg         = 1;    //消息
+  uint32         Emotion     = 2;
+  string         CheckWorlds = 3; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+  CHATSOURCETYPE SourceType  = 4; //聊天来源类型
+}
+
+message CSReqTeamReady{
+  string Id      = 1; //玩家id
+  bool   IsReady = 2; //准备or取消准备
+}
+
+message CSRspTeamReady {
+  CSDTBriefPunishment Punishment = 1;
+}
+
+//report pay response
+message CSReqReportPayResponse {
+  string              Signature   = 1;    //签名
+  string              Response    = 2;    //支付json回执
+  CHANELTYPE          ChannelType = 3;    //渠道类型
+  string              Env         = 4;    //环境:"Production"=正式测试,其他=沙盒测试,
+  map<string, string> EpicBuy     = 5;    //Epic支付相关的参数
+}
+
+message CSRspReportPayResponse {
+  PAYRESULT Result = 1;
+  string    Info   = 2;
+}
+
+message CSReqRejectJoinTeam{
+  string Id         = 1;
+  bool   NotReceive = 2;
+}
+
+message CSRspRejectJoinTeam{
+  string Id = 1;
+}
+
+message CSReqShieldChat {
+  bool Opening = 1;    //是否开启
+}
+
+message CSRspShieldChat {
+}
+
+message CSReqTelBook {
+  repeated string Tels = 1;    //通讯录
+}
+
+message CSRspTelBook {
+  repeated CSDTTelBook TelBook = 1; //通讯录对应账号信息
+}
+
+message CSReqSendSms {
+  string Tel = 1;    //电话号码
+}
+
+message CSRspSendSms {
+}
+
+message CSReqActivatePassport {
+}
+
+message CSRspActivatePassport {
+}
+message CSReqRankSeasonEval{
+  uint32 Index = 1;    //赛季序号
+}
+
+message CSRspRankSeasonEval{
+  uint32         OldIndex     = 1; //旧赛季序号
+  uint32         NewIndex     = 2; //新赛季序号
+  uint32         NewInitMMR   = 3; //新赛季继承奖章
+  uint32         OldMaxMMR    = 4; //新赛季继承段位
+  repeated Award Awards       = 5; //奖励
+  uint32         NewInitTMMR  = 6; //新赛季继承奖章
+  uint32         OldMaxTMMR   = 7; //新赛季继承段位
+  uint32         OldMMR       = 8; //旧的mmr
+  uint32         OldTMMR      = 9; //旧的2v2mmr
+  uint32         OldFFMMR     = 10;//旧的4v4mmr
+  uint32         NewInitFFMMR = 11; //新赛季4v4继承奖章
+  uint32         OldMaxFFMMR  = 12; //新赛季 4v4 继承段位
+}
+
+message CSReqBindAccount{
+  CHANELTYPE          ChannelType = 1;//渠道类型
+  map<string, string> AuthSDKCode = 2;//认证数据
+  string              DeviceId    = 3;
+}
+
+message CSRspBindAccount{
+  map<string, string> Datas = 1;//账号登陆相关数据
+}
+
+message CSReqIncAdShowCount{
+  int64      Id          = 1;
+  ADSTYPE    Type        = 2;
+  CHANELTYPE ChannelType = 3;
+}
+
+message CSRspIncAdShowCount{
+  uint32 Count = 1;
+}
+
+//使用加成卡
+message CSReqUseBonusCard {
+  uint32 ItemId = 1;
+  uint32 Count  = 2;
+}
+
+message CSRspUseBonusCard {
+  ITEMTYPE         Type        = 1; //道具类型
+  int64            ExpiredTime = 2; //到期时间
+  repeated Consume Consumes    = 3; //消耗
+}
+
+message CSReqGetSeasonAward{
+
+}
+
+message CSRspGetSeasonAward{
+  repeated Award Awards = 1;
+}
+
+message CSReqGetVngCommentAward{
+
+}
+
+message CSRspGetVngCommentAward{
+  repeated Award Awards = 1;
+}
+
+message CSReqLevelupChest{
+  uint32 GroupId = 1;    //活动组ID
+}
+
+message CSRspLevelupChest{
+  repeated Consume Consumes = 1;
+}
+
+
+message CSReqWatchAd{
+  uint32 AdId = 1; //广告id
+}
+
+message CSRspWatchAd{
+}
+message CSRspGetAdCumulateAward{
+  repeated Award Award           = 1; //奖励
+  uint32         TotalViewCout   = 2;// 累计观看次数
+  uint32         AdCumulateCount = 3;// 已领取观看次数
+  uint32         Group           = 4; // 广告统计组
+}
+
+message CSReqQueryPsTournamentRoom{
+  string EventID = 1;  //
+}
+message CSReqGetAdCumulateAward{
+  uint32 Group = 1;
+}
+
+message CSRspQueryPsTournamentRoom{
+  uint32 Room = 2;    // 房间id
+}
+
+message CSReqGetAlphaActivityAward{
+
+}
+
+message CSRspGetAlphaActivityAward{
+}
+
+message CSReqGetLanguageData{
+  repeated string Kyes = 1;
+}
+
+message CSRspGetLanguageData{
+  map<string, LanguageData> Datas = 1;
+}
+
+//获取活动奖励
+message CSDTActGrpBuyAward {
+  uint32 AwardType = 1;   // 领奖类型：0 - 充值奖励； others - 礼包奖励（青铜礼包、白银礼包、黄金礼包...活动配表id）
+  uint32 AwardId   = 2;   // AwardType = 0 对应充值id; others 累计档位 base-0
+}
+
+message CSReqGetActivityAward {
+  uint32             GroupId = 1;    //活动组ID
+  uint32             Id      = 2;    //活动ID
+  CSDTActGrpBuyAward GrpBuy  = 3;    //团购返利活动
+  CSDTActPuzzle      Puzzle  = 4;    //图块活动
+}
+
+message CSDTActPuzzle {
+  uint32            mapId      = 1; //高级道具翻牌id
+  uint32            GrpAwardId = 2; //组奖励id
+  PUZZLE_AWARD_TYPE AwardTyp   = 3; //奖励类型:1、翻牌 2、组奖励 3、大奖
+}
+
+message CSDTPuzzleRecord {
+  OUTPUT_ITEM_TYPE ItemTyp = 1; //使用道具的类型
+  uint32           mapId   = 2; //翻牌id
+}
+
+message CSDTSignRecord {
+  bool CanGetSpecialAward = 1; //是否能领取大奖
+}
+
+message CSDTPveRecord {
+  map<string, bool> Awards = 1;
+  uint32            Round  = 2;
+}
+message CSRspGetActivityAward {
+  repeated Consume Consumes = 1;    //消耗
+  repeated Award   Awards   = 2;    //奖励
+  CSDTPuzzleRecord Puzzle   = 3;    //图块活动
+  CSDTSignRecord   DaySign  = 4;    //签到
+  CSDTPveRecord    Pve      = 5;    //年兽
+  uint32  AwardPoolId       =6;  //本次奖励在奖池的id
+}
+
+//获取活动数据
+message ActivityIdList{
+  repeated uint32 Ids = 1;//活动id列表
+}
+
+message CSReqGetActivityData{
+  map<uint32, ActivityIdList> Activities  = 1;//活动列表(k:活动组id， v:活动id列表(如果为空，则请求该组下所有活动项数据，否则请求该id列表所指定的活动项数据))
+  repeated uint32             GroupIdList = 2;//活动组id列表
+}
+
+message ActivityDataWrap{
+  ActivityData Data     = 1;//活动项数据
+  uint32       Progress = 2;//进度
+  string       Md5Sum   = 3;//md5码
+}
+
+message ActivityDataList{
+  repeated ActivityDataWrap Datas = 1;//活动列表数据
+}
+
+message ActivityGroupDataWrap{
+  ActivityGroupData Data   = 1;//组数据
+  string            Md5Sum = 2;//md5码
+}
+
+message CSRspGetActivityData{
+  map<uint32, ActivityDataList>  Activities = 1;//活动列表数据(k:活动组id， v:该活动组id请求的活动项数据)
+  repeated ActivityGroupDataWrap Groups     = 2;//活动组数据
+}
+
+//分享
+message CSReqShare {
+
+}
+
+message CSRspShare{
+}
+
+//跳转页面
+message CSReqSkipInterface{
+  uint32 InterfaceId = 1;    //界面ID
+  uint32 TapId       = 2;    //切页ID
+}
+
+message CSRspSkipInterface{
+}
+
+message CSReqGetMeleeAward{
+
+}
+
+message CSRspGetMeleeAward{
+  repeated Award Awards = 1;
+}
+
+message CSReqAddAiToTeam{
+  int32 Slot = 1;
+}
+
+message CSRspAddAiToTeam{
+}
+
+message CSReqSetHistoryPvpShowPermission{
+  HISTORYPVPSHOWPERMISSION Permission = 1;
+}
+
+message CSRspSetHistoryPvpShowPermission{
+  HISTORYPVPSHOWPERMISSION Permission = 1;
+}
+
+message CSReqSearchTeam{
+  uint32  TeamId = 1;
+  PVPMODE mode   = 2; // 按模式搜索
+}
+
+message CSRspSearchTeam{
+  string       Captain   = 1;
+  uint32       PlayerNum = 2;
+  TeamBaseInfo baseInfo  = 3;
+}
+
+message CSReqApplyChat{
+
+}
+
+message CSRspApplyChat{
+  string ChatTCPSvrAddr = 1;
+  string SessionId      = 2;
+}
+
+message CSReqChatLogin{
+  string Id        = 1;
+  string SessionId = 2;
+}
+
+message CSRspChatLogin{
+}
+
+message CSReqApplyChannel{
+  string ChannelID        = 1;
+}
+
+message CSRspApplyChannel{
+}
+
+message CSReqProbeNetDelay{
+  int64 Number = 1;
+}
+
+message CSRspProbeNetDelay{
+
+}
+
+message CSReqExchangePassportGoods{
+  uint32 Id    = 1;
+  uint32 Count = 2;
+}
+
+message CSRspExchangePassportGoods{
+  repeated CSDTExchangePassportGoodsData BuyData  = 1; //通行证商店兑换的
+  repeated Award                         Awards   = 2; //通行证商店对应的商品奖励
+  repeated Consume                       Consumes = 3; //消耗得物品
+}
+
+message CSReqUsePassportTaskCard{
+  uint32 Id = 1;
+}
+
+message CSRspUsePassportTaskCard{
+  int32            Count              = 1;
+  repeated Consume Consumes           = 2;
+  repeated Award   Awards             = 3; //完成任务自动领取奖励
+  uint32           WeekTaskBattleStar = 4; //周任务战星
+  uint32           DayTaskBattleStar  = 5; //日任务战星
+}
+
+message CSReqOpenRandChest{
+  repeated Consume Consumes = 1;
+  repeated Award   Awards   = 2;    //自选礼包已选择的物品
+  CHEST_OPEN_TYPE  OpenType = 3;  //开启方式(高阶密藏、低阶密藏)
+}
+
+message CSRspOpenRandChest{
+  repeated Award   Awards         = 1;    //抽奖奖励
+  repeated Consume Consumes       = 2;
+  repeated Award   CumulateAwards = 3; // 保底奖励
+  repeated Award   RareAwards     = 4;    // 珍稀奖励
+}
+
+message CSReqQueryDiamondBalance{
+  map<string, string> Params = 1;//向渠道查询钻石充值信息参数
+  bool                Charge = 2;
+}
+
+message CSRspQueryDiamondBalance{
+  map<string, string> Params = 1;//向渠道查询钻石充值信息参数
+}
+
+message CSReqQueryPs4Entitlements{
+  map<string, string> Params = 1;
+}
+
+message CSRsqQueryPs4Entitlements{
+}
+
+message CSReqUseItem{
+  repeated Consume Consumes = 1;
+}
+
+message CSRspUseItem{
+  repeated Award   Awards   = 1;
+  repeated Consume Consumes = 2;
+}
+message CSReqUseExperienceCard{
+  uint32 Id    = 1;
+  uint32 Count = 2;
+}
+
+message CSRspUseExperienceCard{
+  uint32           TargetId    = 1;
+  int64            SurviveTime = 2;
+  repeated Consume Consumes    = 3;
+}
+
+message CSReqRandTargetItem{
+  ITEMTYPE Type          = 1;
+  uint32   ChessPlayerId = 2;
+}
+
+message CSRspRandTargetItem{
+  uint32 NewId = 1;
+}
+
+message CSReqAddBlacklist{
+  string Id = 1;
+}
+
+message CSRspAddBlacklist{
+  string Id = 1;
+}
+
+message CSReqRemoveBlacklist{
+  string Id = 1;
+}
+
+message CSRspRemoveBlacklist{
+  string Id = 1;
+}
+
+//上报玩家年龄
+message CSReqReportPlayerBirth {
+  int64 Birthday = 1;    //年龄
+}
+
+message CSRspReportPlayerBirth {
+}
+
+//上报玩家信息录入
+message CSReqReportInfoInput {
+}
+
+message CSRspReportInfoInput {}
+
+//更新同玩好友人数
+message CSReqUpdateFriendsInGame{
+  int32 Num = 1;   // 同玩好友人数
+}
+message CSRspUpdateFriendsInGame{
+}
+
+//发送验证码
+message CSReqSendVerificationCode {
+  string Tel = 1; // 手机号
+}
+
+message CSRspSendVerificationCode {}
+
+//绑定手机号
+message CSReqBindPhoneNumber {
+  string Tel  = 1; //手机号
+  string Code = 2; //验证码
+}
+
+message CSRspBindPhoneNumber {}
+
+message CSReqWorldInvite {
+  string          Content         = 1;
+  int32           Mode            = 2;
+  uint32          TeamId          = 3;
+  INVITETYPE      Type            = 4;
+  string          InviteDes       = 5; //描述
+  string          WorkshopMapName = 6;
+  WorkshopSetting WSSetting       = 7; // todo: 手游接入这个新字段后，删掉WorkshopMapName
+  string          GuildID         = 8;
+  string          CheckWorlds     = 9; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+}
+
+message CSRspWorldInvite {
+  int64 NextSendTime = 1;
+  int64 SilenceTime  = 2; // 禁言时间
+}
+
+message CSReqRemoveExpireItem {
+  repeated CSDTItemID Ids = 1;
+}
+
+message CSRspRemoveExpireItem {
+  repeated CSDTItemID RemoveIds = 1;
+}
+
+//获取商城商品
+message CSReqGetMallGoods {
+  int32  MallTabId       = 1;    //-1表示拉取首页推荐栏数据
+  uint32 ActivityGroupId = 2;    //活动Groupid(根据TabId获得TabType区分活动)
+}
+
+message CSRspGetMallGoods {
+  map<uint32, CSDTMallGoods> MallTabs = 1;   //商城栏位的商品信息
+}
+
+//购买商城商品
+message CSReqBuyMallGoods {
+  uint32          GoodsId      = 1; //商品ID
+  uint32          Count        = 2; //购买数量
+  repeated string DeductionUid = 3; //使用抵扣券物品uId列表
+  uint32          ConsumeNum   = 4; //使用的货币 1：货币1，2：货币2
+  uint32          ADDiscount   = 5;
+}
+
+message CSRspBuyMallGoods {
+  repeated Award   Awards        = 1; //奖励
+  repeated Consume Consumes      = 2; //消耗
+  uint32           BuyCount      = 3; //购买数量
+  int64            LastResetTime = 4; //上次重置时间
+  uint32           GoodsId       = 5; //商品ID
+}
+
+//绑定分享码
+message CSReqBindSharingCode {
+  string Code = 1;
+}
+
+message CSRspBindSharingCode {
+}
+
+// 获取全民对局信息
+message CSReqAllFightInfo{
+}
+
+message CSRspAllFightInfo{
+  int64 GlobalFightNum = 1;  //全局对战局数
+  int32 FightNum       = 2;  //个人对战局数
+  int32 Percent        = 3;  //个人对战局数百分比
+}
+
+//获取老账号信息
+message CSReqGetOldPlayer {
+  string Tel  = 1; // 手机号
+  string Code = 2; // 验证码
+}
+
+message CSRspGetOldPlayer {
+  string Id           = 1; //id
+  string Name         = 2; //昵称
+  uint32 HeadPic      = 3; //头像
+  uint32 HeadPicFrame = 4; //头像框
+  uint32 Level        = 5; //等级
+  uint32 MMR          = 6; //杯段
+}
+
+// 绑定老账号
+message CSReqBindOldPlayer {
+  string Id   = 1; //id
+  string Tel  = 2; // 手机号
+  string Code = 3; // 验证码
+}
+
+message CSRspBindOldPlayer {
+}
+
+// 绑定老账号
+message CSReqSendVerificationCodeWithCheckRedis {
+  string               Tel  = 1; //手机号
+  VERIFICATIONCODETYPE Type = 2; //验证码类型
+}
+
+message CSRspSendVerificationCodeWithCheckRedis {
+}
+
+//上报玩家设置
+message CSReqReportSetting {
+  map<uint32, uint32> Settings = 1;
+}
+
+message CSRspReportSetting {
+}
+
+//发送anti数据包
+message CSReqAntiData {
+  bytes Data = 1;
+}
+message CSRspAntiData{
+}
+
+//发送tlog数据包
+message CSReqTlogData {
+  string Data = 1;
+}
+message CSRspTlogData{
+}
+
+// 每日签到请求
+message CSReqDaySign {
+
+}
+
+message CSRspDaySign {
+  repeated Award Awards = 1; //奖励
+  uint32         Day    = 2; //
+}
+
+// 活动每日签到
+message CSReqActDaySign {
+  uint32      GroupId = 1;
+  uint32      Day     = 2;
+  ActSignType Type    = 3;
+}
+
+message CSRspActDaySign {
+  repeated Award   Awards   = 1; //奖励
+  uint32           Day      = 2; //
+  repeated Consume Consumes = 3; //补签消耗
+}
+
+// ps only player
+message CSReqPsOnly {
+  bool PsOnly = 1;            //
+}
+
+message CSRspPsOnly {
+  bool PsOnly = 1;            //
+}
+
+message CSReqChangeChannelType {
+  CHANELTYPE ChannelType = 1;
+}
+
+message CSRspChangeChannelType {
+  CHANELTYPE ChannelType = 1;
+}
+
+// 获取回流商店内容
+message CSReqActivityMall {
+  uint32 GroupId = 1;  // 回流商店活动id
+}
+
+message CSRspActivityMall {
+  map<uint32, CSDTMallGoods> Goods = 1;
+}
+
+// 客户端上报每日宜忌
+message CSReqDayFitAvoid {
+  repeated uint32 Fit            = 1;                // 今日最宜
+  repeated uint32 Avoid          = 2;              // 今日不宜
+  uint32          LuckyChess     = 3;         // 今日幸运棋子
+  uint32          FortuneProverb = 4;     // 今日棋运箴言
+  uint32          FitAvoid       = 5;         // 今日幸运棋子
+}
+
+message CSRspDayFitAvoid {
+
+}
+
+// 领取累计分享奖励
+message CSReqShareCountAward {
+  uint32 Count = 1;   // 累计次数
+}
+message CSRspShareCountAward {
+  Award AwardInfo = 1; //奖励
+}
+
+// 关系链幸运星邀请
+message CSReqRealationStar {
+  string openid = 1;   // openid
+}
+message CSRspRealationStar {
+}
+
+// 获取关系链幸运星邀请成功玩家列表
+message CSReqGetRealationStarInviteSucc {
+}
+message CSRspGetRealationStarInviteSucc {
+  repeated string openids = 1;   // openid
+}
+
+// 获取关系链幸运星邀请玩家列表
+message CSReqGetRealationStar {
+}
+message CSRspGetRealationStar {
+  repeated string openids = 1;   // openid
+}
+
+// 获取活动记录
+message CSReqGetActRecord {
+  uint32 GroupId = 1; //活动组id
+}
+
+message CSRspGetActRecord {
+  uint32             GroupId = 1;
+  CSDTActivityRecord Record  = 2;
+}
+
+//观战服登录
+message CSReqObserveLogin {
+  string       PlayerId           = 1;    //玩家游戏ID
+  uint64       PvpId              = 2;    //pvp id
+  string       ApkVersion         = 3;    //apk版本号
+  string       PvpResourceVersion = 4;    //资源版本号
+  uint32       Level              = 5;    //玩家等级
+  CHANELTYPE   ChanelType         = 6;    //玩家渠道类型
+  PLATFORMTYPE PlatformType       = 7;    //玩家登录平台
+  string       OpenId             = 8;    //玩家open id，国服玩家专有
+  int64        GamelibVersion     = 9;    //新增内核版本号
+}
+
+message CSRspObserveLogin {
+  uint64                 PvpId              = 1;   //pvpId
+  uint32                 MaxGameSecs        = 2;   //最大游戏时间 单位：秒
+  uint32                 SeqUpdate          = 3;   //服务器帧同步频率 单位：毫秒
+  repeated PvpPlayerData Players            = 4;   //pvp玩家信息 包含自己，且玩家索引在单局游戏内固定
+  bytes                  TcpKey             = 5;   //tcp秘钥
+  uint32                 CurSeq             = 6;   //当前最新帧序号
+  uint32                 LoadingUILeftTime  = 7;   //loadingUI剩余等待时间 单位：秒
+  repeated string        ReadyPlayers       = 8;   //loadingUI界面中已经ready玩家
+  int64                  CreateTime         = 9;   //pvp创建时间
+  int32                  LocalDistanceToUTC = 10;  //当地时间与UTC时间相差秒数
+  uint32                 MeleeRule          = 11;
+  PVPMODE                Mode               = 12;
+  uint32                 PvpSvrId           = 13;
+  uint32                 CustomSubMode      = 14;
+  bool                   IsTournamentPvp    = 15;  //是否是赛事房间
+  uint64                 TNClassRound       = 16;  //赛事轮次ID
+  WorkshopSetting        WSSetting          = 17;
+  UserRestrictType       RestrictType       = 18; // 用户限制类型
+  uint64                 TournamentId       = 19;  //赛事id
+  uint32                 TeachPassId        = 20;  // 教学关卡ID
+}
+
+//设置默认的头像和棋手
+message CSReqSetDefaultAttributes{
+  uint32 Head  = 1;  //默认头像
+  uint32 Chess = 2;  //默认棋手
+}
+
+message CSRspSetDefaultAttributes{
+}
+
+// 换位
+message CSReqChangeSlotTeam {
+  uint32 Slot = 1;
+}
+
+message CSRspChangeSlotTeam {
+  int64 NextChangeSlotTime = 1;
+}
+
+// 取消换位
+message CSReqCancelChangeSlot {
+  string DesId = 1;
+}
+
+message CSRspCancelChangeSlot {
+}
+
+// 切换自定义子模式
+message CSReqChangeSubModeTeam {
+  uint32 SubMode = 1;
+}
+
+message CSRspChangeSubModeTeam {
+  uint32 SubMode = 1;
+}
+
+// 换位确认
+message CSReqConfirmChangeSlotTeam {
+  uint32 IsAgree    = 1;
+  string SendUserId = 2;
+}
+
+message CSRspConfirmChangeSlotTeam {
+}
+
+// 加入语音房间
+message CSReqJoinVoiceTeam {
+  uint32 VoiceMemId  = 1;  // 腾讯语音使用
+  string VoiceUserId = 2;  // 龙渊语音使用
+}
+
+message CSRspJoinVoiceTeam {
+  uint32                       VoiceMemId  = 1;  // 腾讯语音使用
+  repeated CSDTTeamVoicePlayer VoicePlayer = 2;
+  string                       VoiceUserId = 3; // 龙渊语音使用
+}
+
+message CSReqJoinVoicePvp {
+  uint32 VoiceMemId  = 1;  // 腾讯语音使用
+  string VoiceUserId = 2;  // 龙渊语音使用
+}
+
+message CSRspJoinVoicePvp {
+  uint32                       VoiceMemId  = 1;
+  repeated CSDTTeamVoicePlayer VoicePlayer = 2;
+  string                       VoiceUserId = 3; // 龙渊语音使用
+}
+
+message CSReqJoinVoiceCamp {
+  uint32 VoiceMemId  = 1;   // 腾讯语音使用
+  string VoiceUserId = 2;  // 龙渊语音使用
+}
+
+message CSRspJoinVoiceCamp {
+  uint32                       VoiceMemId  = 1;  // 腾讯语音使用
+  repeated CSDTTeamVoicePlayer VoicePlayer = 2;
+  string                       VoiceUserId = 3; // 龙渊语音使用
+}
+
+message CSReqUserCountrySet {
+  string Country = 1;
+}
+message CSReqOfflineInviteJoinTeam {
+  OFFLINE_INVITE InviteType = 1; // 0: 微信分享邀请 1:手Q邀请(手Q拉起方式的邀请不需要发消息)
+}
+message CSRspUserCountrySet {
+  string               Country             = 1;
+  int64                RefreshCountryTime  = 2;
+  CSDTActivity         Activity            = 3;               // 活动数据 第一次选定国家时发送
+  repeated MallTabData MallTabs            = 4;               // 商城数据 第一次选定国家时发送
+  repeated uint32      Eggs                = 5;                 // 扭蛋id
+  int32                ChangeCountryNumber = 6;    // 修改国家的次数
+}
+
+message CSReqMarkPlayerGuide {
+  uint32 NewPlayerGuideFlag = 1;    //
+}
+
+message CSRspMarkPlayerGuide {
+  uint32 NewPlayerGuideFlag = 1; // 新手引导(PC用)
+  int64  NewPlayerGuideTime = 2; // 新手引导时间(PC用)
+}
+
+message CSReqMarkChessSkinClicked {
+  repeated string Skins = 1;    //棋子皮肤ID(包括物品ID和InstanceId)
+}
+
+message CSRspMarkChessSkinClicked {
+  repeated string Skins = 1;    //
+}
+
+message CSReqObserve {
+  uint64          PvpId       = 1;
+  string          PlayerId    = 2;
+  string          Entrance    = 3;
+  PVPMODE         Mode        = 4;
+  string          PlatExtData = 5;
+  OBSERVELISTTYPE Type        = 6;
+}
+
+message CSRspObserve {
+  string TcpAddr = 1;
+  //string      PlayerId    = 2;    //观看目标玩家
+}
+
+//获取推荐战局
+message CSReqGetRecommendPvp {
+  uint32             MinCup    = 1;    //推荐玩家最小段位
+  uint32             MaxCup    = 2;    //推荐玩家最大段位
+  int32              Mode      = 3;    //-1表示默认模式，即按比例展示
+  OBSERVELISTTYPE    Type      = 4;    //观战列表类型
+  repeated string    Ids       = 5;    //如果是关注推荐，关注列表玩家ID
+  uint32             Start     = 6;  //废弃
+  map<int32, uint32> ModeIndex = 7;    //拉取推荐观战的位置,每个mode从index开始拉去。key是mode, value是mode排序的Index
+}
+
+message CSRspGetRecommendPvp {
+  repeated CSDTRecommendPvpInfo Recommends = 1;//推荐战局
+  OBSERVELISTTYPE               Type       = 2;
+  map<int32, uint32>            ModeIndex  = 3;   //拉取推荐观战的位置。key 是mode,value是mode排序的Index
+}
+
+//退出观战
+message CSReqQuitObserve {
+  uint64 PvpId = 1;
+}
+
+message CSRspQuitObserve {
+}
+
+//获取观战人数
+message CSReqGetObserveInfo {
+  repeated uint64 PvpIds = 1;
+}
+
+message CSRspGetObserveInfo {
+  repeated CSDTObserveInfo Info = 1;
+}
+
+//获取第三方观战信息
+message CSReqGetThirdPvpInfo {
+
+}
+
+message CSRspGetThirdPvpInfo {
+  repeated CSDTThirdPvpInfo Info = 1;
+}
+
+//是否有第三方战斗进行
+message CSReqHaveThirdPvp {
+
+}
+
+message CSRspHaveThirdPvp {
+  bool have = 1;
+}
+
+//设置玩家消息推送的token
+message CSReqSetPushToken {
+  string FCMToken = 1;
+  string MobToken = 2;
+}
+
+message CSRspSetPushToken {
+}
+
+//微信大玩家奖励
+message CSReqWxVVipAward {
+  WxVVipAwardTYPE AwardType = 1;  //奖励类型
+}
+
+message CSRspWxVVipAward {
+  WxVVipAwardTYPE AwardType = 1;    //奖励类型
+  repeated Award  Awards    = 2;    //实际奖励
+  int64           Tick      = 3;    //奖励领取时间戳
+}
+
+// 获取微信关系链
+message CSReqGetRelationStarWX {
+}
+
+message CSRspGetRelationStarWX {
+  bytes data = 1; //关系链数据
+}
+
+//发送微信红包
+message CSReqSendWxRedPacket {
+  uint32 RedPacketId = 1; //红包配表id
+}
+
+message CSRspSendWxRedPacket {
+  uint32           SendCnt  = 1; //当天发送红包次数
+  repeated Consume Consumes = 2; //消耗
+}
+
+//领取微信红包
+message CSReqRecvWxRedPacket {
+  string RedPacketIdx = 1; //红包索引
+}
+
+message CSRspRecvWxRedPacket {
+  string                  RedPacketIdx = 1; //红包索引
+  uint32                  RedPacketId  = 2; //红包ID
+  string                  Sender       = 3; //发红包玩家名字
+  uint32                  Award        = 4; //领取金额
+  uint32                  RecvCnt      = 5; //当天领取红包次数
+  repeated CSDTRedPktData RedPktRecord = 6;   //红包领取排行
+}
+
+//微信大玩家点赞
+message CSReqWxRedPktLike {
+  string UId = 1;
+}
+
+message CSRspWxRedPktLike {
+  string         UId    = 1;
+  repeated Award Awards = 2;
+}
+
+//微信大玩家点赞排行
+message CSReqWxRedPktRank {
+  int64 Ver = 1;   //版本号，初始传0
+}
+
+message CSRspWxRedPktRank {
+  int64                       Ver  = 1;   //版本号
+  repeated CSDTWxVVipRankItem Rank = 2;   //排行
+  CSDTWxRedPktProfile         Self = 3;   //玩家自己信息
+}
+
+//观战权限设置
+message CSReqObservePrivilege {
+  OBSERVEPRIVILEGE ObservePrivilege = 1;
+}
+
+message CSRspObservePrivilege {
+}
+
+//快捷聊天预设文本
+message CSReqPresetFastChat {
+  repeated int32 ChatIds = 1; //预设文本序号
+}
+
+message CSRspPresetFastChat {
+  repeated int32 ChatIds = 1; //预设文本序号
+}
+
+//玩家确认游戏
+message CSReqPvpConfirm {
+  bool Confirm = 1;    //true-确认，false-拒绝
+}
+
+// 客户端大图分享 ACTIVITY_PIC_SHARE
+message CSReqActivityPicShare {
+  uint32 GroupId    = 1;
+  uint32 ActivityId = 2;
+}
+
+//绑定老的business玩家
+message CSReqBindOldBusinessPlayer {
+  string PlayerId   = 1;
+  string BusinessId = 2;
+}
+
+message CSRspBindOldBusinessPlayer {
+}
+
+// 翻译
+message CSReqTranslate {
+  string Content  = 1;
+  string Tolangue = 2;
+}
+
+message CSRspTranslate {
+  string TranslateStr = 1;
+}
+
+// 提交问卷内容
+message CSReqSubmitQuestionnaire {
+  uint32              ID      = 1;                // 问卷id
+  repeated AnswerData Answers = 2;                // 问卷答案
+}
+
+// 提交问卷内容返回
+message CSRspSubmitQuestionnaire {
+  uint32         ID     = 1;        // 问卷id
+  repeated Award Awards = 2;        // 奖励
+}
+
+//棋子皮肤相关
+message CSReqSetChessSkin {
+  CSDTItemID ItemId  = 1;
+  uint32     ChessId = 2;  //棋子id
+  string     Slot    = 3;  //星级，槽位 0,1,2
+}
+
+message CSRspSetChessSkin {}
+
+message CSReqUnsetChessSkin {
+  uint32 ItemId  = 1;  //系列ID, @update.beta28 弃用
+  uint32 ChessId = 2;  //棋子id
+  string Slot    = 3;  //星级，槽位 0,1,2
+}
+
+message CSRspUnsetChessSkin {}
+
+//物品合成
+message CSReqCompose {
+  uint32           ComposeId    = 1;    //合成ID
+  repeated Consume Consumes     = 2;    //消耗的材料
+  uint32           ComposeCount = 3;    //合成数量
+}
+
+message CSRspCompose {
+  repeated Award   Awards   = 1;    //合成的物品
+  repeated Consume Consumes = 2;    //消耗的材料
+}
+
+// 请求熄灭知己红点
+message CSReqOffHelpReddot{
+}
+
+message CSRspOffHelpReddot{
+}
+
+// 修改游戏的语种
+message CSReqChangeLanguage{
+  string Language = 1;
+}
+
+message CSRspChangeLanguage{
+}
+
+//请求获取pvp服务器分组ID
+message CSReqGetPvpServerGroup {
+  int64 RequestTime = 1;    //请求时间
+}
+
+message CSRspGetPvpServerGroup {
+  string GroupId  = 1;    //战斗服分组ID
+  uint32 ServerId = 2;
+}
+
+//上报pvp相关信息
+message CSReqReportPvpInfo {
+  string Group = 1;    //战斗分组
+  uint32 Ping  = 2;
+}
+
+message CSRspReportPvpInfo{}
+
+
+// 客户端请求视频信息
+message CSReqVideo {
+  repeated uint32 Ids   = 1; // 请求视频的id列表
+  uint32          Index = 2; // 请求视频序号
+}
+
+// 返回客户端视频信息
+message CSRspVideo {
+  repeated VideoInfo List = 1; // 视频列表
+}
+
+// 客户端上报播放视频信息
+message CSReqReportVideoPlay {
+  uint32 Id = 1; // 播放的id
+}
+
+// 客户端请求设置省份
+message CSReqSetProvince {
+  uint32 Province = 1; //省份
+}
+
+// 设置省份返回
+message CSRspSetProvince {
+  uint32 Province = 1;  // 省份
+  int64  NextTime = 2;  // 下次可以免费设置省份的时间
+  uint32 Times    = 3;  // 已经设置省份的次数
+}
+
+// 龙渊语音参数
+message CSReqLongyuanVoice {
+}
+
+// 龙渊语音参数
+message CSRspLongyuanVoice {
+  string AppId  = 1;           // 语音APPID
+  string AppKey = 2;          // 语音KEY
+  string Region = 3;          // 大区
+}
+
+//客户端请求重置黑盒邀请码
+message CSReqInviteCodeReset {
+
+}
+
+message CSRspInviteCodeReset {
+  string BlackboxInviteCode = 1;
+  int64  ResetCD            = 2; // 重置冷却时间 UTC unix时间戳
+}
+
+//延迟测试
+message CSReqPingTest {
+}
+
+message CSRspPingTest {
+}
+
+message CSReqWebLogin {
+}
+
+//
+message CSRspWebLogin {
+  string Uuid        = 1;
+  string Url         = 2; //服务器回调的url
+  bytes  Key         = 3; //秘钥
+  string WebLoginUrl = 4; //网页登录的地址
+}
+
+message CSReqSwitchModeInTeam {
+  PVPMODE NewMode = 1;
+}
+
+message CSRspSwitchModeInTeam {
+}
+
+message CSReqGetTNRoomState {
+  uint64 TournamentID = 1;
+}
+
+message CSRspGetTNRoomState {
+  TeamState State = 1;
+}
+
+// 发起创意工坊匹配
+message CSReqWorkshopMatch {
+  int32 MapId    = 1; // 地图id
+  int32 SubMapId = 2; // 子模式id
+}
+
+message CSRspWorkshopMatch {
+  bool   Success = 1;
+  uint32 TeamID  = 2;
+}
+
+// 购买创意工坊门票
+message CSReqBuyWorkshopTicket {
+  uint32 TicketType  = 1;
+  int32  TicketCount = 2;
+}
+
+message CSRspBuyWorkshopTicket {
+  uint32 TicketType     = 1;
+  int32  CurTicketCount = 2;
+}
+
+message CSReqFavouriteWorkshopMap {
+  bool   IsFavourite = 1;  // 收藏: true, 取消收藏: false
+  uint32 MapID       = 2;
+}
+
+message CSRspFavouriteWorkshopMap {
+  bool Success = 1;
+}
+
+// 操作创意工坊快捷列表
+message CSReqShortcutMapsOP {
+  ShortcutMapsOP  OP     = 1;
+  repeated uint32 MapIDs = 2;
+}
+
+// 操作创意工坊快捷列表
+message CSRspShortcutMapsOP {
+  bool Success = 1;
+}
+
+// 给创意工坊地图评分
+message CSReqScoreWorkshopMap {
+  uint32 MapID  = 1;
+  bool   IsLike = 2;  // true: 赞，false：踩
+}
+
+// 给创意工坊地图评分
+message CSRspScoreWorkshopMap {
+}
+
+message VisitMapPlayer {
+  string PlayerID  = 1;
+  int64  VisitTime = 2;
+}
+
+message VisitMapPlayers {
+  repeated VisitMapPlayer Players = 1;
+}
+
+// 历史游玩记录
+message CSReqMapsVisitedByFriends {
+  repeated uint32 MapIDs = 1;
+}
+
+message CSRspMapsVisitedByFriends {
+  map<uint32, VisitMapPlayers> Maps = 1;
+}
+
+// 本局锦标赛结束
+message CSNtfTNGameEnd {
+  int64  NextGameStartTime = 1; // -1表示不存在下一局
+  uint64 TournamentID      = 2;
+  uint64 TournamentGameID  = 3;
+}
+
+// 有玩家缺少创意工坊门票
+message CSNtfPlayerLackResourceInTeam {
+  repeated string LackTicketPlayers = 1;
+  repeated string LackBountyPlayers = 2;
+  repeated string LackMoneyPlayers  = 3;
+}
+
+// 移除收藏列表的地图
+message CSNtfFavMapRemoved {
+  repeated uint32 MapIDs = 1;
+}
+
+// 创意工坊匹配结果（通知队伍成员）
+message CSNtfWorkshopMatchResult {
+  bool   Success = 1;
+  uint32 TeamID  = 2;
+}
+
+// 角色多选一
+message CSReqChoosePlayer {
+  string PlayerId = 1;//选择的角色
+  bool   IsPSBind = 2;
+}
+
+message CSRspChoosePlayer {
+
+}
+
+message CSDTReportRegionInfo {
+  map<string, uint32> Groups    = 1; //ping值延迟信息
+  map<string, uint32> TCPGroups = 2; //tcp延迟信息
+}
+//上报玩家各区域延迟信息
+message CSReqReportRegionInfo {
+  repeated CSDTReportRegionInfo RegionInfo = 1;
+  map<string, uint32>           Groups     = 2; //ping值延迟信息
+  map<string, uint32>           TCPGroups  = 3; //tcp延迟信息
+}
+
+message CSRspReportRegionInfo {}
+
+// 切换到全球匹配队列
+message CSReqSwitchToCommonMatch {
+
+}
+
+message CSRspSwitchToCommonMatch {
+  uint32 ExceptSecs = 1;    //预期匹配时间 单位：秒
+}
+
+
+//报名赛事
+message CSReqEnrollTournament {
+  uint64 TournamentId = 1;    //赛事ID
+  uint64 ClassId      = 2;    //级别ID
+}
+
+message CSRspEnrollTournament {
+  repeated Consume Consumes    = 1; //报名消耗的物品
+  uint32           EnrollCount = 2; //报名人数
+}
+
+message CSReqJoinTournamentRoom {
+  TournamentDesc Desc = 1;
+}
+
+message CSRspJoinTournamentRoom {
+  TournamentRoom RoomInfo = 1;
+}
+
+message CSNtfJoinTournamentRoom {
+}
+
+//common bin 文件的列表和md5
+message CSReqGDCommonBin {
+  PLATFORMTYPE PlatFormType = 1;
+  string       ChannelId    = 2;
+  CHANELTYPE   ChannelType  = 3;
+}
+
+message CSRspGDCommonBin {
+  repeated CSDTGDCommonBin Bins               = 1;
+  string                   PvpResourceVersion = 2;
+}
+
+//common bin文件内容
+message CSReqGDCommonBinData {
+  string       FileNames    = 1; //请求文件列表中data数据 带后缀
+  GDBinType    BinTyp       = 2; // 是否内核战斗配置
+  PLATFORMTYPE PlatFormType = 3;
+  string       ChannelId    = 4;
+  CHANELTYPE   ChannelType  = 5;
+}
+
+message CSRspGDCommonBinData {
+  repeated CSDTGDCommonBin Bins = 1;
+}
+
+message CSReqAutoBattleOP {
+  string crossData = 1;
+}
+
+message CSRspAutoBattleOP {
+  string crossData = 1;
+}
+
+message CSReqEquipSelectRate {
+  string crossData = 1;
+}
+
+message CSRspEquipSelectRate {
+  string crossData = 1;
+}
+
+message CSReqHistoryChatMsg {
+  CHATTYPE Ct = 1;
+}
+
+message CSRspHistoryChatMsg {
+  repeated CSDTWorldChat    world    = 1;
+  repeated CSNtfWorldInvite invite   = 2;
+  repeated CSNtfTeamMsg     team     = 3;
+  repeated CSNtfChat        personal = 4;
+  //局内消息合并一起发
+  repeated CSNtfPvpChat     pvpChat  = 5; // 阵营 CSNtfPvpChat.ChatType 战斗 CSNtfPvpChat.ChatType 观战 CSNtfPvpChat.ChatType
+}
+
+message CSReqBattleCampResult {
+}
+
+message CSRspBattleCampResult {
+  repeated CSDTCampData CampData = 1;    //阵营数据统计
+}
+
+message CSReqTournamentPointAward {
+  uint64 Id      = 1;    // 赛事id
+  uint32 AwardId = 2;    // 奖励id
+  uint32 Num     = 3;    // 领取的是哪一个进度
+}
+
+message CSRspTournamentPointAward {
+  repeated Award Award = 1;   // 奖励
+}
+
+message CSReqGetEnrollPlayers {
+  uint64 TournamentId = 1;    //赛事ID
+  uint64 ClassId      = 2;    //级别ID
+}
+
+message CSRspGetEnrollPlayers {
+  map<string, uint32> Players = 1;    //报名玩家{玩家ID:对阵索引}
+}
+
+//再次挑战该赛事
+message CSReqChallengeAgain {
+  uint64 TournamentId = 1;
+}
+
+message CSRspChallengeAgain {
+
+}
+
+// 大赢家扩大匹配通知
+message CSNtfBigWinnerExpandMatch {
+  uint32 BigWinnerId = 1;//大赢家场次id
+}
+
+// 大赢家扩大匹配请求
+message CSReqBigWinnerExpandMatch {
+
+}
+
+//
+message CSRspBigWinnerExpandMatch {
+
+}
+
+//领取低保
+message CSReqBigWinnerDailyAward {
+
+}
+
+message CSRspBigWinnerDailyAward {
+  repeated Award Award = 1;   // 奖励
+}
+
+// 获得积分历史
+message CSReqBigWinnerScoreHistory {
+
+}
+
+message BigWinnerScoreHistory {
+  int64  AddTime   = 1;    // 时间
+  SOURCE Source    = 2;    // 来源
+  int32  SubSource = 3;    // 子来源
+  int32  Count     = 4;    // 数量
+}
+
+message CSRspBigWinnerScoreHistory {
+  repeated BigWinnerScoreHistory history = 1;   // 奖励
+}
+
+// 熔炼
+message CSReqSmeltItem {
+  repeated CSDTItemID Items   = 1;
+  uint32              SmeltId = 2; //熔炼ID
+}
+
+message CSRspSmeltItem {
+  repeated Award   Awards   = 1;   // 奖励
+  repeated Consume Consumes = 2;   // 消息
+}
+
+//
+message CSReqPVEUpTalentLevel {
+  uint32 GroupId    = 1; //活动组ID
+  uint32 SeriesIdId = 2; //天赋ID
+}
+
+message CSRspPVEUpTalentLevel {
+  uint32 GroupId     = 1; //活动组ID
+  uint32 TalentId    = 2; //天赋ID
+  int32  TalentLevel = 3;
+  uint32 Consume     = 4; //消耗的Token
+}
+
+message CSReqPVELuckyAward {
+  uint32 GroupId = 1; //活动组ID
+}
+
+message CSRspPVELuckyAward {
+  repeated Award Awards = 1;    //奖励
+  CSDTPveRecord  Pve    = 2;    //年兽
+}
+
+// 创建公会
+message CSReqGuildCreate {
+  string         Name          = 1;
+  int32          Sign          = 2; // 标志
+  string         Notice        = 4; // 公告
+  string         RecruitNotice = 5; // 招募公告
+  repeated int32 Tags          = 6; // 标签
+  string         Country       = 7; // 国家
+  uint32         Province      = 8; // 省份
+  string         Language      = 9; // 语言
+  bool           RequirePermit = 10; // 加入限制
+  int32          RequireCup    = 11; // 最低段位
+}
+
+message CSRspGuildCreate {
+  string           ID       = 1;
+  GuildBaseInfo    Info     = 2;
+  repeated Consume Consumes = 3;
+}
+
+// 公会邀请
+message CSReqGuildInvite {
+  repeated string players = 1;
+  string          Content = 2;
+}
+
+message CSRspGuildInvite {
+  string ID = 1;
+}
+
+// 公会邀请列表
+message CSReqGuildInviteList {
+  string Country  = 1;
+  uint32 Province = 2;
+}
+
+message CSRspGuildInviteList {
+  repeated GuildBaseInfo List = 1;
+}
+
+// 拒绝邀请
+message CSReqGuildRejectInvite {
+  string GuildID = 1;
+}
+
+message CSRspGuildRejectInvite {
+}
+
+// 公会日志
+message CSReqGuildLog {
+}
+
+message CSRspGuildLog {
+  repeated GuildLog Logs = 1;
+}
+
+// 申请加入公会
+message CSReqGuildApply {
+  string ID       = 1;    //
+  bool   IsInvite = 2; // 是否通过邀约申请
+}
+
+message CSRspGuildApply {
+
+}
+
+// 公会主页
+message CSReqGuildHome {
+}
+
+message CSRspGuildHome {
+  GuildBaseInfo  Info  = 1; // 基本信息
+  GuildExtraInfo Extra = 2; // 额外信息
+}
+
+
+// 查看公会
+message CSReqGuildInfo {
+  repeated string IDs = 1;
+}
+
+message CSRspGuildInfo {
+  repeated GuildBaseInfo info = 1; // 基本信息
+}
+
+// 同意加入
+message CSReqGuildApprove {
+  repeated string ID       = 1;
+  bool            IsReject = 2;
+}
+
+message CSRspGuildApprove {
+}
+
+// 角色管理
+message CSReqGuildSetRole {
+  string        ID   = 1;
+  string        Name = 2; // 对方名字
+  GUILDROLETYPE Role = 3;
+}
+
+// 辞职
+message CSReqGuildResign {
+}
+
+message CSRspGuildSetRole {
+}
+
+// 修改信息
+message CSReqGuildModify {
+  string          Name          = 1;
+  int32           Sign          = 2; // 标志
+  string          Notice        = 4; // 公告
+  string          RecruitNotice = 5; // 招募公告
+  repeated int32  Tags          = 6; // 标签
+  GUILDPERMITTYPE RequirePermit = 9; // 加入限制
+  int32           RequireCup    = 10; // 最低段位
+}
+
+message CSRspGuildModify {
+  repeated Consume Consumes = 1;
+}
+
+// 踢出公会
+message CSReqGuildKickoff {
+  repeated string ID = 1;
+}
+
+message CSRspGuildKickoff {
+}
+
+// 解散公会
+message CSReqGuildDismiss {
+}
+
+message CSRspGuildDismiss {
+}
+
+//
+message CSReqGuildExit {
+}
+
+message CSRspGuildExit {
+  int64 Ts = 1; // 退出时间
+}
+
+// 公会聊天
+message CSReqGuildChat{
+  string         Content     = 1;
+  uint32         Emotion     = 2;
+  CHATTYPE       ChatType    = 3;
+  int32          QuickChat   = 5;
+  string         CheckWorlds = 6; //需要检测的内容， Content里面有json，不能确定内容具体是什么，所以屏蔽词用这里的检测
+  CHATSOURCETYPE SourceType  = 7;   // 聊天来源类型
+}
+
+message CSRspGuildChat{
+  uint32   NextSendTime = 1;
+  CHATTYPE ChatType     = 2;
+  int64    SilenceTime  = 3; // 禁言时间
+}
+
+// 公会推荐列表
+message CSReqGuildList {
+  string Country  = 1;
+  uint32 Province = 2;
+}
+
+message CSRspGuildList {
+  repeated GuildBaseInfo List      = 1;
+  repeated string        ApplyList = 2;
+}
+
+// 公会推荐玩家
+message CSReqGuildRecommendPlayers {
+  string Country  = 1;
+  uint32 Province = 2;
+}
+
+message CSRspGuildRecommendPlayers {
+  repeated CSDTPlayerBaseInfo List = 1;
+}
+
+//获取观战任务奖励
+message CSReqGetObserveAward {
+  uint32 Id = 1;    //任务ID
+}
+
+message CSRspGetObserveAward {
+  repeated Award Awards    = 1;    //奖励
+  repeated Award BoxAwards = 2;    //宝箱掉落奖励
+}
+
+//邀请观战
+message CSReqInviteObserve {
+  repeated string Ids          = 1; // 邀请玩家列表
+  uint64          PvpId        = 2; // 战局ID
+  PVPMODE         Mode         = 3; // 游戏模式
+  uint64          TNClassRound = 4; // 赛事轮次ID
+  WorkshopSetting WSSetting    = 5;
+}
+
+message CSRspInviteObserve {
+}
+
+//拒绝观战
+message CSReqRejectObserve {
+  string Inviter    = 1;    //邀请者
+  bool   NotReceive = 2;    //指定时间内是否不再接受邀请者的邀请
+}
+
+message CSRspRejectObserve {
+}
+
+message CSReqRestrictUser {
+  UserRestrictType Type = 1; // 限制类型
+}
+message CSRspRestrictUser {
+}
+
+message CSReqRecommendWeek {
+}
+message CSRspRecommendWeek {
+  string Info = 1; //推荐阵容信息
+}
+
+//请求官方阵容
+message CSReqRecommendOfficial {
+}
+message CSRspRecommendOfficial {
+  string Info = 1; //推荐官方阵容信息
+}
+
+//请求最新阵容
+message CSReqRecommendLatest {
+  int64 Index = 1; //分页
+  int64 Num   = 2; //数量
+}
+message CSRspRecommendLatest {
+  string Info = 1; //推荐阵容信息
+}
+
+//请求历史阵容
+message CSReqRecommendHistory {
+  string GameId = 1;//游戏角色ID
+  int64  Size   = 2;//拉取的条数
+  string Id     = 3;//上一页最后一条数据的主键ID,为空则查询第1页
+}
+message CSRspRecommendHistory {
+  string Info = 1; //推荐阵容信息
+}
+
+
+// 请求阵容收藏
+message CSReqRecommendCollect {
+  string Id   = 1; // 阵容id
+  bool   BSet = 2; // true:设置， false:取消设置
+}
+message CSRspRecommendCollect {
+}
+
+// 请求阵容设置
+message CSReqRecommendSet {
+  string Id   = 1; // 阵容id
+  bool   BSet = 2; // true:设置， false:取消设置
+}
+message CSRspRecommendSet {
+}
+
+// 获取阵容收藏
+message CSReqRecommendGetCollection {
+  repeated string Ids = 1; // 阵容ids
+}
+message CSRspRecommendGetCollection {
+  string Info = 1; //推荐阵容信息
+}
+
+// 请求推荐装备
+message CSReqRecommendEquip{
+  string reqData = 1; //请求字符串
+}
+message CSRspRecommendEquip {
+  string Info = 1; //推荐装备信息
+}
+
+message CSReqLoginCancel {
+}
+message CSRspLoginCancel {
+}
+
+// 过境棋子皮肤兑换
+message CSReqConvertDebris {
+  uint32 ChessSkinSerie = 1;  // 棋子皮肤系列id
+}
+message CSRspConvertDebris {
+  repeated Award Debris = 1; // 获得碎片
+}
+
+// 使用段位保护卡
+message CSReqUseProtectionCard {
+  uint32 ID = 1;  // 消耗的段位保护卡id
+}
+message CSRspUseProtectionCard {
+  PVPMODE Mode        = 1;
+  uint32  MMR         = 2; // 当前MMR
+  uint32  Cup         = 3; // 当前段位
+  int32   MMRChange   = 4; // 单局mmr变化值
+  //2v2
+  uint32  TMMR        = 5;
+  uint32  TCup        = 6;
+  int32   TMMRChange  = 7;
+  //4v4
+  uint32  FFMMR       = 8;
+  uint32  FFCup       = 9;
+  int32   FFMMRChange = 10;
+}
+
+// 组卡玩法操作类型
+enum CustomCardOptType {
+  REQUEST = 0; // 获取
+  SAVE    = 1; // 保存
+  SET     = 2; // 设置使用地图卡组
+}
+
+// 棋组
+message ChessIdList {
+  repeated int32 ids = 1;
+}
+
+
+// 自定义组卡玩法操作
+message CSReqCustomCardOpt {
+  CustomCardOptType OptType  = 1;    // 操作类型
+  uint32            MapId    = 2;    // 地图id
+  bool              IsCommon = 3;    // 是否是公有棋组
+  uint32            Index    = 4;    // 棋组序号
+  ChessIdList       IdList   = 5;    // 要保存的棋组
+}
+
+// 自定义组卡玩法操作返回
+message CSRspCustomCardOpt {
+  CustomCardOptType        OptType  = 1;
+  map<uint32, ChessIdList> Lists    = 2;    // 所有自定义棋组
+  bool                     IsCommon = 3;    // 当前使用的是否是公有棋组
+  uint32                   Index    = 4;    // 当前使用的棋组的序号
+}
+
+// 获取锦标赛历届冠军信息
+message CSReqChampionHistory {
+  bool OnlyCurZone = 1;    // 是否只拉取本赛区历届冠军
+}
+
+//获取锦标赛历届冠军信息
+message CSRspChampionHistory {
+  repeated ChampionInfo ChampionList = 1;    // 冠军信息列表
+}
+
+//获取上届锦标赛top8
+message CSReqTournamentLastTopRank {
+
+}
+
+//获取上届锦标赛top8
+message CSRspTournamentLastTopRank {
+  TopRank Rank = 1;    //前八玩家
+}
+
+//使用通行证激活卡
+message CSReqUsePassportCard {
+  uint32 Id             = 1;    //使用道具ID
+  uint32 ActivateTypeId = 2;//特殊通行证激活卡选择得类型
+}
+
+message CSRspUsePassportCard {
+  repeated Consume Consumes = 1;    //使用道具消耗
+  repeated Award   Award    = 2;    //使用道具奖励
+  repeated uint32  TypeIds  = 3;    //通行证类型IDList
+}
+
+
+// 佩戴勋章
+message CSReqSetMedal {
+  string Id = 1;    //使用道具实例ID
+}
+
+message CSRspSetMedal {
+  uint32 ID = 1; //勋章id
+}
+
+// 卸下勋章
+message CSReqUnSetMedal {
+}
+
+message CSRspUnSetMedal {
+}
+// 勋章列表
+message CSReqPlayerMedals {
+  string Ids = 1; // 用户id
+}
+
+//PVP宝箱存入仓库
+message CSReqPvpChestSave{
+}
+
+message CSRspPvpChestSave{
+}
+
+message CSNtfMedalInfos {
+  repeated MedalInfo list = 1; //勋章信息
+}
+
+//
+message MedalInfo {
+  string        InstanceId = 1; //物品唯一ID
+  CSDTItemMedal Medal      = 2; //勋章信息
+  uint32        MedalId    = 3; //物品ID
+}
+
+message CSNtfItemInfo {
+  string InstanceId = 1; //物品唯一ID
+  uint32 Id         = 2; //物品ID
+  string Number     = 3; //物品编号
+}
+
+message CSNtfPassportNum{
+  uint32 TypeId = 1;//更新的通行证类型id  客户端自己去判断是啥类型
+  uint32 Number = 2; //编号
+}
+
+message CSNtfPassportYearCardNum {
+  map<string, CSDTPassportCard> AdvancePassport = 1;//预购通行证 客户端自己 计算还剩多少次数
+}
+
+message CSNtfMedalId {
+  uint32 MedalId = 1; //物品ID
+}
+
+message CSRspPlayerMedals {
+  repeated CSDTItem List = 1;
+}
+
+message CSReqSetCache {
+  string Data = 1;
+}
+
+message CSRspSetCache {
+}
+
+message CSReqGetCache {
+  string Key = 1;
+}
+
+message CSRspGetCache {
+  string Val = 1;
+}
+/*************************具体包体NTF BEG**********************************/
+
+message CSNtfKickOff {
+  REASON Reason = 1;    //踢线原因
+}
+
+//玩家排队通知
+message CSNtfWait {
+  uint32 Count = 1;   //玩家前面有多少人排队(包含自己)
+}
+
+message CSNtfPassDayBody {
+  CSDTActivity          Activity     = 1;    //跨天之后，活动内容下发
+  CSDTSignData          SignData     = 2;    //每日签到活动数据
+  repeated CSDTTaskItem ObserveTasks = 3;    //观战任务
+  CSDTBigWinnerData     BigWinner    = 4;  //大玩家数据
+  CSDTMallBuyCount      MallBuy      = 5;  //商城购买数量
+  CSDTPassport          Passport     = 6;    //跨周之后会解锁新的通行证任务，需要下发给客户端新的通行证信息，因为有得任务有初始进度
+}
+
+message CSNtfPassWeekBody {
+  uint32       EvalWeekMoney = 1;    //每周结算糖果
+  uint32       WeekIndex     = 2;
+  CSDTPassport Passport      = 3;    //跨周之后会解锁新的通行证任务，需要下发给客户端新的通行证信息，因为有得任务有初始进度
+}
+
+message CSNtfPassMonthBody{
+
+}
+
+message CSNtfWorldChat{
+  CSDTWorldChat WorldChat = 1;
+}
+
+message CSNtfReload{
+  uint32 WorldChatLimit      = 1;
+  bool   EnableNewPlayerMode = 2;
+}
+
+message CSNtfHeadPic{
+  uint32 Id = 1; //头像id
+}
+
+//team match ntf
+message CSNtfPvpMatch {
+  PVPMODE Mode            = 1;    //pvp模式
+  uint32  ExceptSecs      = 2;    //预期匹配时间 单位：秒
+  string  Captain         = 3;    //队长
+  string  MatchRegion     = 4;   //非""为地区匹配.
+  uint32  MatchRegionSecs = 5;//地区匹配时长 单位：秒
+}
+
+message CSNtfPvpMatchCancel{
+  string Id = 1; //取消玩家id
+}
+
+message CostEnterPvP {
+  int32 TicketId        = 1;
+  int32 CostTicketNum   = 2;
+  int32 CurrencyId      = 3;
+  int32 CostBountyNum   = 4;
+  int32 LockCurrencyNum = 5;
+}
+
+//pvp匹配Ntf
+message CSNtfPvp {
+  RESULT       Result        = 1;    //pvp匹配结果
+  uint64       PvpId         = 2;    //pvpId
+  string       PvpTCPSvrAddr = 3;    //pvpTCP服地址  格式：（域名/IP:端口）
+  CostEnterPvP CostData      = 4;    //消费的信息
+  PVPMODE      Mode          = 5;    //pvp模式
+  uint32       BattlePassId  = 6;    //关卡教学id
+  uint32       BigWinnerId   = 7;   //大赢家场次id
+  string       FailString    = 8;   //匹配失败的详细信息
+}
+
+message TDEvalData{
+  int64			  OnHookTime  = 1;
+  int32           LastStageId = 2;
+  repeated TDItem Awards      = 3;
+}
+
+message CSNtfPvpStatus {
+  uint64              PvpId              = 1;    // pvpId
+  uint32              Status             = 2;    // pvp状态   0:进行中  1:结束
+  string              PvpTCPSvrAddr      = 3;    // pvpTCP服地址  格式：（域名/IP:端口）
+  string              PvpUDPSvrAddr      = 4;    // pvpUDP服地址  格式：（域名/IP:端口）
+  repeated Award      Award              = 5;    // 奖励
+  CSDTPvpCampResult   CampResult         = 6;    // 阵营结果
+  CSDTStat            Stat               = 7;    // 统计信息
+  uint32              EvalWeekMoney      = 8;    // 每周糖果产出
+  uint32              EvalWeekMoneyLimit = 9;    // 每周糖果产出上限
+  int32               MMRChangeOne       = 10;   // 单局mmr变化值，不包含升段额外加分
+  uint32              MMRCupAdd          = 11;   // 升段时额外加分
+  uint32              MMRAward           = 12;   // 奖励分
+  bool                DailyFirstWin      = 13;   // 是否是每日首胜
+  PVPMODE             Mode               = 14;   // 模式
+  uint32              Level              = 15;   // 等级
+  uint32              ChangeExp          = 16;   // 增加的经验
+  uint32              CurrencyExp        = 17;   // 当前经验
+  uint32              WeekExp            = 18;   // 每周经验
+  repeated Award      LevelUpAward       = 19;   // 升级获得的奖励
+  uint32              Money              = 20;   // 升级获得的糖果
+  uint32              ExtraExp           = 21;   // 额外经验
+  uint32              ChangeStar         = 22;   // 获得的战星
+  uint32              ExtraStar          = 23;   // 额外战星
+  uint32              CurrencyStar       = 24;   // 当前战星
+  uint32              PassportLevel      = 25;   // 当前通行证等级
+  uint32              WeekStar           = 26;   // 本周战星
+  uint32              MeleeRule          = 27;   // 乱斗规则ID
+  RESULT              Result             = 28;   // 结算状态
+  uint32              ExtraMoney         = 29;   // 额外糖果
+  uint32              CustomSubMode      = 30;   // 自定义子模式
+  bool                LeaveInAdvance     = 31;   // 玩家是否提前离开
+  uint32              CandyExpRate       = 32;   //
+  uint32              BuffExpRate        = 33;   //
+  repeated Award      TeamPvpAward       = 34;   // 开黑组队吃鸡额外奖励
+  uint64              TournamentId       = 35;   // 赛事id
+  repeated Award      AwardPoint         = 36;   // 当前战斗奖励积分
+  uint64              TournamentGameId   = 37;   // 赛事gameid
+  map<uint32, uint32> UnlockedChess      = 38;   // 本局新解锁的棋子图鉴 老id->星级
+  bool                RankProtected      = 39;   // 本局是否启用了掉段位保护
+  bool                Observer           = 40;   // 是否是观众
+  int32               EarnedCurrencyId   = 41;  // 局内分成货币ID
+  int32               EarnedCurrencyNum  = 42;  // 局内分成所得
+  UserRestrictType    RestrictType       = 43;  // 用户限制类型
+  PvpTeachResult      TeachResult        = 44;  // 教学关卡解锁
+  PvpExtData          ExtData            = 45;  // 扩展字段
+  uint32              TeamID             = 46;  // 队伍ID
+  PVPEND_REASON       EndReason          = 47;  // 结束原因
+  uint32              BattleTime         = 48;  // 战斗时间
+  uint32              RepeatedMmr        = 49;  // 连胜奖励
+  PVEEvalData         Pve                = 50; // pve结算
+  bool                IsRepeatedWin      = 51; // 是否连胜
+  TDEvalData          TDEval             = 52; //塔防结算
+  bool                TriggerMmrProtect  = 53; //触发分数保护
+  int32               OldMMRChangeOne    = 54; //原始mmr变化值,不使用分数保护
+}
+
+message CSNtfPvpPlayerReady{
+  string Id = 1;    //玩家
+}
+
+//pvp begin Ntf
+message CSNtfPvpBegin {
+  uint64 PvpId = 1;    //pvpId
+}
+
+message CSNtfPlayerFinish{
+  CSDTPlayerFinish PlayerFinish = 1; //大逃杀数据
+}
+
+//pvp end Ntf
+message CSNtfPvpEnd {
+  uint64            PvpId      = 1;    //pvpId
+  CSDTPvpCampResult CampResult = 2;    //阵营结果
+  PVPMODE           Mode       = 3;    //模式
+}
+
+message CSNtfPvpReset {
+
+}
+
+message CSNtfDelMail {
+  uint64 MailId = 1;    //mailId
+  SOURCE Reason = 2;    //结束原因
+}
+
+message CSNtfMarquee{
+  int64  Id        = 1; //跑马灯id
+  string Content   = 2; //内容
+  int64  StartTime = 3; //起始时间
+  int64  EndTime   = 4; //截止时间
+  uint32 Frequency = 5; //滚动频率
+  uint32 Flag      = 6; //0代表明文，1代表语言key
+}
+
+message CSNtfGameMarquee {
+  uint32              MarqueeId = 1; //跑马灯ID
+  map<string, string> Dict      = 2; //字典
+}
+
+message CSNtfRemoveMarquee{
+  int64 Id = 1; //跑马灯id
+}
+
+message CSNtfLoadingProgress{
+  string Id       = 1;
+  uint32 Index    = 2;
+  uint32 Progress = 3;
+}
+
+
+
+//支付信息通知
+message CSNtfPay{
+  string         OrderId        = 1; //订单Id
+  uint32         GoodsId        = 2; //商品Id
+  uint32         Rmb            = 3; //充值金额
+  repeated Award DiamondAwards  = 4; //钻石奖励
+  repeated Award GivenAwards    = 5; //赠送奖励
+  repeated Award PassportAwards = 6; //通行证奖励
+  repeated Award MallAwards     = 7; //商城奖励
+  string         Currency       = 8; //货币类型
+}
+
+message CSNtfUpgradeBattleStage {
+  uint32 Level      = 1; //当前战阶
+  uint32 BattleStar = 2; //剩余战星
+}
+
+message CSNtfPassportTaskProgress {//修改为可以传多个任务进度
+  repeated TaskProgress Datas              = 1;
+  uint32                WeekTaskBattleStar = 2; //周任务战星
+  uint32                DayTaskBattleStar  = 3; //日任务战星
+}
+message TaskProgress {
+  uint32         Id               = 1;    //任务Id
+  uint32         CurrTaskProgress = 2;    //当前任务进度次数
+  repeated Award Awards           = 3;    //完成任务自动领取的奖励
+}
+
+//商品刷新
+message CSNtfRefreshGoods {
+  repeated CSDTGoodsInfo Goods = 1;    //{type:goods}
+}
+
+//聊天消息下发
+message CSNtfChat {
+  string         SenderId     = 1;    //发送者ID
+  uint32         EmotionId    = 2;    //表情ID
+  string         Content      = 3;    //发送内容
+  bool           NeedLocalize = 4;    //是否需要本地化
+  int64          Timestamp    = 5;    // 时间戳
+  string         RecverId     = 6;    // 消息接收者id, 主要客户端用
+  CHANELTYPE     ChannelType  = 7;    // ps4 Only 额外信息
+  string         ChannelUsrId = 8;    // ps4 Only 额外信息
+  bool           PS4Only      = 9;    // ps4 Only 开关
+  CHATSOURCETYPE SourceType   = 10;   // 聊天来源类型
+  CSDTItemMedal  MedalInfo    = 11;   // 皇后勋章信息
+}
+
+message CSNtfFollowList{
+  map<string, bool> Follows   = 1; //关注者列表
+  uint32            FansCount = 2; //粉丝数量
+}
+
+//newFans
+message CSNtfNewFollower {
+  string Fans = 1;    //fanID
+}
+
+//lostFans
+message CSNtfLostFollower {
+  string Fans = 1;    //fanID
+}
+
+//invitejointeam
+message CSNtfInviteJoinTeam {
+  string          Id                 = 1;    //邀请者id
+  uint32          TeamId             = 2;    //teamId
+  PVPMODE         Mode               = 3;    //模式
+  bool            Punished           = 4;    //是否有队友收到惩罚
+  int64           PunishmentDeadline = 5;    //惩罚截止时间
+  WorkshopSetting Workshop           = 6;    //创意工坊
+  bool            Ps4Only            = 7;
+  CHANELTYPE      ChannelType        = 8;
+  string          channelUsrId       = 9;
+}
+
+//ntfPlayerJoinTeam
+message CSNtfPlayerJoinTeam {
+  uint32    TeamId         = 1;    //teamId
+  string    Id             = 2;    //玩家
+  bool      IsAI           = 3;
+  uint32    Slot           = 4;
+  string    VoiceId        = 5;
+  bool      ForbidPlayGame = 6;    //玩家是否禁止开始游戏
+  TEAMGROUP GroupId        = 7;  // 属于那个组(OB新增)
+}
+
+//ntfPlayerLeaveTeam
+message CSNtfPlayerLeaveTeam {
+  uint32 TeamId  = 1;    //teamId
+  string Id      = 2;    //玩家
+  string Captain = 3;    //新队长
+}
+
+//kickoff team player
+message CSNtfKickOffTeamPlayer {
+  uint32 TeamId = 1;    //teamid
+  string KickId = 2;    //playerid
+  bool   IsAI   = 3;    //AI
+  uint32 Slot   = 4;
+}
+
+//team msg
+message CSNtfTeamMsg {
+  string         Id           = 1;    //id
+  string         Msg          = 2;    //消息
+  uint32         Emotion      = 3;
+  int64          Timestamp    = 4;
+  CHANELTYPE     ChannelType  = 5;    // ps4 Only 发消息的玩家的渠道类型
+  string         ChannelUsrId = 6;    // ps4 Only 发消息的玩家的渠道ID
+  bool           PS4Only      = 7;    // ps4 Only 开关
+  CHATSOURCETYPE SourceType   = 8;   // 聊天来源类型
+  CSDTItemMedal  MedalInfo    = 9; //皇后勋章信息
+}
+
+message CSNtfTeamReady {
+  string Id      = 1;    //id
+  bool   IsReady = 2;    //准备or取消准备
+}
+
+message CSNtfTeamSlot {
+  repeated CSDTSlotInfo Slots = 1;
+}
+
+message CSNtfTeamSubMode {
+  uint32 SubMode = 1;
+}
+
+message CSNtfChangeTeamSlot {
+  string ReqId   = 1;
+  uint32 ReqSlot = 2;
+  string DesId   = 3;
+  uint32 DesSlot = 4;
+}
+
+message CSNtfCancelChangeSlot {
+  string ReqId = 1;
+  string DesId = 2;
+}
+
+message CSNtfRefuseChangeTeamSlot {
+  string RefuseId = 1;
+}
+
+message CSNtfTeamSlotStatus {
+  repeated string Ids    = 1;
+  int32           Status = 2;
+}
+
+message CSNtfRejectJoinTeam {
+  string Id         = 1;    //id
+  bool   NotReceive = 2;
+}
+
+//公告通知
+message CSNtfNotice {
+  CSDTNoticeInfo NoticeInfo = 1;
+}
+
+//移除公告通知
+message CSNtfRemoveNotice {
+  int64 Id = 1;    //公告ID
+}
+message CSNtfRankSeasonEval{
+  uint32 Index = 1; //赛季序号
+}
+
+message CSNtfBindAccounts{
+  repeated CHANELTYPE Channels = 1;
+}
+
+message CSNtfSeasonTaskProgress {
+  uint32 CurrTaskProgress = 2;    //当前任务进度次数
+}
+
+message CSNtfAlphaActivity {
+  ALPHA_ACTIVITY_STATE State = 1;
+}
+
+message CSNtfOffSeasonToNewSeason {
+  uint32 Id = 1;
+}
+
+message CSNtfLanguageMd5List{
+  map<string, string> List    = 1;
+  string              version = 2;  // 多语言最新版本号
+}
+
+message CSNtfActivityProgress {
+  uint32 GroupId  = 1;
+  uint32 Id       = 2;
+  uint32 Progress = 3;
+}
+
+message CSNtfActivityTaskUnlock {
+  uint32 GroupId = 1;
+  uint32 Id      = 2;
+  bool   Unlock  = 3;
+}
+
+message CSNtfPsServerOnly {
+  bool PsServerOnly = 1;
+}
+
+//通知增加第三方比赛信息
+message CSNtfAddThirdPvpInfo {
+  repeated CSDTThirdPvpInfo Info = 1;
+}
+
+//通知删除第三方比赛信息
+message CSNtfDelThirdPvpInfo {
+  uint64 ID = 1; //赛事ID
+}
+
+message CSNtfRemoveActivity {
+  repeated uint32 GroupId = 1;    //活动组ID
+}
+
+// 通知客户端活动组配置
+message CSNtfActivityConfig {
+  bool                   All    = 1; //是否是全部的活动组 不是的情况代表个别活动有变化
+  repeated ActivityGroup Groups = 2; //活动组数据
+}
+
+message CSNtfMeleeTaskProgress {
+  uint32 CurrTaskProgress = 2;    //当前任务进度次数
+}
+
+message CSNtfSetTeamMode {
+  PVPMODE                     Mode        = 1;
+  repeated CSDTTeamSlotPlayer SlotPlayers = 2;
+  TeamOPSetting               setting     = 3;
+}
+
+message CSNtfPassportClose {
+  repeated Award PassportLevelAwards = 1;
+  repeated Award PassportTaskAwards  = 2;
+  uint32         ClosePeriod         = 3;    //关闭的通行证赛季
+}
+
+message CSNtfPassportOpen {
+  CSDTPassport Passport  = 1;
+  uint32       OldPeriod = 2;    //上一个赛季
+}
+
+message CSNtfWeekIndex {
+  uint32 WeekIndex = 1;
+}
+
+message CSNtfPvpHistory {
+  uint64 PvpId = 1;
+  string Path  = 2;
+}
+
+message CSNtfTeamPvpEnd {
+
+}
+
+message CSNtfProbeNetDelay {
+  int64 Number = 1;
+}
+
+message CSNtfRemoveEggs {
+  repeated uint32 Eggs = 1;    //扭蛋列表
+}
+
+message CSNtfSwitchSet {
+  repeated SWITCHTYPE SwitchTypeList = 1;
+}
+
+message CSNtfBlacklist {
+  map<string, uint32> Blacklist = 1;
+}
+
+message CSNtfBindPhoneNumberSwitch {
+  BINDSWITCHTYPE BindSwitchType = 1;
+}
+
+message CSNtfPrivilege {
+  CHANNELVIPTYPE ChannelVipType = 1;  //渠道vip类型
+  LAUNCHTYPE     LaunchType     = 2;  //登陆类型
+}
+
+message CSNtfWorldInvite {
+  CSDTWorldChat WorldInvite = 1;
+  INVITETYPE    Type        = 2;  //邀约类型
+}
+
+message CSNtfMallNotice {
+  repeated MallNoticeData Datas = 1;
+}
+
+message CSNtfAARemind{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  string ID        = 10;
+}
+
+message CSNtfAABan{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  int64  BeginTime = 10;
+  int64  EndTime   = 11;
+  string ID        = 12;
+}
+
+message CSNtfAAVerify{
+  uint32 AreaId    = 1;
+  uint32 Partition = 2;
+  uint32 PlatId    = 3;
+  string OpenId    = 4;
+  string Title     = 5;
+  string Msg       = 6;
+  string TraceId   = 7;
+  uint32 Source    = 8;
+  string Serial    = 9;
+  string JsonStr   = 10;
+  string ID        = 11;
+}
+
+message CSNtfPhoneNumber{
+  string Tel = 1;
+}
+
+//通知anti回调
+message CSNtfAntiCallBack {
+  bytes Data = 1;
+}
+
+//通知福袋时间
+message CSNtfFortuneBagTime{
+  uint64 BeginTime = 1;
+  uint64 EndTime   = 2;
+}
+
+message CSNtfUpdateItem{
+  repeated Consume Consumes = 1;    //减少
+  repeated Award   Awards   = 2;    //增加
+}
+
+//通知安全信用分
+message CSNtfCreditScore{
+  uint32                 Score  = 1;
+  repeated CreditCfgItem Config = 2;
+}
+
+//通知buff活动
+message CSNtfBuffAct{
+  repeated CSDTBuffAct BuffActs = 1;
+}
+
+//通知活动组信息
+message CSNtfActivityGroup{
+  repeated ActivityGroupData Group = 1;
+}
+
+//通知清理聊天内容
+message CSNtfClearChat{
+}
+
+// 通知加入语音房间
+message CSNtfJoinVoiceTeam {
+  string VoiceId     = 1;
+  string Id          = 2;    // 玩家
+  uint32 VoiceMemId  = 3;    // 腾讯语音使用
+  string VoiceUserId = 4;    // 龙渊语音使用
+}
+
+message CSNtfJoinVoicePvp {
+  string VoiceId     = 1;
+  string Id          = 2;    // 玩家
+  uint32 VoiceMemId  = 3;    // 腾讯语音使用
+  string VoiceUserId = 4;    // 龙渊语音使用
+}
+
+message CSNtfJoinVoiceCamp {
+  string VoiceId     = 1;
+  string Id          = 2;    // 玩家
+  uint32 VoiceMemId  = 3;    // 腾讯语音使用
+  string VoiceUserId = 4;    // 龙渊语音使用
+}
+
+// 微信大玩家
+message CSNtfWxVVip {
+  uint32 Level = 1;
+}
+
+message CSNtfFreeFlow {
+  string Body        = 1;
+  string FreeFlowUrl = 2;
+}
+
+message CSNtfWxRedPacket {
+  repeated string RedPkts = 1;
+}
+
+message CSNtfGmSysMsg {
+  repeated string Contents = 1;
+}
+
+message CSNtfNewPunishment {
+  repeated CSDTPunishment Punishment = 1;
+}
+
+// 队伍操作(这里只包含了OB系统新增的操作类型)
+message CSNtfTeamOP {
+  TeamOP                      OP          = 1;  //操作
+  repeated CSDTTeamSlotPlayer slotPlayers = 2;
+}
+
+
+// 网页登录的通知
+message CSNtfWebLogin {
+  string Uuid          = 1;
+  string FirebaseToken = 2;
+  string LocalId       = 3;
+}
+
+// 通知小黑盒单回合结束数据
+message CSNtfSingleRoundFlow {
+  uint64                 PvpId             = 1;    //pvpId
+  PVPMODE                Mode              = 2;    //模式
+  int64                  PVPStartTime      = 3;    //pvp开始时间
+  string                 PlatAppId         = 4;    //社区appId 对应开放平台侧
+  map<string, CSDTRound> PlayerRound       = 5;    //回合数据
+  uint32                 SubMode           = 6;  //子模式
+  int64                  CommunityTeamUUID = 7; // 组队唯一id
+}
+
+message CSNtfTeamDismiss {
+  uint32              TeamId = 1;    // 队伍ID
+  TEAM_DISMISS_REASON Reason = 2;    // 解散原因
+}
+
+message CSNtfSwitchModeInTeam {
+  PVPMODE NewMode = 1;
+  uint32  TeamID  = 2;
+}
+
+//--------------------------------------------
+//活动相关
+//集道具兑换活动
+message CSReqActItemExch{
+  uint32 ExchId = 1;  //兑换id
+}
+
+//战友招募活动
+message CSReqRecruitInvitePlayer {
+  string PlayerId = 1;    // 玩家ID
+  uint32 GroupId  = 2;  // 活动ID
+}
+// 输入招募者ID
+message CSReqRecruitBindInviter {
+  string PlayerId = 1;    // 玩家ID
+  uint32 GroupId  = 2;  // 活动ID
+}
+
+//观战状态通知
+message CSNtfObserveStatus {
+  uint64 PvpId    = 1;
+  string TcpAddr  = 2;
+  string PlayerId = 3;//观战视角
+}
+
+//通知封禁内容
+message CSNtfForbidInfo{
+  int64       EndTime    = 1; // 解禁时间 0代表永久封禁
+  FROZEN_TYPE FrozenType = 2; // 封禁类型
+  SWITCHTYPE  SwitchType = 3; // 封禁功能类型
+  string      Title      = 4;
+  string      Content    = 5;
+}
+
+message CSNtfMidasDiamond{
+  uint32 Diamond = 1;
+}
+
+//惩罚信息通知
+message CSNtfPunishmentInfo {
+  CSDTBriefPunishment Punishment = 1;
+}
+
+//移除惩罚通知
+message CSNtfRemovePunishment {
+  uint32 PunishmentId = 1;
+}
+
+//玩家确认游戏通知
+message CSNtfPvpConfirm {
+  uint32 Index   = 1;    //玩家索引
+  bool   Confirm = 2;
+}
+
+message CSNtfMatchSuccess {
+  map<uint32, PlayerConfirmInfo> Players     = 1;
+  PVPMODE                        Mode        = 2;
+  bool                           IsCardGroup = 3;
+}
+
+//business老玩家信息
+message CSNtfOldBusinessPlayer {
+  string Id           = 1; //id
+  string Name         = 2; //昵称
+  uint32 HeadPic      = 3; //头像
+  uint32 HeadPicFrame = 4; //头像框
+  uint32 Level        = 5; //等级
+  uint32 MMR          = 6; //杯段
+  string BusinessId   = 7; //businessId
+}
+
+message CSNtfPvpReconnect {
+  uint64 PvpId         = 1;    //pvpId
+  uint32 Status        = 2;    //pvp状态   0:进行中  1:结束
+  string PvpTCPSvrAddr = 3;    //pvpTCP服地址  格式：（域名/IP:端口）
+  string PvpUDPSvrAddr = 4;    //pvpUDP服地址  格式：（域名/IP:端口）
+  RESULT Result        = 5;    //
+  int32  GameID        = 6;
+}
+
+//正在使用的棋子皮肤数据
+message CheseSkinData{
+  uint32 SeriesId   = 1;    //系列ID
+  string InstanceId = 2;    //实例ID
+}
+//当前配置的棋子皮肤通知
+message CSNtfShowChessSkin {
+  map<uint32, ChessSkinSlotData> ChessSkins = 1;
+}
+
+// 开宝箱次数
+message CSNtfChestCount {
+  map<uint32, uint32> ChestCount = 1;
+}
+
+// 开宝箱记录
+message CSNtfChestRecord {
+  map<uint32, ChestRecord> ChestRecord = 1;
+}
+
+//通知玩家的招募信息
+message CSNtfRecruitInfo {
+  uint32              GroupId = 1; //活动组ID
+  CSDTActivityRecruit Recruit = 2; //招募信息
+}
+
+//通过玩家有玩家招募
+message CSNtfRecruitPlayer {
+  uint32            GroupId  = 1; //活动组ID
+  string            PlayerId = 2; //玩家ID
+  CSDTRecruitPlayer Info     = 3; //玩家信息
+}
+
+//通知玩家对局数
+message CSNtfRecruitPlayerBattle {
+  uint32 GroupId     = 1; //活动组ID
+  string PlayerId    = 2; //玩家ID
+  uint32 BattleCount = 3; //对局数
+}
+
+// 打开知己红点通知
+message CSNtfOnHelpReddot {
+}
+
+// 背包变更
+message CSNtfBagUpdate {
+  repeated Consume Consumes = 1; //消耗
+  repeated Award   Awards   = 2; //奖励
+  SOURCE           Source   = 3; //来源
+}
+
+// 通知进行韩国身份认证
+message CSNtfKrIdentityAuth{
+  string Token = 1;  // 令牌
+}
+
+// 通知进行韩国沉迷提示
+message CSNtfKrAddictionTip{
+}
+
+// 通知进行韩国沉迷倒计时
+message CSNtfKrAddictionCountdown{
+  uint32 Countdown = 1; //倒计时
+}
+
+// 梦境模式刷新通知
+message CSNtfRefreshMelee {
+  CSDTMelee Melee = 1;    //梦境模式信息
+}
+
+// vng评价奖励重置通知
+message CSNtfVngCommentAwardReset {
+}
+
+//添加banner通知
+message CSNtfAddBanner {
+  CSDTBanner Banner = 1;
+}
+
+//删除banner通知
+message CSNtfRemoveBanner {
+  int64 Id = 1;
+}
+
+//NTF_HISTOY_CHAT_MSG
+message CSNtfHistoryChatMsg {
+  repeated CSDTWorldChat    world    = 2;
+  repeated CSNtfWorldInvite invite   = 3;
+  repeated CSNtfTeamMsg     team     = 4;
+  repeated CSNtfChat        personal = 5;
+  //局内消息合并一起发
+  repeated CSNtfPvpChat     pvpChat  = 6; // 阵营 CSNtfPvpChat.ChatType 战斗 CSNtfPvpChat.ChatType 观战 CSNtfPvpChat.ChatType
+}
+
+//下发正在进行的赛事
+message CSNtfCurrentTournament {
+  map<uint64, CSDTTournament> Tournaments = 1;    //当前正在进行的赛事
+  map<uint32, uint32>         Points      = 2;    //玩家获得的全局积分
+  TopRank                     TopRank     = 3;    //赛事前八玩家,理论上应该是上一届
+}
+
+//幸运星奖励
+message CSNtfLuckStarAward {
+  repeated Award Awards = 1; //奖励
+}
+
+//新赛事开始通知
+message CSNtfTournamentBegin {
+  repeated CSDTNewTournament NewTournaments = 1;    //新赛事
+}
+
+//通知玩家自己被淘汰
+message CSNtfTournamentOut {
+  uint64 id      = 1;    // 淘汰的赛事id
+  uint64 roundId = 2;    // 淘汰的轮次id
+}
+
+//赛事报名开始通知
+message CSNtfTournamentEnrollBegin {
+  repeated uint64 Tournaments = 1;    //允许报名的赛事
+}
+
+//赛事报名结束通知
+message CSNtfTournamentEnrollEnd {
+  repeated CSDTEnrollEnd Tournaments = 1;    //报名结束的赛事
+}
+
+//赛事结束通知
+message CSNtfTournamentEnd {
+  uint64 TournamentId = 1;    //赛事ID
+  SOURCE Reason       = 2;    //结束原因
+}
+
+//轮次结束通知
+message CSNtfTournamentRoundEnd {
+  uint64                       TournamentId = 1;
+  uint64                       ClassId      = 2;
+  uint64                       RoundId      = 3;
+  map<uint32, CSDTBattleGroup> Groups       = 4;   //下个轮次的战斗分组
+}
+
+// 通知ps4serveronly
+message CSNtfPs4ServerOnly {
+  int32 Ps4ServerOnly = 1;
+}
+
+message CSNtfLuckMallGoods {
+  repeated uint32 MallGoods = 1;
+  uint32          GroupId   = 2;
+  uint32          Discount  = 3;  //折扣信息
+}
+
+message CSNtfTeamStatus {
+  uint32    TeamID = 1;
+  TeamState Status = 2;
+}
+
+message CSNtfPlayerExpChanged {
+  uint32 ChangeExp = 1; //本次改变经验
+  uint32 Level     = 2; // 变化经验后, 玩家新的等级
+  uint32 Exp       = 3; // 当前等级的经验值
+}
+
+message CSNtfSystemGmTime {
+  uint64 nowtime = 1;
+}
+
+message CSNtfChangeName {
+  string NickName     = 1; //修改后的昵称
+  uint32 SetNameCount = 2; //改名次数
+}
+
+message CSNtfGuildJoin {
+  string GuildID = 1;
+  bool   Limit   = 2;
+}
+
+message CSNtfGuildInfo {
+  string                 GuildID = 1;
+  GUILDROLETYPE          Role    = 2;
+  int64                  ExitTs  = 3;
+  repeated GuildChatInfo Chats   = 4; // 公会聊天历史
+}
+
+message CSNtfGuildMemberChange {
+  repeated string Player   = 1;
+  bool            IsRemove = 2;
+}
+
+message CSNtfGuildApplicantChange {
+  repeated GuildApplicant Applicants = 1;
+  bool                    IsRemove   = 2;
+}
+
+message CSNtfGuildInviteeChange {
+  repeated GuildApplicant Applicants = 1;
+  bool                    IsRemove   = 2;
+}
+
+message CSNtfGuildNewInvite {
+  GuildBaseInfo Info = 1;
+}
+
+message CSNtfGuildKickoff {
+}
+
+message CSNtfGuildRoleChange {
+  repeated GuildPlayerRole Infos = 1;
+}
+
+message CSNtfGuildAttrChange {
+  GuildAttr Attr = 1;
+}
+
+// 公会聊天
+message CSNtfGuildChat {
+  GuildChatInfo Chat = 1;
+}
+
+// 公会聊天
+message CSNtfApplicantChange {
+  repeated GuildChatInfo Chat = 1;
+}
+
+message CSNtfNewGuildLog {
+  repeated GuildLog Logs = 1;
+}
+
+// 广告发奖
+message CSNtfAdAward {
+  repeated Award Awards = 1; //奖励
+}
+
+
+message AdCount {
+  uint32 Id            = 1;
+  uint32 ViewCount     = 2; // 已观看次数
+  uint32 AwardCount    = 3; // 领奖次数
+  int64  ViewTs        = 4; // 上次观看时间
+  int64  ResetTs       = 5; // 上次重置时间
+  uint32 TotalViewCout = 6;// 累计观看次数
+}
+
+// 广告发奖
+message CSNtfAdCount {
+  repeated AdCount    Infos           = 1;
+  uint32              TotalViewCout   = 2;// 累计观看次数， group 0
+  uint32              AdCumulateCount = 3;// 已领取观看次数， group 0
+  bool                IsReset         = 4; // 是否重置
+  map<uint32, ADStat> Stat            = 5; // 广告分组统计
+}
+
+message ADStat {
+  uint32 TotalViewCout = 1;// 累计观看次数
+  uint32 CumulateCount = 2;// 已领取观看次数
+}
+
+message CSNtfFirstPay {
+}
+
+message CSNtfInviteObserve {
+  string          Inviter      = 1; // 邀请人
+  uint64          PvpId        = 2; // 邀请观战的战局
+  PVPMODE         Mode         = 3; // 游戏模式
+  uint64          TNClassRound = 4; // 赛事轮次ID
+  WorkshopSetting WSSetting    = 5;
+  bool            Ps4Only      = 7;
+  CHANELTYPE      ChannelType  = 8;
+  string          channelUsrId = 9;
+}
+
+message CSNtfAddAward {
+  repeated Award Awards = 1; //奖励
+  SOURCE         Source = 2; // 来源
+}
+
+message CSNtfLimitRefresh{
+  repeated LimitRefresh data = 1;//刷新结果
+}
+
+message OutPutRecord {
+  map<string, int32> ItemMap         = 1; //周期内产出的<道具id:数量>
+  int64              ResetTime       = 2; // 重置时间
+  uint32             failOutPutCount = 3; //连续失败次数
+}
+
+
+message LimitRefresh {
+  uint32       GrpId  = 1;//活动组id
+  uint32       Id     = 2;//活动id
+  OutPutRecord Record = 3;//刷新结果
+}
+
+message CSNtfUpdateNotice{
+  string NoticeId    = 1;
+  string Tags        = 2;
+  int32  Status      = 3;
+  string ActivityId  = 4;
+  string ClientEvent = 5;
+}
+
+message CSNtfUpdatePveChallengeCount {
+  uint32             GroupId         = 1; //活动组Id
+  uint32             ChallengeNum    = 2; //免费挑战次数
+  uint32             BuyChallengeNum = 3; //今日购买奖励次数
+  uint32             AwardNum        = 4; //可抽取得奖励次数
+  uint32             AwardScore      = 5; //奖励积分
+  uint32             Token           = 7; //代币 {代币id,数量}
+  map<string, int32> Talent          = 8; //天赋等级 {代币id,数量}
+}
+
+message CSNtfCalcMmr {
+  int32   ChangeMmr     = 1; //改变的分数
+  uint32  CupAdd        = 2; //增加得杯段
+  bool    RankProtected = 3; //是否保护
+  PVPMODE Mode          = 4; //模式
+  uint32  RepeatedMmr   = 5; //连胜奖励
+  bool    TriggerMmrProtect = 6; //是否分数保护
+  int32   OldMMRChangeOne   = 7; //老mmr改变分数
+}
+
+message CSNtfBag {
+  uint32               Page  = 1; //页
+  repeated CSDTBagItem Items = 2; //物品
+}
+
+//拒绝观战
+message CSNtfRejectObserve {
+  string Invitee    = 1;    //被邀请者
+  bool   NotReceive = 2;    //指定时间内是否不再接受邀请者的邀请
+}
+
+// 赏金房间投注通知
+message CSNtfBetOnBounty {
+  CSDTBetData BetData = 1;
+}
+
+// 通知任务进度
+message CSNtfTaskProgress {
+  uint32   Id               = 1;    //任务Id
+  uint32   CurrTaskProgress = 2;    //当前任务进度次数
+  TASKTYPE Type             = 3;    // 任务类型
+}
+
+// 新手引导已结束
+message CSNtfNewPlayerGuideEnded {}
+
+// 通知房主队内玩家自定义组卡有误
+message CSNtfChessListErr {
+  string MemberId = 1;    // 玩家id
+}
+
+message CSNtfGOAInfo {
+  string AppId         = 1; // 活动平台应用标识
+  string Version       = 2; // 事件版本
+  string Env           = 3; // 当前环境
+  string Url           = 4; // 平台连接
+  string Authorization = 5; // 凭证
+}
+
+message CSNtfTasksInfo {
+  CSDTTasks Tasks = 1; //任务信息
+}
+
+//PVP战斗后奖励数据
+message CSNtfPvpAwardsInfo{
+  repeated Award Awards = 2; //奖励
+}
+
+//UI禁止
+message CSNtfUIForbid {
+  map<string, bool> UI = 1; //bool为true代表 关掉
+}
+
+//观看广告抽取商城优惠
+message CSNtfAdDiscount {
+  RandDiscount RandDiscount = 1; //观看广告抽取商城优惠
+}
+
+//配置红点信息
+message CSRspUpdateHotDot {
+}
+
+message HotDotInfo {
+  map<string, string> info = 1;
+}
+message CSReqUpdateHotDot {
+  string     name = 1;  //模块名字
+  HotDotInfo Info = 2;    //活动信息
+  uint32     opt  = 3; // opt==1增加 opt ==2删除
+}
+message CSReqQueryHotDot {
+  string Id = 1;          //模块名字
+}
+message CSRspQueryHotDot {
+  map<string, HotDotInfo> Info = 1;    //活动信息
+}
+
+message CSReqBuyChallengeCount {
+  uint32 grpId = 1; //活动组Id
+}
+
+message CSRspBuyChallengeCount {
+  uint32           TotalBuyChallengeCount = 1; //总共购买挑战次数
+  uint32           BuyChallengeCount      = 2; //今日购买挑战次数
+  repeated Consume Consumes               = 3;    //消耗
+
+}
+message CSReqGetPveRank{
+  uint32      GrpId    = 1;//活动组id
+  uint32      BeginIdx = 2;
+  bool        Daily    = 3;//当日排行榜
+  PVERANKTYPE RankType = 4; //
+  uint32      PveId    = 5; //当为custom 是 需要填写
+}
+
+message CSRspGetPveRank {
+  repeated CSDTNumRankItem items  = 1; //排行榜
+  uint32                   endIdx = 2;
+  uint64                   Count  = 3; //总数
+  CSDTNumRankItem          Self   = 4; //自身
+}
+
+message CSRspAuthAccount {
+  repeated MultiPlayer MultiPlayer  = 1; // 用户信息
+  bool                 NewPlayer    = 2; // 是否为新用户
+  CHANELTYPE           ChannleyType = 3; // 解绑渠道
+}
+
+
+message CSReqUnbindAccount {
+}
+
+message CSRspUnbindAccount {
+}
+
+// 掌上龙渊登录授权
+message CSReqOAuthApp {
+  string Env = 1; // "QA", "prod"
+}
+
+message CSRspOAuthApp {
+  string Token       = 1;
+  string SecretToken = 2;
+}
+
+message CSReqBagToItem {
+  uint32 Page   = 1;
+  string UId    = 2;
+  bool   OneKey = 3;
+}
+
+message CSRspBagToItem {
+  repeated Award   Award   = 1;  //转移背包物品到玩家
+  repeated Consume Consume = 2;   //
+}
+
+// 词缀
+// 物品鉴定
+message CSReqIdentifyItem{
+  CSDTItemID       Item     = 1;    //鉴定的物品
+  repeated Consume Consumes = 2;    //消耗的材料
+  string		   Slot		= 3;    //槽位(棋子皮肤需要)
+}
+
+message CSRspIdentifyItem {
+  repeated Award   Awards   = 1;    //鉴定结果
+  repeated Consume Consumes = 2;
+}
+
+// 镶嵌词缀
+message CSReqInsetItemAffix {
+  CSDTItemID Item  = 1;  //物品
+  CSDTItemID Affix = 2;  //词缀
+  string     Slot  = 3;  //槽位
+}
+message CSRspInsetItemAffix {
+  CSDTItem         Item     = 1;
+  string           Slot     = 2;  //槽位
+  repeated Consume Consumes = 3;
+}
+
+//提取词缀
+message CSReqUnsetItemAffix {
+  CSDTItemID Item = 1;  //物品
+  string     Slot = 2;  //槽位
+}
+
+message CSRspUnsetItemAffix {
+  repeated Award   Awards   = 1;    //提取物品
+  repeated Consume Consumes = 2;
+  string           Slot     = 3;  //槽位
+}
+
+message CSNtfItemAttributes {
+  repeated Award Item = 1;
+}
+
+message CSNtfUpdatePvpData{
+  uint32           Index      = 1; //玩家索引
+  UpdatePlayerData PlayerData = 2; //更新玩家数据
+}
+
+message  CSNtfUpgradePassport {
+  repeated uint32 TypeIds = 1;  //通行证类型IDList
+}
+
+message CSReqCheckCancel{
+}
+
+message CSRspCheckCancel{
+}
+
+message CSReqCancelAccount{
+  string     ChannelId   = 1;
+  CHANELTYPE ChannelType = 2;
+}
+
+message CSRspCancelAccount{
+}
+
+message CSReqUpdateCardGroup{
+  uint32                PlanId   = 1; //方案id
+  uint32                TypeId   = 2;
+  map<uint32, ChessIds> ChessIds = 3; //棋子质量：棋子ids
+  string                Name     = 4; //需要更新名字 就传 不需要就不管
+}
+
+message CSRspUpdateCardGroup{
+}
+
+message CSReqUpdateCardGroupName{
+  uint32 PlanId = 1; //方案id
+  uint32 TypeId = 2;
+  string Name   = 3; //方案名
+}
+
+message CSRspUpdateCardGroupName{
+}
+
+message CSReqBuyPveBuff{
+  uint32         BuffId      = 1;
+  PVECONSUMETYPE ConsumeType = 2;
+  uint32         ConsumeId   = 3;//如果为物品类型 则 传入消耗得id
+  uint32         PveId       = 4; //pveId
+  uint32         Count       = 5; //购买次数
+}
+
+message CSRspBuyPveBuff{
+  PveConsume           Consume = 1;
+  map<uint32, PveBuff> Awards  = 2; // 奖励的buff
+  uint32               PveId   = 3; //pveid
+}
+
+message CSReqSetCardGroup {
+  uint32 PlanId = 1; //方案id
+}
+
+message CSRspSetCardGroup{
+}
+
+message CSReqBuyPveChessTemplate {
+  uint32         PveId       = 1; //pveId
+  PVECONSUMETYPE ConsumeType = 2;
+  uint32         ConsumeId   = 3;//如果为物品类型 则 传入消耗得id
+  uint32         Id          = 4; //棋子id  或者技能id
+  PVECHESSTYPE   ChessType   = 5;
+}
+
+message CSRspBuyPveChessTemplate{
+  PveConsume Consume = 1;
+}
+
+message CSReqPveUnlockChessTemplate {
+  uint32                       PveId     = 1; //pveId
+  repeated UnlockChessTemplate ChessIds  = 2;
+  PVECHESSTYPE                 ChessType = 3;
+}
+
+message UnlockChessTemplate {
+  uint32 Id     = 1;//解锁得id
+  bool   Unlock = 2; //true 装配 false 卸下
+
+}
+message CSRspPveUnlockChessTemplate{
+}
+
+message CSReqPveSetTeamDeBuff{
+  repeated uint32 DeBuffIds = 1; //
+}
+
+message CSRspPveSetTeamDeBuff{
+}
+
+message CSNtfUpdateTeamDeBuff{
+  repeated uint32 DeBuffIds = 1; //
+}
+
+message CSReqChoseCardGroup{
+  uint32 PlanId = 1; //
+}
+
+message CSRspChoseCardGroup{
+  uint32 PlayerIdx = 1;//玩家索引
+  uint32 PlanId    = 2; //方案id
+}
+
+message CSNtfPveEval{
+  uint32              PveId     = 1; //
+  uint32              Score     = 2; //实际增加的积分（内核积分+内核积分*词缀buff+内核积分*vip特权）
+  map<uint32, uint32> Consume   = 3; //消耗得次数
+  uint32              RankScore = 4; //加在排行版的分数/结算显示的分数
+  bool                Unlock    = 5; //是否解锁噩梦模式
+}
+
+message CSReqRemoveOvertimeBuff{
+  uint32          PveId   = 1;
+  repeated uint32 BuffIds = 2; //
+}
+
+message CSRspRemoveOvertimeBuff{
+  uint32          PveId   = 1;
+  repeated uint32 BuffIds = 2; //
+}
+
+message CSNtfUnlockCardGroup{
+    CardGroupData    Data = 1;
+}
+
+message CSReqUpdateNewCardGroupSign{
+}
+
+message CSRspUpdateNewCardGroupSign {
+}
+
+message CSNtfCustomPveActivity{
+  uint32 GrpId = 1; //活动组id
+  uint32 Score = 2; //增加的score
+}
+
+message CSNtfGmBan{
+  GmBan GmBan = 1;
+}
+
+
+// -------- 师徒 部分 -------
+message CSReqMentorUpdateSetting{
+  string Sign         = 1; //拜师宣言
+  uint32 Tag          = 2; //标签
+  bool   InviteSwitch = 3; //拜师开关 开true 关 false
+}
+
+message CSRspMentorUpdateSetting{
+}
+
+message CSReqMentorInvite{
+  MENTORSHIP Type    = 1; //邀请类型  师傅发起 就传徒弟 代表的时候 徒弟类型的信息，徒弟发起就传师傅 代表的是 请求师傅收徒的类型
+  string     Content = 2; //拜师/收徒 内容
+  string     Id      = 3; //邀请id
+}
+
+message CSRspMentorInvite{
+}
+
+message CSReqMentorConfirmInvite{
+  string Id       = 1;// 确认消息中的玩家id
+  bool   IsAccept = 2; //是否接受
+}
+
+message CSRspMentorConfirmInvite{
+}
+
+message CSReqMentorRecommendList{
+  MENTORSHIP Type     = 1; // 推荐表类型 查看类型对应的type
+  uint32     StartIdx = 2; //分页起始页
+}
+
+message CSRspMentorRecommendList{
+  repeated CSDTMentorRecommendPlayer Ids = 1; //列表返回的用户
+  uint32   Count                         = 2; //总共数量
+}
+
+message CSReqMentorGetTaskAward{
+  repeated uint32 TaskId  = 1; //任务id
+  string          PupilId = 2; //师傅 领取徒弟任务 时 传递 徒弟id
+  MENTORSHIPTASK  TaskType = 3; //领取的任务类型 必穿
+}
+
+message CSRspMentorGetTaskAward{
+  repeated Award Awards = 1; //任务返回的奖励
+}
+
+message CSReqMentorGraduate{
+  string Id = 1; //徒弟id 师傅id
+  bool   IsAutoGraduate =2 ; //是否自动毕业
+}
+
+message CSRspMentorGraduate{
+  PUPILSTAT Stat = 1; //徒弟状态
+}
+
+message CSReqMentorRelieveRelation{
+  string     Id     = 1; //徒弟id 师傅id
+  MENTORSHIP MsType = 2;// 由谁提出来的 徒弟提起就传徒弟类型 师傅提起就传师傅类型
+}
+
+message CSRspMentorRelieveRelation{
+  int64     PunishTime = 1; //惩罚时间
+  PUPILSTAT Stat       = 2; //解除关系人的状态
+}
+
+message CSReqGetMentorInfo{
+  string TargetId = 1;// 不传查本人 传入查询的用户id
+}
+
+message CSRspGetMentorInfo{
+  MentorInfo Info = 1;
+}
+
+message CSReqMentorGetInviteMsg{
+}
+
+message CSRspMentorGetInviteMsg{
+  repeated MentorInviteMsg Info = 1;//邀约信息
+}
+
+message CSNtfMentorInviteMsg{
+  repeated MentorInviteMsg Info = 1; //消息
+}
+
+message CSNtfBecomeMentor{//成为师傅
+
+}
+
+message CSNtfMentorRelation{
+  string    Mentor = 1;//师傅id
+  string    Pupil  = 2;//徒弟id
+  PUPILSTAT Stat   = 3; //徒弟状态 更新
+  int64     AddIntimacy        = 4;//增加的亲密度
+}
+
+message CSNtfPupilTaskUpdate{
+  string                Pupil = 1;//徒弟id
+  repeated CSDTTaskItem Task  = 2;//任务id
+}
+
+message CSNtfMentorLevel{
+    MENTORLEVEL   Level = 1; //是否等级更新
+}
+
+message CSRspTeamMsg {
+  int64          SilenceTime  = 1; // 禁言时间
+}
+
+message CSRspChatMsg {
+  int64          SilenceTime  = 1; // 禁言时间
+}
+
+message CSRspChannelChat {
+  int64          SilenceTime  = 1; // 禁言时间
+}
+
+message CSReqUpdateCardGroupBetter{
+  repeated CardGroupChess      ChessIds = 1; //更新棋子id  全量传
+}
+
+message CSRspUpdateCardGroupBetter{
+}
+
+message CSReqUpdateCardGroupSetting{
+  bool      IsAutoAddCardGroupToKernel = 1 ; //是否开局自动加入局内
+  uint32    AutoAddChessTimes          = 2; //自动加入常用列表 0代表关
+}
+
+message CSRspUpdateCardGroupSetting{
+}
+
+message CSReqSetContent{
+  string	Content = 1; 	//内容
+}
+
+message CSRspSetAuctionName{
+  uint32 	Count				= 1; //内容
+  repeated  Consume Consumes 	= 2; //消耗
+}
+
+message CSRspSetAuctionRemark{
+}
+/*************************具体包体NTF END**********************************/
+
+message CSReqGetBalance {
+
+}
+
+message CSRspGetBalance {
+  uint32 Diamond                      = 1; // 甜甜圈
+  uint32 WalletServiceCharge				  = 2; // 零钱包服务费（万分比*10000）
+  uint32 WalletServiceChargeMinNum		= 3; // 零钱包服务费下限（固定值、整数）
+}
+
+
+message CSReqRechargeBalance {
+  repeated Consume Consumes = 1;
+}
+
+message CSRspRechargeBalance {
+  uint32 Diamond = 1; // 甜甜圈
+  repeated Consume Consumes = 2;
+}
+
+message CSReqWithdrawBalance {
+  uint32 Diamond = 1; // 甜甜圈
+}
+
+message CSRspWithdrawBalance {
+  uint32 Diamond = 1; // 甜甜圈
+  repeated Award Awards = 2;
+}
+// 商城精细化投放
+message CSReqPersonalRecommendMall {
+}
+
+message MallIDs {
+  repeated uint32 IDs = 1;
+}
+
+message CSRspPersonalRecommendMall {
+  map<uint32, MallIDs> MallTabs = 1;   //商城 map<栏位, ids>
+}
+
+message CSNtfCurDressUpdate{
+  Award  	Award 						= 1; //更新物品
+  string 	DressSlot 					= 2; //棋子皮肤槽位
+  repeated 	CSDTItemID	ChessPlayerIds 	= 3; //装扮物品的所有棋手
+}
+
+message CSNtfChangeExchangeMark{
+  EXCHANGESTATE ExchangeState  = 1; //拍卖行标记状态
+}
+
+message CSReqGetMedalChestAward{
+  uint32 Season   = 1; //赛季
+}
+
+message CSRspGetMedalChestAward{
+  repeated  Award Award    				= 1;
+  SOURCE    Source   					= 2; //来源
+}
+
+message CSNtfRefreshPassport {
+  //刷新类型，日刷新，周刷新
+  PASSPORTREFRESH RefreshType = 1;
+  uint32       WeekIndex     = 2;
+  CSDTPassport Passport      = 3;    //跨周之后会解锁新的通行证任务，需要下发给客户端新的通行证信息，因为有得任务有初始进度
+}
+
+message CSNtfGmRemoveMail {
+  string	MailId			= 1;
+}
+
+//设置物品自动使用，两个参数为联动设置，如果设置为不自动使用，自动使用数量会被重置为0
+//如果色泽使用数量为0，则AutoFlag也会置为0
+message CSReqSetItemAutoUse {
+  //物品id
+  uint64  ItemId = 1;
+  //0-不自动，1-自动
+  int32   AutoFlag = 2;
+  //0-不使用，1-使用
+  uint32  CurrentUse = 3;
+  //是否自动购买0-否，1-是
+  int32   AutoBuy = 4;
+}
+
+message CSRspSetItemAutoUse{
+  //物品id
+  uint64  ItemId = 1;
+  //0-不自动，1-自动
+  int32   AutoFlag = 2;
+  //使用数量
+  uint32  CurrentUse = 3;
+  //是否自动购买0-否，1-是
+  int32   AutoBuy = 4;
+}
+
+message CSNtfAutoUseItem{
+  uint64 ItemId = 1;//物品id
+  uint32 UsedCount  = 2;//使用数量
+  uint32 TodayUsedCount = 3;//今日使用数量
+  uint32 DayLimit = 4;//日使用限制
+  uint32 Count = 5;//剩余数量
+  int32  AutoFlag = 6;//默认使用状态
+  //是否自动购买0-否，1-是
+  int32  AutoBuy = 7;
+}

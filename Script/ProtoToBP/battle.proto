@@ -1,0 +1,769 @@
+syntax = "proto3";
+
+package msg;
+import "common.proto";
+
+// ----------------------------------- Enum ------------------------------------------ //bbb  ss
+enum GameStage {
+  RoundStart = 0;
+  GetReady   = 1;
+  Freeze     = 2;
+  Battle     = 3;
+  End        = 4;
+  StageCount = 5;
+}
+
+enum GamePhase {
+  Early = 0;
+  Late  = 1;
+}
+
+enum AddictionState {
+  Healthy   = 0;
+  Tired     = 1;
+  Unhealthy = 2;
+}
+
+enum MessengerMoveType {
+  _      = 0;
+  Normal = 1;
+  Flash  = 2;
+}
+
+enum PvpOfflineType {
+  Normally   = 0;
+  LeaveEarly = 1;
+}
+
+// ---------------------------------- Structs ---------------------------------------- //
+message PositionInt2D {
+  int32 X = 1;
+  int32 Y = 2;
+}
+
+message PositionFloat2D {
+  float X = 1;
+  float Y = 2;
+}
+
+message PlayerBasicInfo {
+  int32         Index     = 1;
+  PvpPlayerData PvpPlayer = 2;
+}
+
+message EquipmentInfo {
+  int32         NetId       = 1;
+  int32         EquipId     = 2;
+  int32         EquipBagIdx = 3;
+  int32         PlayerIdx   = 4;
+  PositionInt2D TilePos     = 5;
+  int32         OwnerHandle = 6;
+}
+
+// 棋库
+// 棋子数据
+message ChessPiecesData {
+  int32 Id          = 1;
+  int32 extractProb = 2; // 抽取概率
+}
+
+// 对应等级下的棋子抽取概率
+message ChessPiecesMapLevData {
+  int32                    level       = 1;
+  repeated ChessPiecesData chessPieces = 2;
+}
+
+message ChessNumber {
+  int32 Id     = 1;
+  int32 Number = 2; // 棋子数量
+}
+
+// 玩家拥有的棋子
+message PlayerChessNumber {
+  string               Id    = 1; // 玩家ID
+  repeated ChessNumber chess = 2;
+}
+
+// 刷新棋子的方式
+message ReflushChessData {
+  bool           isAuto       = 1;
+  repeated int32 chessIds     = 2;
+  repeated int32 sellChessIdx = 3; // 存储被卖掉的棋子对应商店里的下标值
+}
+
+// 回合数据
+message BattleRoundData {
+  int32                     RoundNum               = 1;
+  int32                     Damage                 = 2;  // 回合受到的伤害
+  int32                     MoneyGained            = 3;  // 获取的金币
+  int32                     MoneyCostByBuyExp      = 4;  // 购买经验消耗
+  int32                     MoneyCostByRefreshShop = 5;  // 刷新商店消耗
+  int32                     MoneyCostByBuyChess    = 6;  // 本回合购买棋子花费
+  bool                      IsMonster              = 7;  // 是否是怪物关
+  int32                     EnemyIdx               = 8;  // 敌方idx或者是怪物关卡的index
+  int32                     Exp                    = 9;  // 本回合获得的经验
+  WINTYPE                   winType                = 10; // 本回合是否胜利
+  repeated ReflushChessData refreshChess           = 11; // 刷新的棋子序列
+  repeated int32            intoBattleChess        = 12; // 上阵棋子
+  int32                     MoneyGainedBySellChess = 13; // 出售棋子获得的金币
+}
+
+// 统计数据
+message PlayerStatisticsInfo {
+  int32                    pidx      = 1;
+  int32                    winStreak = 2;
+  repeated BattleRoundData roundData = 3;
+}
+
+message Item {
+  int32 EquipmentId = 1;
+  int32 NetId       = 2;
+}
+
+message ItemOnTheGround {
+  Item  BaseInfo = 1;
+  int32 MapX     = 2;
+  int32 MapY     = 3;
+}
+
+message ItemInTheBag {
+  Item  BaseInfo = 1;
+  int32 Index    = 2;
+}
+
+message Character {
+  int32                 PlayerIdx       = 1;
+  int32                 CharacterId     = 2;
+  repeated ItemInTheBag CharacterEquips = 6;
+}
+
+message CharacterInTheBag {
+  Character BaseInfo = 1;
+  int32     BagIndex = 2;
+}
+
+message CharacterOnTheMap {
+  Character BaseInfo = 1;
+  int32     Tx       = 2;
+  int32     Ty       = 3;
+}
+
+message ReconnectPlayer {
+  int32                      PlayerIdx        = 1;
+  int32                      CurrentHp        = 2;
+  int32                      CurrentGold      = 3;
+  int32                      CurrentLevel     = 4;
+  int32                      CurrentExp       = 5;
+  repeated int32             ShopContents     = 6;
+  PvpPlayerData              PlayerData       = 7;
+
+  float                      MessengerPosX    = 8;
+  float                      MessengerPosY    = 9;
+
+  repeated CharacterInTheBag BagCharacters    = 10;
+  repeated CharacterOnTheMap MapCharacters    = 11;
+
+  repeated ItemInTheBag      BagItems         = 12;
+  repeated ItemOnTheGround   GroundItems      = 13;
+
+  int32                      EnemyPlayerIndex = 14;
+  int32                      WinStreak        = 15;
+  int32                      WinRoundCount    = 16;
+  int32                      LoseRoundCount   = 17;
+  int32                      Rank             = 18;
+}
+
+message RoundInfo {
+  int32     Seed         = 1;
+  int32     Round        = 2;
+  int32     GameFrame    = 3;
+  GameStage CurrentPhase = 4;
+  int32     RemainTime   = 5;
+}
+
+message CorrectFormation {
+  repeated CharacterInTheBag BagCharacters = 1;
+  repeated CharacterOnTheMap MapCharacters = 2;
+  repeated ItemInTheBag      BagItems      = 3;
+  repeated ItemOnTheGround   GroundItems   = 4;
+  int32                      PlayerIndex   = 5;
+}
+
+// ------------------------------------ Requests ------------------------------------- //
+message CSReqSetMessengerPos {
+  PositionFloat2D   Pos  = 1;
+  MessengerMoveType Type = 2;
+}
+
+// 玩家设置准备状态
+message CSReqPvpSetReadyState {
+  bool State = 1;
+}
+
+message CSReqSetRefreshShopLock {
+  bool IsLock = 1;
+}
+
+message CSReqRetrieveChess {
+  PositionInt2D ChessPos = 1;
+  int32         BagIndex = 2;
+}
+
+message CSReqBuyChess {
+  int32 ShopIndex = 1;
+  bool  IsToBag   = 2;
+  int32 BagIndex  = 3;
+  int32 Tx        = 4;
+  int32 Ty        = 5;
+  bool  IsDrag    = 6;
+}
+
+message CSReqSellChessInBag {
+  int32 BagIndex = 1;
+}
+
+message CSReqSellChessOnBoard {
+  PositionInt2D ChessPos = 1;
+}
+
+message CSReqMoveChess {
+  PositionInt2D SrcChessPos  = 1;
+  PositionInt2D DestChessPos = 2;
+}
+
+message CSReqBuyExp {
+  int32 Exp = 1;
+}
+
+message CSReqRefreshShop {
+}
+
+message CSReqMoveChessInBagToMap {
+  int32         BagIdx  = 1;
+  PositionInt2D DestPos = 2;
+}
+
+message CSReqMoveChessWithinBag {
+  int32 SrcBagIdx  = 1;
+  int32 DestBagIdx = 2;
+}
+
+message CSReqPlayerLoaded {
+}
+
+message CSReqPlayerRoundEnd {
+}
+
+message CSReqPickupEquipment {
+  int32 NetId = 1;
+}
+
+message CSReqCraftEquip {
+  repeated int32 EquipNetIds = 1;
+  bool           IsToChess   = 2;
+}
+
+message CSReqUseEquipment {
+  int32         NetId        = 1;
+  bool          IsChessInBag = 2;
+  int32         BagIndex     = 3;
+  PositionInt2D Pos          = 4;
+}
+
+message CSReqUpdateAntiAddictionTime {
+}
+
+message CSReqCancelReconnect {
+}
+
+message CSReqSetAutoUpgradeCharacter {
+  bool SwitchOn = 1;
+}
+
+message CSReqReconnect {
+}
+
+message CSReqManuallyUpgradeCharacter {
+  int32 BagIndex = 1;
+  int32 Tx       = 2;
+  int32 Ty       = 3;
+  bool  IsInBag  = 4;
+}
+
+message CSReqQuitBattle {
+}
+
+message CSReqSusPendGame {
+  bool susPend = 1;  // true 表示挂起暂停 fasle表示取消暂停
+}
+
+// 棋库
+message CSReqChessDB {
+}
+
+message CSReqStatisticsInfo {
+}
+
+message CSReqPassThrough {
+  bytes data = 1;
+}
+
+message CSReqUpdateBattleResult {
+}
+
+message CSReqVisitPlayer {
+  int32 SrcPlayerIndex  = 1;
+  int32 DestPlayerIndex = 2;
+}
+
+message CSReqLeaveGameEarly {
+}
+
+message CSReqReportAbsent {
+}
+
+// ----------------------------------- Responses ------------------------------------- //
+message CSRspSetMessengerPos {
+  bool              Success = 1;
+  MessengerMoveType Type    = 2;
+}
+
+// 玩家设置准备状态
+message CSRspPvpSetReadyState {
+  bool Success = 1;
+}
+
+message CSRspSetRefreshShopLock {
+  bool Success = 1;
+  bool IsLock  = 2;
+}
+
+message CSRspRetrieveChess {
+  bool          Success     = 1;
+  int32         BagIndex    = 2;
+  PositionInt2D SrcChessPos = 3;
+}
+
+message CSRspBuyChess {
+  bool  Success   = 1;
+  int32 BagIndex  = 2;
+  int32 ShopIndex = 3;
+  int32 ConfigId  = 4;
+  bool  IsToBag   = 5;
+  int32 Tx        = 6;
+  int32 Ty        = 7;
+  bool  IsDrag    = 8;
+}
+
+message CSRspSellChessInBag {
+  bool  Success   = 1;
+  int32 LeftMoney = 2;
+  int32 BagIndex  = 3;
+}
+
+message CSRspSellChessOnBoard {
+  bool          Success   = 1;
+  int32         LeftMoney = 2;
+  PositionInt2D ChessPos  = 3;
+}
+
+message CSRspMoveChess {
+  bool          Success      = 1;
+  PositionInt2D SrcChessPos  = 2;
+  PositionInt2D DestChessPos = 3;
+}
+
+message CSRspBuyExp {
+  bool  Success    = 1;
+  int32 AddedExp   = 2;
+  int32 CurrentExp = 3;
+}
+
+message CSRspRefreshShop {
+  bool Success = 1;
+}
+
+message CSRspMoveChessInBagToMap {
+  bool          Success = 1;
+  int32         BagIdx  = 2;
+  PositionInt2D DestPos = 3;
+}
+
+message CSRspMoveChessWithinBag {
+  int32 SrcBagIdx  = 1;
+  int32 DestBagIdx = 2;
+  bool  Success    = 3;
+}
+
+message CSRspPlayerLoaded {
+}
+
+message CSRspPlayerRoundEnd {
+}
+
+message CSRspPickupEquipment {
+  int32 NetId   = 1;
+  bool  Success = 2;
+  int32 BagIdx  = 3;
+}
+
+message CSRspCraftEquip {
+  bool           Success     = 1;
+  bool           IsToChess   = 2;
+  repeated int32 Equips      = 3;
+  EquipmentInfo  NewEquip    = 4;
+  int32          ChessBagIdx = 5;
+  bool           IsOnBattle  = 6;
+}
+
+message CSRspUseEquipment {
+  int32         NetId         = 1;
+  bool          IsChessInBag  = 2;
+  int32         ChessBagIndex = 3;
+  int32         EquipBagIndex = 4;
+  PositionInt2D Pos           = 5;
+  bool          Success       = 6;
+  bool          IsOnBattle    = 7;
+}
+
+message CSRspUpdateAntiAddictionTime {
+}
+
+message CSRspCancelReconnect {
+}
+
+message CSRspSetAutoUpgradeCharacter {
+  bool SwitchOn = 1;
+}
+
+message CSRspReconnect {
+  bool IsValid = 1;
+}
+
+message CSRspUpdateRank {
+}
+
+message CSRspManuallyUpgradeCharacter {
+  int32 BagIndex = 1;
+  int32 Tx       = 2;
+  int32 Ty       = 3;
+  bool  Success  = 4;
+  bool  IsInBag  = 5;
+}
+
+message CSRspQuitBattle {
+  bool Success = 1;
+}
+
+message CSRspSusPendGame {
+  bool susPend = 1;  // true 表示挂起暂停 fasle表示取消暂停
+}
+
+message CSRspChessDB {
+  repeated ChessPiecesMapLevData chessPiecesMapLev = 1;
+  repeated PlayerChessNumber     playerChess       = 2;
+}
+
+// 统计数据
+message CSRspStatisticsInfo {
+  int32                         initMoney        = 1;
+  repeated PlayerStatisticsInfo playerStatistics = 2;
+}
+
+message CSRspPassThrough {
+  repeated bytes data = 1;
+}
+
+message CSRspUpdateBattleResult {
+}
+
+message CSRspVisitPlayer {
+  int32 SrcPlayerIndex  = 1;
+  int32 DestPlayerIndex = 2;
+}
+
+message CSRspLeaveGameEarly {
+}
+
+message CSRspReportAbsent {
+}
+
+// --------------------------------- Notifications --------s--------------------------- //
+message CSNtfPvpChangeStage {
+  int32                     RoundCnt   = 1;
+  int32                     Duration   = 2;
+  GameStage                 Stage      = 3;
+  repeated CorrectFormation Correction = 4;
+}
+
+message CSNtfPvpUpdateMoney {
+  int32 Money     = 1;
+  int32 PlayerIdx = 2;
+  int32 SrcTag    = 3; // 0: by round, 1: sell chess
+}
+
+message CSNtfPvpUpdateMessengerPos {
+  int32             PlayerIndex = 1;
+  PositionFloat2D   Pos         = 2;
+  MessengerMoveType Type        = 3;
+}
+
+message CSNtfPvpPlayerLoggedIn {
+  PlayerBasicInfo PlayerInfo = 1;
+}
+
+message CSNtfPvpSetReadyState {
+  int32 PlayerIdx = 1;
+  bool  State     = 2;
+}
+
+message CSNtfPvpPlayerAllReady {
+}
+
+message CSNtfPvpPlayerDead {
+  int32 PlayerIdx = 1;
+}
+
+message CSNtfPvpPlayerOffline {
+  int32 PlayerIdx = 1;
+}
+
+message CSNtfChessOnBoardSold {
+  int32         PlayerIdx = 1;
+  PositionInt2D SrcPos    = 2;
+}
+
+message CSNtfChessRemovedFromBag {
+  int32 PlayerIdx = 1;
+  int32 BagIndex  = 2;
+}
+
+message CSNtfBuyChess {
+  int32 PlayerIdx     = 1;
+  int32 ChessConfigId = 2;
+  bool  IsToBag       = 3;
+  int32 BagIndex      = 4;
+  int32 Tx            = 5;
+  int32 Ty            = 6;
+  bool  IsDrag        = 7;
+}
+
+message CSNtfChessRetrievedToBag {
+  int32         PlayerIdx = 1;
+  int32         BagIndex  = 2;
+  PositionInt2D SrcPos    = 3;
+}
+
+message CSNtfChessMoved {
+  PositionInt2D SrcPos    = 1;
+  PositionInt2D DestPos   = 2;
+  int32         PlayerIdx = 3;
+  bool          Success   = 4;
+}
+
+message CSNtfChessFromBagToMap {
+  int32         PlayerIdx = 1;
+  int32         BagIdx    = 2;
+  PositionInt2D DestPos   = 3;
+}
+
+message CSNtfPlayerLvUpgraded {
+  int32 PlayerIdx   = 1;
+  int32 NewPlayerLv = 2;
+}
+
+message CSNtfUpdateExp {
+  int32 CurrentExp = 1;
+}
+
+message CSNtfSetEnemy {
+  int32 PlayerIdx = 1;
+  int32 EnemyIdx  = 2;
+}
+
+message CSNtfSetSeed {
+  int32 Seed = 1;
+}
+
+message CSNtfBattleTerminated {
+
+}
+
+message CSNtfShopRefreshed {
+  repeated int32 Chesses = 1;
+}
+
+message CSNtfChessMovedWithinBag {
+  int32 PlayerIdx  = 1;
+  int32 SrcBagIdx  = 2;
+  int32 DestBagIdx = 3;
+}
+
+message CSNtfCreepDied {
+  int32         PlayerIdx  = 1;
+  int32         CreepId    = 2;
+  int32         EquipNetId = 3;
+  int32         EquipId    = 4;
+  PositionInt2D CreepPos   = 5;
+}
+
+message CSNtfUpdateHp {
+  int32 PlayerIdx = 1;
+  int32 Hp        = 2;
+}
+
+message CSNtfPickupEquipment {
+  int32 PlayerIdx  = 1;
+  int32 EquipNetId = 2;
+  int32 BagIdx     = 3;
+}
+
+message CSNtfUseEquipment {
+  int32         NetId         = 1;
+  bool          IsChessInBag  = 2;
+  int32         BagIndex      = 3;
+  int32         PlayerIdx     = 4;
+  PositionInt2D Pos           = 5;
+  int32         EquipBagIndex = 6;
+  bool          IsOnBattle    = 7;
+}
+
+message CSNtfOperateEquipInBag {
+  int32 NetId       = 1;
+  int32 EquipmentId = 2;
+  int32 BagIdx      = 3;
+  int32 PlayerIdx   = 4;
+  bool  IsRemoved   = 5;
+}
+
+message CSNtfOperateEquipOnChess {
+  int32         NetId          = 1;
+  int32         PlayerIdx      = 2;
+  bool          IsRemoved      = 3;
+  bool          IsChessOnBoard = 4;
+  int32         ChessBagIndex  = 5;
+  PositionInt2D ChessTilePos   = 6;
+  int32         EquipmentId    = 7;
+  int32         ChessSlotIndex = 8;
+  bool          IsOnBattle     = 9;
+}
+
+message CSNtfAntiAddictionTime {
+  int32 TotalOnlineDuration  = 1;
+  int32 TotalOfflineDuration = 2;
+}
+
+message CSNtfAntiAddictionTriggered {
+
+}
+
+message CSNtfAntiAddictionRemoved {
+
+}
+
+message CSNtfUnsuggestedPhase {
+
+}
+
+message CSNtfGameEnd {
+}
+
+message CSNtfCandyReward {
+  int32 CandyCnt  = 1;
+  int32 PlayerIdx = 2;
+}
+
+message CSNtfWinStreak {
+  int32 WinStreak = 1;
+  int32 PlayerIdx = 2;
+}
+
+message CSNtfPvpState {
+  int32  PvpID      = 1;
+  int32  GameID     = 2;
+  string PvpTCPAddr = 3;
+}
+
+message CSNtfSetAutoUpgradeCharacter {
+  int32 PlayerIdx = 1;
+  bool  SwitchOn  = 2;
+}
+
+message CSNtfManuallyUpgradeCharacter {
+  int32 PlayerIdx = 1;
+  int32 BagIndex  = 2;
+  int32 Tx        = 3;
+  int32 Ty        = 4;
+  bool  IsInBag   = 5;
+}
+
+message CSNtfQuitBattle {
+  int32 PlayerIndex = 1;
+}
+
+message CSNtfRoundResult {
+  WINTYPE Result          = 1;
+  int32   LeftFriendCount = 2;
+  int32   Damage          = 3;
+}
+
+// 暂停还是启动游戏
+message CSNtfSuspendGame {
+  bool   susPend    = 1;  // true 表示挂起暂停 fasle表示取消暂停
+  string pid        = 2;  // 如果是恢复的话需要带着时间下去
+  int32  resumeTime = 3;
+}
+
+message CSNtfPassThrough {
+  bytes data = 1;
+}
+
+message CSNtfUpdateBattleResult {
+  repeated CSDTCampData Camp = 1;
+}
+
+// anti-addiction
+message CSNtfAA {
+  AddictionState State                = 1;
+  int64          TotalOnlineDuration  = 2;
+  int64          TotalOfflineDuration = 3;
+}
+
+message Division {
+  int32 NetID           = 1;
+  int32 EquipID         = 2;
+  int32 DestPlayerIndex = 3;
+  int32 TX              = 4;
+  int32 TY              = 5;
+}
+
+message CSNtfEquipDivision {
+  int32             SrcPlayerIndex = 1;
+  repeated Division Divisions      = 2;
+}
+
+message CSNtfVisitPlayer {
+  int32 SrcPlayerIndex  = 1;
+  int32 DestPlayerIndex = 2;
+}
+
+message CSNtfLeaveGameEarly {
+  uint32 PlayerIndex = 1;
+}
+
+message CSNtfPvpAffixTrigger {
+  uint32                    PlayerIndex = 1;
+  //  uint32                         Round         = 2; // 回合
+  repeated AffixTriggerInfo Affix       = 3;
+  //  map<uint32, ChessSkinSlotData> ChessSkinData = 4; //棋子皮肤
+  //  map<uint32, CSDTItem>          SkinData      = 5; //皮肤：棋手，棋盘
+}
+
+message AffixTriggerInfo {
+  uint32 AffixId       = 1;// (tag.json)="affix_id,omitempty"
+  float  Value         = 2;// (tag.json)="value,omitempty"
+  uint32 ChessHandle   = 3;// (tag.json)="chs_handle,omitempty"
+  uint32 ChessId       = 4;// (tag.json)="phone_id,omitempty" 棋盘 棋手 棋子id
+  uint32 FrameIdx      = 5;// (tag.json)="frame_idx,omitempty"
+  bool IsOnlyTrigger = 6;// (tag.json)="is_only_trigger,omitempty"
+}

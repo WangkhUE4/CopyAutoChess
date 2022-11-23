@@ -1,0 +1,3631 @@
+syntax = "proto3";
+package msg;
+
+import "common.proto";
+
+
+/*******define***********/
+// 体验卡类型
+enum EXPERIENCE_TYPE {
+  EXPERIENCE_TYPE_NULL = 0;
+  CARD                 = 1;
+  SKIN                 = 2;
+}
+
+enum EGGTYPE {
+  EGG_NULL     = 0;
+  EGG_COMMON   = 1; //普通扭蛋
+  EGG_ACTIVITY = 2; //活动扭蛋
+  EGG_SPECIAL  = 3; //特殊扭蛋
+}
+
+enum EGGPOOLTYPE {
+  POOL_NULL          = 0;
+  POOL_COMMON        = 1;    //普通随机池
+  POOL_MIN_GUARANTEE = 2;    //保底池
+}
+
+enum ITEMCLASS1{
+  ITEMCLASS1_NULL  = 0;
+  ITEMCLASS1_EXP   = 1;
+  ITEMCLASS1_MONEY = 2;
+  ITEMCLASS1_ITEM  = 3;
+  ITEMCLASS1_DRESS = 4;
+}
+
+enum ITEMCLASS2{
+  ITEMCLASS2_NULL       = 0;
+  ITEMCLASS2_SKIN       = 1;
+  ITEMCLASS2_EFFECT     = 2;
+  ITEMCLASS2_ACTION     = 3;
+  ITEMCLASS2_VOICE      = 4;
+  ITEMCLASS2_EXPRESSION = 5;
+  ITEMCLASS2_UI_DRESS   = 6;
+}
+
+enum PURCHASETYPE {
+  PURCHASE_INLAND        = 0;    //国内版本
+  PURCHASE_INTERNATIONAL = 1;    //国际版本
+}
+
+enum CHARGETYPE {
+  CHARGE_NULL     = 0;
+  CHARGE_COMMON   = 1;    //普通充值
+  CHARGE_FIRST    = 2;    //首充
+  CHARGE_PASSPORT = 3;    //直购通行证
+  CHARGE_GROUPBUY = 4;    //活动团购返利
+  CHARGE_GIFT     = 5;    //礼包活动
+  CHARGE_MALL     = 6;    //商城活动
+  CHARGE_TCARD    = 7;    //VNG电话卡
+  CHARGE_PREORDER = 8;    //预购礼包
+}
+
+enum REFRESHTYPE {
+  REFRESHTYPE_NULL = 0; //不刷新
+  REFRESHTYPE_DAY  = 1; //每日刷新
+  REFRESHTYPE_WEEK = 2; //每周刷新
+}
+
+//AI局触发条件类型
+enum AITRIGGERTYPE {
+  TRIGGER_BEGIN_TO_PLAY    = 0; //玩家刚开始玩
+  TRIGGER_CONTINUOUS_LOSE  = 1; //连续获得较低名次
+  TRIGGER_BEFORE_LOWER_CUP = 2; //掉段前
+  TRIGGER_PLAYER_GO_BACK   = 3; //玩家回归
+  TRIGGER_LOW_CUP          = 4; //低段位保护
+}
+
+//时效类型
+enum TIMEFLAG {
+  TIME_PERMANENT = 0;    //永久
+  TIME_DAILY     = 1;    //每天
+  TIME_WEEKLY    = 2;    //每周
+  TIME_MONTHLY   = 3;    //每月
+}
+
+//段位类型
+enum CUPTYPE {
+  CUP_PAWN   = 0;    //士兵
+  CUP_KNIGHT = 1;    //骑士
+  CUP_BISHOP = 2;    //主教
+  CUP_ROOK   = 3;    //堡垒
+  CUP_KING   = 4;    //国王
+  CUP_QUEEN  = 5;    //皇后
+}
+
+enum DELAYTYPE {
+  UNCONFIRMED       = 0;  //未确定
+  FLUENCY           = 1;  //流畅
+  GENERAL           = 2;  //一般
+  LAG               = 3;  //卡顿
+  DIFFICULTY        = 4;  //不能玩
+
+  DELAYTYPE_MAX_NUM = 5;
+}
+
+//赛事类型
+enum TOURNAMENTTYPE {
+  TOURNAMENT_UNKNOWN    = 0;    //未知类型
+  TOURNAMENT_TOURNAMENT = 1;    //锦标赛
+  TOURNAMENT_OFFICIAL   = 2;    //官方赛
+  TOURNAMENT_CUSTOM     = 3;    //自建赛
+}
+
+// 赛事类型
+enum TournamentTimeType {
+  other  = 0;     // 一般赛事
+  Week   = 1;     // 周赛
+  Month  = 2;     // 月赛
+  Season = 3;     // 季赛
+}
+
+//赛事拥有者类型
+enum OWNERTYPE {
+  OWNER_UNKNOWN  = 0;
+  OWNER_OFFICIAL = 1;    //官方
+  OWNER_PLAYER   = 2;    //玩家
+}
+
+//战斗组类型
+enum BATTLEGROUPTYPE {
+  BATTLEGROUP_NULL  = 0;
+  BATTLEGROUP_MATCH = 1;    //匹配战斗组
+  BATTLEGROUP_FIXED = 2;    //固定战斗组
+}
+
+//赛事奖励类型
+enum TOURNAMENTAWARDTYPE {
+  TOURNAMENTAWARD_NULL          = 0;
+  TOURNAMENTAWARD_RANK_RANGE    = 1;    //积分排行奖励
+  TOURNAMENTAWARD_RANK_PROGRESS = 2;    //积分进度奖励
+  TOURNAMENTAWARD_BATTLE_RANGE  = 3;    //战斗排行奖励
+  TOURNAMENTAWARD_JOIN          = 4;    //参与奖励
+  TOURNAMENTAWARD_RISE          = 5;    //晋级奖励
+  TOURNAMENTAWARD_OUT           = 6;    //淘汰奖励
+}
+
+//赛事分层
+enum TOURNAMENTLAYER {
+  LAYER_NULL         = 0;    //
+  LAYER_TOURNAMENT   = 1;    //赛事层
+  LAYER_LEVEL        = 2;    //级别层
+  LAYER_ROUND        = 3;    //轮次层
+  LAYER_BATTLE_GROUP = 4;    //战斗组
+}
+
+// 掉落增量类型
+enum FallAddType{
+  FALLADDNONE = 0;
+  PROBABILITY = 1; // 概率
+  TIME        = 2; // 时间
+  LEVEL       = 3; // 等级
+}
+
+// 掉落类型
+enum FalledType{
+  FALLTYPENONE = 0;
+  BOX          = 1; // 宝箱
+  FIGHT        = 2; // 对局
+}
+
+// 沉迷类型
+enum AddictionType{
+  ADDICTIONNULL  = 0;
+  LOGINALLOWTIME = 1;  //沉迷允许登录时间段
+  TIPTIMED       = 2;   //沉迷定时提示
+}
+
+enum PassportShareType {
+  Unknown              = 0;
+  COMMONAWARD          = 1; //分享通用奖励
+  //分享任务特殊奖励
+  PSharTaskMoney       = 2; //通行证金币任务分享
+  PSharTaskScatter     = 3; //通行证星罗棋布任务分享
+  PSharTaskRecruitArmy = 4; //通行证招兵买马任务分享
+  PSharTaskArmyTeeth   = 5; //通行证全副武装任务分享
+}
+
+//折扣券类型
+enum DEDUCTIONTYPE{
+  DEDUCTIONTYPE_PASSPORT = 0;  //通行证折扣券
+  DEDUCTIONTYPE_MALL     = 1;  //商城折扣券
+}
+
+// 棋子
+enum CHESSSTATUS {
+  CHESSSTATUS_NULL    = 0;
+  REFRESH             = 1; //1、可刷到的棋子
+  SUMMON              = 2;//2、棋子的召唤物
+  MONSTER             = 3;//3、野怪
+  DISPLAY             = 4;//4、不显示
+  RETREAT_ENVIRONMENT = 5;//5、退环境的棋子
+  BEGIN_PUT           = 6;//6、预投放的棋子
+}
+//	PS充值类型
+enum PSCHARGETYPE {
+  CHARGE_GENERAL = 0;  //通用
+  CHARGE_PS4     = 1;  //ps4独有
+  CHARGE_PS5     = 2;  //ps5独有
+}
+
+//回流引导Tag枚举
+enum RETURN_GUID_TAG {
+  TYPE_NORMAL     = 0;   //无 不展示
+  TYPE_NEW_MODE   = 1;   //新模式
+  TYPE_NEW_CHESS  = 2;   //新棋子
+  TYPE_NEW_FUNC   = 3;   //新功能
+  TYPE_NEW_FETTER = 4; //新羁绊
+}
+
+//宝箱开启类型
+enum CHESOPENTYPE {
+  OPEN_NORMAL = 0;
+  OPEN_CHEST  = 1; //宝箱开宝箱
+}
+
+//pvp宝箱掉落类型
+enum PVPDROPTYPE {
+  PVPDROP_NILL      = 0;
+  PVPDROP_BATTLE    = 1; //普通参赛
+  PVPDROP_OB        = 2; //普通观战
+  PVPDROP_AUTHORITY = 3; //官方自定义
+  PVPDROP_END       = 4;
+}
+
+//改名类型
+enum SETNAMETYPE {
+	SETNAMETYPE_NULL		 	= 0;
+	SETNAMETYPE_PLAYER_NAME  	= 1; //玩家名字
+	SETNAMETYPE_ACUTION_NAME 	= 2; //拍卖行名字
+	SETNAMETYPE_ACUTION_REMARK 	= 3; //拍卖行留言
+}
+
+
+/*******gamedata*********/
+//{excel:通用配置表-out:common-module:CommonModule}
+message CommonInfo{
+  uint32          PvpMatchMaxPlayers                  = 1;
+  uint32          EscapeMatchMaxPlayers               = 2;
+  uint32          ChatMsgMaxLen                       = 3;   // 聊天最大长度
+  //repeated    Consume BuyEggConsumes                = 4;   // 购买扭蛋消耗
+  uint32          UserNameMaxLen                      = 5;   // 玩家名字最大长度
+  string          DefaultHeadPics                     = 6;   // 默认头像列表
+  ITEMQUALITY     EggMinimumQuality                   = 7;   // 保底品质
+  uint32          FollowMaxNum                        = 8;
+  uint32          AutoRemoveInviteInterval            = 9;
+  uint32          InviteListMaxCount                  = 10;
+  uint32          NotReceiveInviteInterval            = 11;
+  uint32          TeamMaxCount                        = 12;
+  uint32          GetBatchFansCount                   = 13;
+  uint32          BattleStarPriceId                   = 14;  // 战星价格
+  uint32          BattleStarPriceCount                = 15;  // 战星价格
+  uint32          LevelMax                            = 16;  // 最大等级
+  uint32          RoundExpUpperLimit                  = 17;  // 每局最大经验
+  uint32          RoundExpLowerLimit                  = 18;  // 每局最小经验
+  uint32          WeekExpLimit                        = 19;  // 每周经验限制
+  string          SpecialGiftRefreshTime              = 20;  // 特价礼包刷新时间
+  uint32          SpecialGiftRefreshInterval          = 21;  // 特价礼包刷新间隔
+  string          TimedExchangeRefreshTime            = 22;  // 限时兑换刷新时间
+  uint32          TimedExchangeRefreshInterval        = 23;  // 限时兑换刷新间隔
+  uint32          BattleStarWeekBaseLimit             = 24;  // 周基础战星上限
+  uint32          BattleStarWeekReviseLimit           = 25;  // 周战星上限增幅值
+  uint32          QQVipLevelExpBonus                  = 26;
+  uint32          QQSvipLevelExpBonus                 = 27;
+  uint32          QQGameCenterLevelExpBonus           = 28;
+  uint32          WeChatGameCenterLevelExpBonus       = 29;
+  uint32          BlacklistMaxNum                     = 30;  // 黑名单最大人数
+  int64           VerificationCodeExpiredTime         = 31;  // 验证码过期时间
+  int64           BindPhoneNumberCoolingTime          = 32;  // 手机绑定冷却时间
+  uint32          InviteMsgMaxLen                     = 33;  // 黑名单最大人数
+  uint32          VerificationCodeDailyLimit          = 34;  // 验证码每日发送限制
+  repeated Award  BindPhoneNumberAwards               = 35;  // 首次绑定手机号奖励
+  int64           SendCodeCoolingTime                 = 36;  // 验证码发送冷却时间
+  uint32          ShareRewardUserInfoId               = 37;  // 个人信息分享奖励id
+  uint32          ShareRewardUserInfoCount            = 38;  // 个人信息分享奖励数量
+  uint32          ShareRewardFriendRankId             = 39;  // 好友排行榜分享奖励id
+  uint32          ShareRewardFriendRankCount          = 40;  // 好友排行榜分享奖励数量
+  uint32          ShareRewardPVPCountId               = 41;  // 对局数分享奖励id
+  uint32          ShareRewardPVPCountCount            = 42;  // 对局数分享奖励数量
+  uint32          ShareRewardChessId                  = 43;  // 棋子图鉴分享奖励id
+  uint32          ShareRewardChessCount               = 44;  // 棋子图鉴分享奖励数量
+  uint32          ShareRewardCalendarId               = 45;  // 黄历分享奖励id
+  uint32          ShareRewardCalendarCount            = 46;  // 黄历分享奖励数量
+  repeated uint32 FirstChargeActivateChargeType       = 47;  // 首充活动充值类型
+  uint32          FirstChargeActivateDonutsNum        = 48;  // 首充活动充值门限
+  uint32          FollowDailyLimit                    = 49;  // 每日关注的最大人数
+  uint32          RecallCooldownTime                  = 50;  // 召回发送的CD
+  uint32          RecallTime                          = 51;  // 离线多久可以召回
+  uint32          WeChatBigPlayerGiftsId              = 52;  // 大玩家首礼包码id
+  string          WeChatBigPlayerMailId               = 53;  // 大玩家首礼包邮件id
+  string          WeChatBigPlayerMailCtt              = 54;  // 大玩家首礼包邮件内容
+  uint32          WeChatBigPlayerGachaColor           = 55;  // 大玩家扭蛋抽取道具品质
+  uint32          WeChatBigPlayerLikesDaily           = 56;  // 每日玩家可对大玩家点赞榜点赞赞次数
+  uint32          WeChatBigPlayerRedPacketClaim       = 57;  // 每日玩家可领取红包次数上限
+  uint32          WeChatBigPlayerRedPacketRank        = 58;  // 红包内领取排行榜展示人数
+  uint32          WeChatBigPlayerLikesRank            = 59;  // 大玩家点赞榜展示人数
+  uint32          WeChatBigPlayerRedPacketDailyReward = 60;  // 每日玩家红包活动可领取礼包id
+  uint32          WeChatBigPlayerLikesReward          = 61;  // 大玩家红包活动玩家点赞点赞表奖励礼包id
+  repeated uint32 WeChatBigPlayerRedLimits            = 62;  // 大玩家红包发送限制
+  uint32          WeChatBigPlayerNormalRedStores      = 63;  // 普通玩家囤积红包数量上限
+  repeated Award  InviteRegisterAwards                = 64;  // 关系链邀请注册奖励
+  bool            BlackTeamSwitchQQ                   = 65;  // QQ开黑组队开关（0-关，1-开）
+  bool            BlackTeamSwitchWeChat               = 66;  // 微信开黑组队开关（0-关，1-开）
+  uint32          HeadIconIDIPResetTime               = 67;  // 头像IDIP重置时间 不允许拉取平台头像天数（天）
+  uint32          PresetFastChatLimit                 = 68;  // 快捷聊天文本预设数量
+  uint32          PvpConfirmMaxTime                   = 69;  // 玩家确认阶段最大时间
+  string          ActivityPageShowTypeList            = 70;  // 活动派别切页
+  uint32          FreeChangeCountryNumber             = 71;  // 免费修改国家的次数
+  string          AvatarAllowToRemoveAll              = 72;  // 允许全部脱下的装扮类型
+  uint32          NoAdvertiseLevel                    = 73;  // Loading页无视广告的等级
+  repeated Award  RecallRewards                       = 74;  // 好友召回奖励
+  uint32          FreeChangeProvinceTimes             = 75;  // 可以立即免费修改省份的次数
+  repeated Award  TeamPvpAward                        = 76;  // 每日首次组队开黑奖励
+  uint32          AddictionCountdown1                 = 77;  // 沉迷倒计时1
+  uint32          AddictionCountdown2                 = 78;  // 沉迷倒计时2
+  uint32          MatchAddictionCountdown             = 79;  // 匹配沉迷倒计时
+  bool            KRAddictionPCOpen                   = 80;  // 韩国防沉迷PC开关
+  bool            KRAddictionPhoneOpen                = 81;  // 韩国防沉迷手游开关
+  repeated Award  FriendInviteReaward                 = 82;  // 同玩好友每日首次邀请奖励
+  repeated Award  RankUpShareReward                   = 83;  // 段位升级每日首次分享奖励
+  repeated Award  WinShareReward                      = 84;  // top3 吃鸡分享奖励
+  repeated Award  PassLevelShareReaward               = 85;  // 通行证等级分享奖励
+  repeated Award  PassCommonQuestShareReaward         = 86;  // 通行证任务分享通用奖励
+  repeated Award  PassSpecialQuestShareReaward        = 87;  // 通行证任务分享特殊奖励
+  uint32          RefreshProvinceTime                 = 88;  // 可以免费修改省份的时间间隔
+  uint32          PassBuyingTips                      = 89;  // 通行证倒计时提示开始天数
+  uint32          PassAwardPreviewNum                 = 90;  // 通行证领取奖励预览等级
+  string          ItemSortGrogram1                    = 91;  // 物品类型排序方案1
+  uint32          MessageTimeDisplays                 = 92;  // 历史消息时间显示间隔
+  uint32          PopupPlayerLeverLimit               = 93;  // 拍脸图玩家等级限制
+  uint32          PopupPlayerRegisterTimeLimit        = 94;  // 拍脸图玩家注册时间限制
+  uint32          PopupPlayerReturnTimeLimit          = 95;  // 拍脸图玩家回流时间限制
+  uint32          PopupGlobalLimit                    = 96;  // 拍脸图最大展示数量
+  uint32          GlobalMatchAskCoolDown              = 97;  // 全球匹配弹窗间隔
+  uint32          GlobalMatchAskWhenReduce            = 98;  // 全球匹配弹窗开始减少的次数
+  uint32          GlobalMatchAskReducedTime           = 99;  // 全球匹配弹窗间隔每次减少的值
+  uint32          GlobalMatchAskMinCoolDown           = 100; // 全球匹配弹窗间隔最小值
+  uint32          NewPlayerGuideLeaveTime             = 101; // 新手引导跳过等待时间
+  uint32          RecommendedPlanOfLineup             = 102; // 一键站位推荐方案数
+  int32           Ticketconversion1000                = 103; // 糖果门票折算比例
+  int32           Ticketconversion1001                = 104; // 甜甜圈门票折算比例
+  int32           ReportIntervalTime                  = 105; // 举报间隔时间
+  string          BattleWinningStreakBroadcast        = 106; // 局内连胜播报判定次数
+  string          BattleChessEvenKill                 = 107; // 局内棋子连杀播报
+  int32           WorkShopCollectionMaximum           = 108; // 创意工坊收藏栏上限
+  string          BountyType                          = 109; // 赏金房间投注货币类型
+  int32           PlayerMoneyModSwitch                = 110; // 自定义赏金总开关
+  int32           PreparationConditionsCandy          = 111; // 创意工坊进入房间默认准备条件-小于配置数量糖果门票
+  int32           PreparationConditionsPayCandy       = 112; // 创意工坊进入房间默认准备条件-小于配置数量甜甜圈门票
+  int32           PicBookEquipRecommend               = 113; // 图鉴角色装备推荐个数
+  int32           TeamEquipRecommend                  = 114; // 阵容详情装备推荐个数
+  int32           ChessEquipRecommend                 = 115; // 棋子详情装备推荐个数
+  int32           EquipRecommendQuantity              = 116; // 局内装备推荐对应棋子个数
+  int32           ExchangeChipScale1136               = 117; // 棋子皮肤通用碎片兑换棋子皮肤退环境碎片蓝比例
+  int32           ExchangeChipScale1137               = 118; // 棋子皮肤通用碎片兑换棋子皮肤退环境碎片紫比例
+  int32           ExchangeChipScale1138               = 119; // 棋子皮肤通用碎片兑换棋子皮肤退环境碎片橙比例
+  int32           ExchangeChipScale1139               = 120; // 棋子皮肤通用碎片兑换棋子皮肤退环境碎片红比例
+  string          RankCardRange                       = 121; // 段位保护卡可用等级
+  uint32          TutorialReadingCoolingTime          = 122; // 多多训练营教学卡阅读冷却
+  uint32          ReportChatNum                       = 123; // 举报上传的聊天对话数量
+  uint32          DelayMatchTimeLimit                 = 124; // 延迟匹配时间
+  string          ReturnSignInPicLanguage             = 125; // 签到识别是否显示凶吉图片的对应语言
+  int32           NewEquipRecommendQuantity           = 126; // 局内装备推荐对应棋子个数
+  string          ReturnSignInLocalPic                = 127; // 签到显示本地化图片
+  int32           DelayInfoCount                      = 128; // 客户端上报延迟信息数量
+  uint32          DelayPeekNum                        = 129; // 延迟筛选参考极值
+  uint32          CandidateLimit                      = 130; // 侯选阵容数量限制
+  uint32          SmeltCondition                      = 131; // 熔炼启动值
+  uint32          SmeltPoolId                         = 132; // 熔炼奖池
+  uint32          MailEndTimeNotify                   = 133; // 邮件过期提醒倒计时(天)
+  string          ItemUpLimitTitle                    = 134; // 物品上限邮件标题
+  string          ItemUpLimitContent                  = 135; // 物品上限邮件内容
+  string          ChessModelScale                     = 136; // 物品上限邮件内容
+  string          DefaultHeadChess                    = 137; // 默认的头像和棋手
+  uint32          NoviceAnswerNum                     = 139; // 新手答题数量
+  uint32          NoviceAnswerPassNum                 = 140; // 新手答题通过所需正确数量
+  uint32          DelayEjectTime                      = 141; // 比赛结束后结算界面延迟弹出时间(s)
+  uint32          WatchTime                           = 142; // 掉落交易宝箱观战时长
+  string          MatchPlayerDropProbability          = 143; // 官方自定义比赛参赛玩家掉落交易宝箱概率
+  string          WatchPlayerDropProbability          = 144; // 官方自定义比赛观战玩家掉落交易宝箱概率
+  string          ExchangeCoverItemId                 = 145; // 交易服允许兑换的物品id
+  string          CanUpgradePassportItemType          = 146; //支持升级通行证得道具类型
+  int32           VoiceLengthLimit                    = 147; //语音消息长度限制
+  string          CardGroupKernelJson                 = 149; // 卡组用的内核json文件
+  string          CardGroupAutoAddTimes               = 150; // 卡组自动注入的回合
+  uint32		  AcutionNameMaxLen					  = 151; // 拍卖行名字最大长度
+  uint32		  AcutionRemarkMaxLen				  = 152; // 拍卖行留言最大长度
+  uint32		  WalletServiceCharge				  = 153; // 零钱包服务费（万分比*10000）
+  uint32		  WalletServiceChargeMinNum			  = 154; // 零钱包服务费下限（固定值、整数）  
+  int32		  	  BalanceCountCond					  = 155; // 成交量达成条件
+  int32		 	  SaleCountCond					  	  = 156; // 上架达成条件
+  int32			  PlayerShopShareCD					  = 160; // 店铺分享CD
+  uint32          InsuranceCardDayLimit               = 161; //保险卡日使用次数限制
+  uint32          InsuranceCardTipsTime               = 162; //保险卡提示时间间隔(小时)
+  uint32      InsuranceCardStartLevel                 = 163; //使用段位起始值
+  uint32      InsuranceCardEndLevel                   = 164; //使用段位终止值
+  string      QueenMmrStar    = 165; //皇后段位&勋章的mmr分值及对应星级
+  int64       BagMailInterval = 166; //发送邮件间隔
+  bool       TradeShowRMB    = 167; //是否显示人民币价格
+  int32       InsuranceCardSeasonTip = 168; //保险卡赛季提示开关
+  repeated uint32 InsuranceCardAutoConsume = 169; //保险卡自动购买消耗货币
+  bool IsTradeShow = 170; //交易市场是否可见
+  uint32 TradeAllMaxNum = 171; //交易市场全选上限数量
+  bool  ShowBatchSell = 172; //批量出售按钮是否可见
+}
+
+message AlphaAward {
+  uint32         Count  = 1;
+  repeated Award Awards = 2;
+}
+
+//全局配置表
+message GlobalInfo {
+  string              RefreshTimeDaily                                  = 1;  //每日刷新时间点
+  uint32              RefreshTimeWeekly                                 = 2;  //每周刷新点
+  uint32              InitMoney                                         = 3;  //初始金币
+  uint32              InitMMR                                           = 4;  //初始MMR
+  uint32              RemoveCondMatchMMRMaxGap                          = 5;
+  uint32              RankMatchMMRMaxGap                                = 6;
+  uint32              MatchMinWaitTime                                  = 7;
+  uint32              MatchCondLoseTime                                 = 8;
+  uint32              MatchMMRMaxGap                                    = 9;
+  uint32              MatchMMREnlargeValue                              = 10;
+  uint32              MatchWinMaxGap                                    = 11;
+  uint32              RankMatchMinWaitTime                              = 12;
+  uint32              RankMatchCondLoseTime                             = 13;
+  uint32              RankMatchMMREnlargeValue                          = 14;
+  uint32              RankMatchWinMaxGap                                = 15;
+  uint32              RankMatchMMRMinGap                                = 16;
+  uint32              RankMatchMMREnlargeTime                           = 17;
+  uint32              RankMatchStrictMinCup                             = 18;
+  uint32              RankMatchHungerTime                               = 19;
+  uint32              PveMaxMatchTime                                   = 20;
+  uint32              PveMatchScoreGap                                  = 21;
+  string              ChatDirtyWordTip                                  = 22;
+  //uint32               DailyCandyMax              = 23; //每日对战获得糖果限制
+  uint32              DefaultSkin                                       = 24; //默认皮肤
+  uint32              DefaultScene                                      = 25; //默认场景
+  string              InitSkinList                                      = 26; //初始皮肤列表
+  string              InitSceneList                                     = 27; //初始场景列表
+  uint32              MMRProtectValue                                   = 28;
+  uint32              MmrCupAdd                                         = 29;
+  uint32              MmrDiscrete                                       = 30;
+  repeated AlphaAward AlphaOrderAwards                                  = 31;
+  repeated AlphaAward AlphaCompeteAwards                                = 32;
+  repeated Award      AlphaAwards                                       = 33;
+  repeated AlphaAward AlphaChargeAwards                                 = 34;
+  string              AlphaOrderTitle                                   = 35;
+  string              AlphaOrderContent                                 = 36;
+  string              AlphaCompeteTitle                                 = 37;
+  string              AlphaCompeteContent                               = 38;
+  string              AlphaTitle                                        = 39;
+  string              AlphaContent                                      = 40;
+  string              AlphaChargeTitle                                  = 41;
+  string              AlphaChargeContent                                = 42;
+  uint32              FrozenAsynCount                                   = 43;
+  uint32              FrozenDayAsynCount                                = 44;
+  uint32              EvalWeekMoneyLimit                                = 45;   //每周战斗获得糖果阈值
+  uint32              ChatInterval                                      = 46;
+  uint32              AiMaxCup                                          = 47;
+  repeated Award      AlphaTestAwards                                   = 48;   //内测奖励
+  string              AlphaTestMailTitle                                = 49;   //内测奖励邮件标题
+  string              AlphaTestMailContent                              = 50;   //内测奖励邮件内容
+  //uint32               ExposeLimit                = 51; // 玩家每天举报次数限制
+  uint32              ExposeCount                                       = 52; // 达到禁言的举报次数
+  uint32              SilenceTime                                       = 53; // 普通禁言时间
+  uint32              ExposePeriod                                      = 54; // 判断有效举报次数的时间段（s）
+  uint32              SilenceInterval                                   = 55; // 禁言周期
+  uint32              SilenceSeriousTime                                = 56; // 周期内重复禁言的禁言时间（s）
+  //uint32               FirstWinRank               = 57;     //定义首胜的名次范围  --弃用
+  repeated Award      FirstWinAwards                                    = 58;     //首胜奖励
+  string              SilenceSuccessTitle                               = 59; //禁言成功邮件标题
+  string              SilenceSuccessContent                             = 60; //禁言成功邮件内容
+  uint32              DefaultDamageEffect                               = 61; //默认伤害特效
+  string              InitDamageEffectList                              = 62; //赠送伤害特效列表
+  uint32              DefaultChatBubble                                 = 63; //默认聊天气泡
+  string              InitChatBubbleList                                = 64; //赠送聊天气泡列表
+  string              InitEmotionList                                   = 65; //赠送表情列表
+  float               DiamondCoefficient                                = 66; //付费糖果转化为免费糖果的系数
+  string              PassportReturnMailTitle                           = 67; //通行证购买返利邮件标题
+  string              PassportReturnMailContent                         = 68; //通行证购买返利邮件内容
+  repeated Award      PassportReturnAwards                              = 69; //通行证购买返利奖励
+  uint32              AccountLevelMainParameter                         = 70; //账号等级经验公式核心参数
+  uint32              AccountLevelReviseParameter1                      = 71; //账号等级经验公式修正参数1
+  int32               AccountLevelReviseParameter2                      = 72; //账号等级经验公式修正参数2
+  string              SeasonAwardMailTitle                              = 73; //赛季奖励邮件标题
+  string              SeasonAwardMailContent                            = 74; //赛季奖励邮件内容
+  string              AlphaActivityBeginTime                            = 75;
+  string              AlphaActivityEndTime                              = 76;
+  string              ResetMmrTitle                                     = 77;
+  string              ResetMmrContent                                   = 78;
+  string              BaseWeekDate                                      = 79;
+  string              ActivityAwardMailTitle                            = 80; //活动未领取奖励邮件标题
+  string              ActivityAwardMailContent                          = 81; //活动未领取奖励邮件内容
+  uint32              MeleeBeginWeekDay                                 = 82;
+  uint32              MeleeEndWeekDay                                   = 83;
+  uint32              HistoryPvpShowLimit                               = 84;
+  uint32              DefaultHeadPicFrame                               = 85; //头像框
+  string              InitHeadPicFrameList                              = 86;
+  uint32              DefaultChatDanmaku                                = 87; //聊天弹幕
+  string              InitChatDanmakuList                               = 88;
+  uint32              DefaultCombineEffect                              = 89; //棋子合成特效
+  string              InitCombineEffectList                             = 90;
+  uint32              DefaultWinTooltip                                 = 91; //连胜提示框
+  string              InitWinTooltipList                                = 92;
+  uint32              DefaultHeadPicPendant                             = 93; //头像挂件
+  string              InitHeadPicPendantList                            = 94;
+  uint32              DefaultChickenAction                              = 95; //棋手吃鸡特写动作
+  string              InitChickenActionList                             = 96;
+  uint32              DefaultRoundBeginPose                             = 97; //回合开始棋手静态POSE
+  string              InitRoundBeginPoseList                            = 98;
+  uint32              MaxMatchMmr                                       = 99;
+  string              MeleeTaskAwardTitle                               = 100;
+  string              MeleeTaskAwardContent                             = 101;
+  string              CommentBeginTime                                  = 102;    //评论引导功能开启时间
+  string              CommentEndTime                                    = 103;    //评论引导功能关闭时间
+  uint32              DailySmsLimit                                     = 104;    //每日短信限制
+  uint32              DailySmsPerLimit                                  = 105;    //每日每哥号码短信限制
+  string              PassportCashReturnMailTitle                       = 106; //通行证现金购买返利邮件标题
+  string              PassportCashReturnMailContent                     = 107; //通行证现金购买返利邮件内容
+  repeated Award      PassportCashReturnAwards                          = 108; //通行证现金购买返利奖励
+  string              WeeklyRefreshTaskMailTitle                        = 109; //未领取周刷新任务标题
+  string              WeeklyRefreshTaskMailContent                      = 110; //未领取周刷新任务内容
+  string              DailyAwardMailTitle                               = 111; //每日奖励邮件标题
+  string              DailyAwardMailContent                             = 112; //每日奖励邮件内容
+  repeated Award      DailyAwards                                       = 113; //每日奖励
+  string              BindPhoneNumberMailTitle                          = 114; //首次绑定手机号奖励邮件标题
+  string              BindPhoneNumberMailContent                        = 115; //首次绑定手机号奖励邮件内容
+  uint32              InviteInterval                                    = 116; //邀约的时间间隔
+  string              SharingCodeBeginTime                              = 117; //分享码活动开始时间
+  string              SharingCodeEndTime                                = 118; //分享码活动结束时间
+  uint32              SharingCodeValidityPeriod                         = 119; //分享码有效期
+  uint32              PvpCountLimit                                     = 120; //频繁对局次数限制
+  uint32              PvpCountLimitPeriod                               = 121; //频繁对局次数限制周期，单位秒
+  repeated Award      QQSvipLoginAwards                                 = 122; //
+  repeated Award      QQSvipContinuousLoginAwards                       = 123; //
+  repeated Award      QQGameCenterLoginAwards                           = 124; //
+  repeated Award      WeChatGameCenterLoginAwards                       = 125; //
+  string              QQCenterLaunchMailTitle                           = 126; //邮件标题
+  string              WXCenterLaunchMailTitle                           = 127; //邮件标题
+  string              QQSvipLoginMailTitle                              = 128; //邮件标题
+  string              QQSvipContinuousLoginMailTitle                    = 129; //邮件标题
+  string              CommonMailContent                                 = 130; //通用邮件内容
+  repeated Award      BindPhoneNumberAwards                             = 131; //首次绑定手机号奖励
+  string              FortuneBagBeginTime                               = 132; //福袋活动开始时间
+  string              FortuneBagEndTime                                 = 133; //福袋活动结束时间
+  uint32              BindOldAccountSafetyTime                          = 134; //绑定老账号安全操作时间
+  string              BindOldAccountRegisterDeadline                    = 135; //判断是否老账号的时间点
+  uint32              CreditScoreMin                                    = 136; //安全信用分min
+  uint32              CreditScoreMax                                    = 137; //安全信用分max
+  uint32              CreditScoreMinChatLv                              = 138; //安全信用聊天等级限制min
+  uint32              CreditScoreMaxChatLv                              = 139; //安全信用聊天等级限制max
+  uint32              PvpChatInterval                                   = 140; //pvp聊天时间
+  uint32              VoiceMark                                         = 141; //语音配置开关 0--所有都屏蔽 1--开启2v2阵营 2--开启战斗内所有 3--开启大厅和战斗内
+  uint32              RefreshCountryTime                                = 142; //刷新国家时间 单位天
+  uint32              RecommendPvpCount                                 = 143; //每次推荐战局数量
+  uint32              RecommendStandardScore                            = 144; //加入推荐战局标准分
+  uint32              NotRecommendSurviveCount                          = 145; //不加入推荐战局的最大人数
+  uint32              NotRecommendPlayTime                              = 146; //不加入推荐战局的最小战斗时长
+  uint32              MaxObserveCount                                   = 147; //每场战斗观战人数限制
+  string              InviteRegisterMailTitle                           = 148; //关系链邀请注册邮件标题
+  //uint32               Top3Coefficient              = 149; //推荐分计算前三率系数
+  //uint32               Top2Coefficient              = 150; //推荐分计算前二率系数
+  //uint32               Top1Coefficient              = 151; //推荐分计算吃鸡率系数
+  uint32              AIConfirmMaxTime                                  = 152; //AI确认最大时间
+  uint32              AIConfirmWaitTime                                 = 153; //AI确认等待事件
+  uint32              TLOGRankThreshold                                 = 154; //排行榜TLOG上报的最大数
+  int64               AudienceChatInterval                              = 155; //观战聊天间隔
+  string              TLOGItemTypeCap                                   = 156; //哪些道具类型下存量的TLOG
+  string              SeasonCompenstateTitle                            = 157; //赛季补偿邮件
+  string              SeasonCompenstateContent                          = 158; //赛季补偿邮件
+  uint32              NextChangeSlotInterval                            = 159; //换位时间间隔 单位秒
+  uint32              TLOGRankInterval                                  = 160; //排行榜TLOG上报时间间隔
+  uint32              MeleeRefreshWeekDay                               = 161; //梦境模式每周刷新时间
+  uint32              PassportLevelAwardLimit                           = 162;
+  string              PassportAwardMailTitle                            = 163; //
+  string              PassportAwardMailContent                          = 164; //
+  uint32              HistoryMessageFrequency                           = 165; //历史消息显示频率
+  string              PocketAutoChessShopMailTitle1                     = 166; //掌上自走棋付款提示邮件标题
+  string              PocketAutoChessShopMailContent1                   = 167; //掌上自走棋付款提示邮件内容
+  string              PocketAutoChessShopMailTitle2                     = 168; //掌上自走棋补款提示邮件标题
+  string              PocketAutoChessShopMailContent2                   = 169; //掌上自走棋补款提示邮件内容
+  string              PocketAutoChessShopMailTitle3                     = 170; //掌上自走棋退款提示邮件标题
+  string              PocketAutoChessShopMailContent3                   = 171; //掌上自走棋退款提示邮件内容
+  string              PocketAutoChessAssocciateMailTitle1               = 172; //掌上自走棋账户关联提示标题
+  string              PocketAutoChessAssocciateMailContent1             = 173; //掌上自走棋账户关联提示内容
+  string              TournamentCancelMailTitle                         = 174; //赛事取消返还物品邮件标题
+  string              TournamentCancelMailContent                       = 175; //赛事取消返还物品邮件内容
+  string              TournamentPointsRewardMailTitle                   = 176; //补发赛事进度奖励邮件标题
+  string              TournamentPointsRewardMailContent                 = 177; //补发赛事进度奖励邮件内容
+  string              TournamentRankRewardMailTitle                     = 178; //赛事积分排名奖励邮件标题
+  string              TournamentRankRewardMailContent                   = 179; //赛事积分排名奖励邮件内容
+  string              TournamentRoundRankRewardMailTitle                = 180; //轮次积分排行奖励邮件标题
+  string              TournamentRoundRankRewardMailContent              = 181; //轮次积分排行奖励邮件内容
+  string              TournamentSeasonalMatchEliminateRewardMailTitle   = 182; //季赛淘汰奖励邮件标题
+  string              TournamentSeasonalMatchEliminateRewardMailContent = 183; //季赛淘汰奖励邮件内容
+  string              DefaultNickname                                   = 184; //强制改名时的默认昵称
+  string              ForcedRenameMailTitle                             = 185; //强制改名邮件标题
+  string              ForcedRenameMailContent                           = 186; //强制改名邮件内容
+  repeated Award      SamsungOrderMailAwards                            = 187; //samsung预约礼包奖励
+  string              SamsungOrderMailTitle                             = 188; //三星预约礼包邮件标题
+  string              SamsungOrderMailContent                           = 189; //三星预约礼包邮件内容
+  string              MailReportSuccessTitle                            = 190; //举报成立邮件标题
+  string              MailReportSuccessContent                          = 191; //举报成立邮件内容
+  string              MailReportFailTitle                               = 192; //举报不成立邮件标题
+  string              MailReportFailContent                             = 193; //举报不成立邮件内容
+  string              ActivityRecruitMailTitle                          = 194; //好友召回邮件标题
+  string              ActivityRecruitMailContent                        = 195; //好友召回邮件内容
+  repeated Award      VNGCommentAward                                   = 196; //vng商店评论奖励
+  int64               VNGCommentAwardResetTime                          = 197; //vng商店评论时间
+  string              ForcedBannedChatMailTitle                         = 198; //举报禁言邮件标题
+  string              ForcedBannedChatMailContent                       = 199; //举报禁言邮件内容
+  string              ForcedFrozenMailTitle                             = 200; //举报封号邮件标题
+  string              ForcedFrozenMailContent                           = 201; //举报封号邮件内容
+  repeated uint32     RankCardRange                                     = 202; //段位保护卡适用范围
+  string              MailExchangeSellTitle                             = 203; //上架申请邮件标题
+  string              MailExchangeSellContent                           = 204; //上架申请邮件内容
+  string              MailExchangeGiftTitle                             = 205; //赠送邮件标题
+  string              MailExchangeGiftContent                           = 206; //赠送邮件内容
+  uint32              TeamMemberMmrHigh                                 = 207; //组队单人匹配最高分段(用于有皇后段位的玩家则其队友必须全是国王及以上)
+  uint32              TeamMemberMmrLow                                  = 208; //组队单人匹配最低分段
+  string              MailExchangeReceiveGiftTitle                      = 209; //接受赠送邮件标题
+  string              MailExchangeReceiveGiftContent                    = 210; //接受赠送邮件内容
+  int64               LogoutCountDown                                   = 211; //手游注销账号倒计时（秒）
+  string			  RoomWorkshopWatchMode								= 212; //创意工坊某些地图支持加入推荐对局(mapkey由平台页面配置)
+  uint32              PassportRefreshTimeWeekly                         = 213; //通行证周刷新时间(day)
+  string              MedalAwardTitle                                  	= 214; //勋章任务奖励补发邮件标题
+  string              MedalAwardContent                                 = 215; //勋章任务奖励补发邮件内容
+  int64               ObServerTime                                      = 216; //观战 数据留存时间
+  int32               AwardInvalidActivity                              = 217; //活动结束后发放奖励代领邮件的开关
+}
+
+message ExceptProData{
+  uint32 ExceptionPr = 1;    //期望概率
+  uint32 AddCrit     = 2;      //期望增量(真实的概率)
+}
+
+//期望概率系数表
+message ExceptProInfo{
+  repeated ExceptProData Datas = 1;
+}
+
+message ModeProData{
+  uint32          Mode   = 1;    //模式ID
+  string          Name   = 2;    //名字
+  uint32          PrMode = 3;    //模式概率
+  repeated uint32 Pr     = 4;    //排位概率
+  uint32          ObPro  = 5;    //观战概率
+}
+
+//模式概率系数表
+message ModeProInfo{
+  repeated ModeProData Datas = 1;
+}
+
+message PvpBox{
+  uint32 Id      = 1;          //宝箱ID
+  uint32 FallMax = 2;        //最大掉落
+  uint32 Weight  = 3;          //掉落权重
+}
+
+message PvpChestData{
+  string          TimeId       = 1;  //时间ID
+  uint32          ExceptionNum = 2;  //周期期望个数
+  string          BeginTime    = 3;  //开始时间
+  string          EndTime      = 4;  //结束时间
+  repeated PvpBox Boxs         = 5;  //对局宝箱数据
+  uint32          PramA        = 6;  //宝箱参数a
+  uint32          PramB        = 7;  //宝箱参数b
+  uint32          PramC        = 8;  //上限后宝箱参数c
+  uint32          PramD        = 9;  //调控参数D
+  PVPDROPTYPE     DropType     = 10; //0:参赛 1:观战 2:官方自定义
+  uint32          ID           = 11; //唯一Key
+  //模式id,只有在该模式下才能掉落保险,1,2,3模式id以,分割
+  string          PvpMode      = 12;
+}
+
+//对战宝箱配置表
+message PvpChestInfo{
+  repeated PvpChestData Datas = 1;
+}
+
+
+message ObserverChestData{
+  string          ID        = 1; //时间ID
+  string          BeginTime = 3; //开始时间
+  string          EndTime   = 4; //结束时间
+  repeated PvpBox Boxs      = 5; //对局宝箱数据
+}
+//观战宝箱配置表
+message ObserverChestInfo{
+  repeated ObserverChestData Datas = 1;
+}
+
+message CupData{
+  uint32  Cup              = 1;//杯段
+  string  Name             = 2;//杯段名称
+  uint32  Score            = 3;//所需分数
+  uint32  BufferScore      = 4;//缓冲分
+  uint32  SeasonResetScore = 5;//赛季重置分数
+  string  Info             = 6;//该字段客户端使用
+  uint32  MMRBasicFailK    = 7;//MMR失败基本分调整系数
+  string  Icon             = 8;//图标
+  string  Icon2            = 9;
+  CUPTYPE Class            = 10;//杯段分类
+  string  CupUrl           = 11;//杯段头像
+  string  Icon3            = 12;
+}
+
+message CupInfo{
+  repeated CupData Datas = 1;
+}
+
+message CupMatchPerfectData{
+  PVPMODE Mode              = 1;
+  uint32  Cup               = 2;//杯段
+  uint32  WaitTime          = 3;
+  uint32  PlayerCount       = 4;
+  uint32  MmrGap            = 5;
+  uint32  TiredTime         = 6;
+  uint32  AiStreakFailCount = 7;
+  uint32  FailRank          = 8;
+  uint32  TeamMatchTime     = 9;//队伍匹配时间
+  uint32  LanguageMatchTime = 10;//语言匹配时间
+  uint32  PlayerCountUpper  = 11;
+  uint32  RegionMatchTime   = 12;//区域匹配时间
+  string  Region            = 13;//匹配区域
+  uint32  WinningStreak     = 14;//连胜最低要求名次
+}
+
+message CupMatchPerfectInfo{
+  repeated CupMatchPerfectData Datas = 1;
+}
+
+message CupMatchExtendData{
+  PVPMODE Mode                    = 1;
+  uint32  Cup                     = 2;//杯段
+  uint32  PlayerCountCycleTime    = 3;
+  uint32  PlayerCountEnlargeValue = 4;
+  uint32  MinPlayerCount          = 5;
+  uint32  MMRGapCycleTime         = 6;
+  uint32  MMRGapEnlargeValue      = 7;
+  uint32  MaxMMRGap               = 8;
+  string  Region                  = 9;
+}
+
+message CupMatchExtendInfo{
+  repeated CupMatchExtendData Datas = 1;
+}
+
+//排位赛季结算奖励
+message RankSeasonEvalData{
+  uint32          Season     = 1; //赛季
+  uint32          Cup        = 2; //杯段
+  repeated Award  EvalAwards = 3; //结算奖励
+  repeated string Desc       = 4; //描述
+}
+
+message RankSeasonEvalInfo{
+  repeated RankSeasonEvalData Datas = 1;
+}
+
+message LanguageInfo{
+  repeated LanguageData Datas = 1;
+}
+
+//昵称表
+message NickNameInfo {
+  repeated NickName Datas = 1;
+}
+
+message NickName {
+  string NickName = 1;   //昵称
+}
+
+//脏字表
+message DirtyWordInfo {
+  repeated DirtyWord Datas = 1;
+}
+
+message DirtyWord {
+  string DirtyWord = 1;   //脏字
+}
+
+message ActiveCodeInfo{
+  repeated ActiveCode Datas = 1;
+}
+
+message ActiveCode {
+  string Code = 1;
+}
+
+//物品表
+message ItemInfo {
+  repeated ItemData Datas = 1;
+}
+
+message ChannelInfo {
+  CHANELTYPE Type = 1;
+  uint32     Id   = 2;
+}
+
+message ItemData {
+  uint32               Id                  = 1;    //物品Id
+  ITEMTYPE             Type                = 2;    //物品类型
+  string               Name                = 3;    //物品名称
+  ITEMQUALITY          Quality             = 4;    //物品品质
+  string               Icon                = 5;    //物品ICON
+  repeated Award       ConvertAwards       = 6;    //物品折算价格
+  string               Desc                = 7;    //物品描述
+  string               Model               = 8;    //物品模型标识
+  bool                 CanMultiply         = 9;    //是否可叠加
+  bool                 CanSell             = 10;   //是否可出售
+  ITEMCLASS1           Class1              = 11;   //一级分类
+  ITEMCLASS2           Class2              = 12;   //二级分类
+  uint32               SellLimit           = 13;   //售卖保留数量
+  ITEMSHAREBG          ShareBg             = 14;   //分享背景
+  string               ShareCheckerboard   = 15;   //棋手分享对应文本字段
+  repeated ChannelInfo Channels            = 16;   //客户端展示用
+  uint32               ComposeValue        = 17;   //合成值
+  bool                 Visible             = 18;   //仓库内是否可见
+  string               Belong              = 19;   //道具的归属棋手
+  bool                 BackpackDisplay     = 20;   //未拥有是否展示  1-展示  0-不展示
+  bool                 SaleConfirm         = 21;   //物品出售是否二次确认,1-确认，0-不确认
+  string               VideoResources      = 22;   //展示视频资源
+  string               ChestBlong          = 23;   //所属宝箱id
+  string               EffectBeginTime     = 24;  //物品生效时间
+  string               EffectEndTime       = 25;  //物品失效时间
+  bool                 JumpSwitch          = 26;  //获取途径引导开关
+  string               AchieveExplain      = 27;   //获取途径说明
+  uint32               Indate              = 28;   //物品有效期
+  bool                 ExpireAutoRemove    = 29;  //物品失效自动删除
+  string               VideoResourcesPC    = 30;   //展示视频资源(pc用)
+  bool                 CanExchange         = 31;   //是否能交易
+  int32                SmeltValue          = 32;   //熔炼值
+  string               PlatformLimitType   = 33;   //物品独占平台
+  uint32               PlatformLimitOnlyID = 34;   //独占资源显示
+  string               Serial              = 35;   //编号
+  uint32               Order               = 36;   // 
+  bool                 CanIdentify         = 37;   // 能否鉴定
+  //  ITEMIDENTIFYTYPE     IdentifyType        = 38;   // 鉴定方式
+  uint32               OriginId            = 39;   // 来源Id
+  uint32               SmeltLevel          = 40;   // 汰换等级
+  uint32               IdentifiedID        = 41;   // 鉴定后id, 用于可叠加物品鉴定后变为不可叠加物品，不可交易物品鉴定后转为可交易物品
+  string			   DisplayBeginTime	   = 42;   //展示开始时间
+  string			   DisplayEndTime	   = 43;   //展示结束时间
+  string			   OriginText		   = 44;   //来源多语言
+  string			   TradeBoxShow		   = 45;   //控制宝箱道具是否在列表中展示
+}
+
+//扭蛋随机表
+message EggAwardInfo {
+  repeated EggAward Datas = 1;
+}
+
+message EggAward {
+  uint32      Id        = 1;    //奖励序列号
+  Award       AwardItem = 2;    //奖励
+  uint32      Weight    = 3;    //权重
+  uint32      EggId     = 4;    //所属扭蛋ID
+  EGGPOOLTYPE PoolType  = 5;    //随机池类型
+  bool        IsDisplay = 6;    //是否展示
+}
+
+//改名表
+message SetNameData{
+  uint32           Count    = 1;  //次数
+  SETNAMETYPE	   Type     = 2;  //类型
+  repeated Consume Consumes = 3;  //消耗列表
+}
+
+message SetNameInfo{
+  repeated SetNameData Datas = 1;
+}
+
+//名字随机表
+message RandomNameInfo {
+  repeated RandomNameData Datas = 1;
+}
+
+message RandomNameData {
+  string SingleName    = 1;    //单名
+  string CombinedName1 = 2;    //组合名1
+  string CombinedName2 = 3;    //组合名2
+  string CombinedName3 = 4;    //组合名3
+  string CombinedName4 = 5;    //组合名4
+}
+
+message EvalData{
+  PVPMODE Mode       = 1;
+  uint32  Rank       = 2;
+  uint32  MaxMoney   = 3;
+  uint32  MinMoney   = 4;
+  uint32  BattleStar = 5;
+}
+
+message EvalInfo{
+  repeated EvalData Datas = 1;
+}
+
+message MmrChangeData{
+  uint32 Cup            = 1;
+  uint32 AddCoefficient = 2;
+  uint32 DecCoefficient = 3;
+  uint32 AddLimit       = 4;
+}
+
+message MmrChangeInfo{
+  repeated MmrChangeData Datas = 1;
+}
+
+message MmrRankCoefficientData{
+  uint32 Cup         = 1;
+  uint32 Rank        = 2;
+  double Coefficient = 3;
+}
+
+message MmrRankCoefficientInfo{
+  repeated MmrRankCoefficientData Datas = 1;
+}
+
+message MmrWinFailCoefficientData{
+  uint32 Cup         = 1;
+  uint32 Rank        = 2;
+  double Coefficient = 3;
+}
+
+message MmrWinFailCoefficientInfo{
+  repeated MmrWinFailCoefficientData Datas = 1;
+}
+
+message ChessPlayerData{
+  uint32          Id                = 1;
+  string          Name              = 2;
+  string          Icon              = 3;
+  repeated uint32 Skins             = 4;
+  string          Costume           = 5;
+  string          Weapon            = 6;
+  string          Mount             = 7;
+  string          X                 = 8;
+  string          Y                 = 9;
+  string          ScaleX            = 10;
+  string          ScaleY            = 11;
+  bool            ShowTheBase       = 12; //是否显示底座
+  string          MedalOffsetPhoneX = 13; // 勋章偏移量
+  string          MedalOffsetPhoneY = 14; // 勋章偏移量
+  string          MedalOffsetPCX    = 15; // 勋章偏移量
+  string          MedalOffsetPCY    = 16; // 勋章偏移量
+  string          SkinPic           = 17; // 立绘
+}
+
+message ChessPlayerInfo{
+  repeated ChessPlayerData Datas = 1;
+}
+
+message GuideData{
+  string Key        = 1;
+  string SequenceId = 2;
+}
+
+// 新手引导表
+message GuideInfo{
+  repeated GuideData Datas = 1;
+}
+
+//制作人员名单
+message StaffInfo {
+  string          DragonNestLogo = 1;
+  string          DuoduoLogo     = 2;
+  repeated string Staffs         = 3;
+}
+
+//不需激活码，可以直接登录游戏的玩家表
+message DirectLoginPlayerInfo {
+  repeated DirectLoginPlayerData Datas = 1;
+}
+
+message DirectLoginPlayerData {
+  string Id = 1;    //龙渊uid
+}
+
+message RegionData{
+  string Region      = 1;
+  string IdPrefix    = 2;
+  uint32 MaxMatchMmr = 3;
+}
+
+message RegionInfo{
+  repeated RegionData Datas = 1;
+}
+
+//手机型号表
+message PhoneTypeInfo {
+  repeated PhoneTypeData Datas = 1;
+}
+
+message PhoneTypeData {
+  string DeviceName = 1;    //手机型号
+  uint32 Level      = 2;    //
+}
+
+//充值表
+message ChargeInfo {
+  repeated ChargeData Datas = 1;
+}
+
+message GoodsName {
+  string ChannelName = 1;    //渠道名
+  string Name        = 2;    //商品名
+}
+
+message ChargeData {
+  uint32             Id           = 1;    //充值ID
+  string             Desc         = 2;    //描述
+  CHANELTYPE         ChannelType  = 3;    //渠道类型
+  CHARGETYPE         Type         = 4;    //充值类型
+  uint32             Price        = 5;    //价格
+  uint32             Diamond      = 6;    //获得钻石
+  uint32             ExtraDiamond = 7;    //额外获得钻石
+  string             Icon         = 8;    //充值档图标
+  string             ChannelInfo  = 9;    //渠道信息
+  CURRENCYTYPE       Unit         = 10;   //价格单位
+  repeated Award     Awards       = 11;   //充值奖励
+  int32              PrivatePara  = 12;   //辅助参数
+  repeated GoodsName GoodsNames   = 13;   //商品名
+  uint32             Add          = 14;   //充值额外赠送diamond
+  string             Show         = 15;   //虚拟道具信息
+  string             Currency     = 16;   //货币类型
+  repeated Award     AwardsValue  = 17;   //商品价值
+  string             SubIcon      = 18;   //pc客户端使用icon
+  PSCHARGETYPE       PsType       = 19;  //ps充值类型
+}
+
+//物品多项配置表
+message MultiConfigInfo {
+  repeated MultiConfigData Datas = 1;
+}
+
+message MultiConfigData {
+  ITEMTYPE Type        = 1;   //物品类型
+  bool     Random      = 2;   //多配置下是否随机
+  uint32   MinSetCount = 3;   //最小配置数量
+  uint32   MaxSetCount = 4;   //最大配置数量
+  string   Desc        = 5;   //描述
+}
+
+message ModeData{
+  PVPMODE        Mode                 = 1;
+  string         Name                 = 2;
+  uint32         Lvl                  = 3;
+  uint32         PlayerNum            = 4;
+  uint32         TeamPlayerNum        = 5;
+  bool           ChangeMmr            = 6;
+  bool           ChangeExp            = 7;
+  uint32         AiCompetitionCnt     = 8;
+  uint32         AiCup                = 9;
+  uint32         FirstWinRank         = 10;  // 首胜触发名次
+  bool           CommentSwitch        = 11;  // 评论引导开关
+  uint32         CommentRank          = 12;  // 评论引导触发名次
+  bool           ChangeBattleStar     = 13;  // 是否可获得战星
+  uint32         CampPlayerCount      = 14;  // 每个阵营玩家数量
+  uint32         Class                = 15;  // 所属分类
+  uint32         ActItemExch          = 16;  // 集道具活动是否开启
+  uint32         RecommendRatio       = 17;  // 推荐比例
+  bool           RecommendFlag        = 18;  // 推荐标识
+  bool           FollowObserveFlag    = 19;  // 好友观战标识
+  bool           ApplyAI              = 20;  // 是否适用AI局规则判断
+  bool           CanForbidden         = 21;  // 是否受惩罚影响
+  bool           CanShowAudienceChat  = 22;  // 是否允许对局玩家查看观众聊天
+  bool           HidePlayerInfo       = 23;  // 游戏确认阶段是否隐藏玩家信息
+  bool           ApplyCustomMode      = 24;  // 自定义房间是否可以使用
+  string         ModeEffects          = 25;  // 模式特效
+  int32          AudienceNumLimit     = 26;  // 观众上限
+  int32          JudgmentNumLimit     = 27;  // 裁判上限
+  int64          TimeOutCd            = 28;  // 暂停冷却时间
+  int64          TimeOutMaxTime       = 29;  // 最大暂停时间
+  bool           CanUnlockPicbook     = 30;  // 是否可解锁图鉴
+  int32          MoneyModSwitch       = 31;  // 赏金功能开关(官方模式)
+  int32          MoneyModsys          = 32;  // 赏金系统分成(官方模式)
+  repeated int32 MoneyModProportion   = 33;  // 赏金分成比例(官方模式)
+  int32          IsMobileMode         = 34;  // 为1时，端游不显示相关信息
+  bool           WatchTransactionCase = 35;  // 观战是否掉落宝箱
+  ModeClassType1 ModeClassType1       = 36;  // ModeClassType1
+  ModeClassType2 ModeClassType2       = 37;  // ModeClassType2
+  int32          Sort                 = 38;  // 排序
+  uint32         QueenRankLimit       = 39;  // 皇后段位展示排名限制
+  bool           ChessGroupSwitch     = 40; //  棋组方案开关
+  uint32         ChessGroupInjectionRound     = 41; //棋组注入回合
+  string		 TaskModeBeginTime    = 42;  // 任务模式开始时间
+  string		 TaskModeEndTime      = 43;  // 任务模式关闭时间
+}
+
+enum ModeClassType1 {
+  MODECLASSTYPE1_NULL    = 0;
+  MODECLASSTYPE1_CLASSIC = 1; // 经典模式
+  MODECLASSTYPE1_FUN     = 2; // 娱乐模式
+  MODECLASSTYPE1_TEACH   = 3; // 教学模式
+  MODECLASSTYPE1_CUSTOM  = 4; // 自建房
+}
+
+enum ModeClassType2 {
+  MODECLASSTYPE2_NULL  = 0;
+  MODECLASSTYPE2_RANK  = 1; // 排位
+  MODECLASSTYPE2_RELAX = 2; // 休闲
+}
+
+message ModeInfo{
+  repeated ModeData Datas = 1;
+}
+
+message ModeSortData {
+  uint32 ModeId    = 1;  // 模式ID
+  uint32 Index     = 2;  // 排序
+  uint32 PageIndex = 3;  // 页签排序
+}
+
+//模式排序表
+message ModeSortInfo{
+  repeated ModeSortData Datas = 1;
+}
+
+//通行证等级表
+message PassportLevelInfo {
+  repeated PassportLevelData Datas = 1;
+}
+
+message PassportLevelData {
+  string Level      = 1;    //等级
+  uint32 BattleStar = 2;    //升级所需战星
+  uint32 ShareType  = 3;    //等级分享类型,客户端用
+  uint32 Loop       = 4;    //循环(配合Level计算真实level = level+Loop*Spacing)
+  uint32 Spacing    = 5;    //间隔(配合Level计算真实level = level+Loop*Spacing)
+}
+
+//通行证等级奖励表
+message PassportLevelAwardInfo {
+  repeated PassportLevelAwardData Datas = 1;
+}
+
+message PassportLevelAwardData {
+  uint32         Id           = 1;    //奖励ID
+  uint32         Season       = 2;    //赛季
+  repeated Award Awards       = 3;    //免费奖励
+  repeated Award ChargeAwards = 4;    //付费奖励
+  uint32         Value        = 5;    //奖励价值
+  string         Level        = 6;    //等级
+  bool           Enhanced     = 7;    //是否显示增强
+  string         SpecialTip   = 8;    //特殊提示框
+  uint32         Loop         = 9;    //循环(配合Level计算真实level = level+Loop*Spacing)
+  uint32         Spacing      = 10;   //间隔(配合Level计算真实level = level+Loop*Spacing)
+  bool           IsPainting   = 11;   //是否为立绘
+}
+
+//通行证进阶表
+message PassportInfo {
+  repeated PassportData Datas = 1;
+}
+
+message PassportData {
+  uint32           Id                    = 1; //通行证ID
+  PASSPORTTYPE     Type                  = 2; //通行证类型
+  uint32           TypeId                = 3; //通行证类型ID(对应通行证类型表)
+  repeated Consume Consumes              = 4; //购买此通行证消耗
+  string           OnSaleBeginTime       = 5; //打折开始时间
+  string           OnSaleEndTime         = 6; //打折结束时间
+  repeated Award   Awards                = 7; //购买附加奖励
+  PURCHASETYPE     PurchaseType          = 8; //购买类型
+  uint32           ShowUpLevel           = 9; //直升等级提示
+  uint32           SpecialNameShowType   = 10; //专属昵称展示方案
+  repeated uint32  ShowAwards            = 11; //展示奖励
+  uint32           Coefficient           = 12; //积分加成系数
+  uint32           Period                = 13; //通行证赛季
+  uint32           Segment               = 14; //当前段
+  string           PreCondTypeId         = 15; //分段购买前置条件TypeID
+  string           ConflictTypeId        = 16; //分段购买冲突条件TypeID
+  uint32           SpecialNameShowWeight = 17; //昵称展示权值
+  uint32           ContinuousSeasons     = 18; //年卡持续赛季数
+}
+
+//通行证任务表
+message PassportTaskInfo {
+  repeated PassportTaskData Datas = 1;
+}
+
+message PassportTaskData {
+  uint32            Id               = 1; //任务ID
+  uint32            Season           = 2; //赛季 已废弃
+  PASSPORTTASKTYPE  Type             = 3; //任务类型
+  string            Title            = 4; //任务标题
+  string            Desc             = 5; //任务描述
+  uint32            Unit             = 6; //任务条件单位
+  Cond              Cond             = 7; //任务完成条件
+  repeated Award    Awards           = 8; //任务完成奖励
+  uint32            RankLimit        = 9;//完成回合要求
+  uint32            CondGroup        = 10;//任务组
+  uint32            PreCondGroup     = 11;//前置任务组
+  bool              ProgressInherit  = 12;//进度是否继承前置任务进度
+  repeated Consume  TaskCardConsumes = 13;//任务卡消耗
+  bool              IsCharge         = 14;//是否是付费任务  0-免费  1-付费
+  bool              IsDifficult      = 15;//是否是困难任务
+  uint32            SeriesID         = 16;//序列ID
+  uint32            QuestLevel       = 17; //通行证等级分享类型
+  PassportShareType QuestShareType   = 18; //通行证任务分享奖励类型:1,通用;2 特殊
+  string            MissionStartTime = 19; // 任务开始时间
+  string            MissionENdTime   = 20; // 任务开始时间
+  uint32            PoolId           = 21; //所属任务池id
+}
+
+
+//通行证任务表
+message AchieveTaskInfo {
+  repeated TaskInfo Datas = 1;
+}
+
+//通行证类型表
+message PassportTypeInfo {
+  repeated PassportTypeData Datas = 1;
+}
+
+message PassportTypeData {
+  uint32           TypeId               = 1; //类型ID
+  int32            LogId                = 2; //日志统计ID
+  string           UnlockLevel          = 3; //分段通行证等级奖励限制
+  string           LanguageKey          = 4; //语言key
+  string           LastBuyConsumes      = 5; //消费推荐方案
+  uint32           Recommend            = 6; //投放推荐方案
+  uint32           ShowAwardLevelLimit  = 7; //奖励展示限制等级
+  bool             PlayerInfoBackground = 8; //局内玩家信息底版开关
+  PASSPORTCARDTYPE CardType             = 9; //卡号类型
+  uint32           CoverLevel           = 10; //通行证类型覆盖顺序
+}
+
+message SeasonData {
+  uint32         Id                = 1;
+  string         BeginDate         = 2;
+  string         EndDate           = 3;
+  uint32         Cup               = 4;
+  string         CondDesc          = 5;
+  Cond           Cond              = 6;
+  repeated Award Awards            = 7;
+  string         PassportBeginDate = 8;    //通行证开始时间
+  string         PassportEndDate   = 9;    //通行证结束时间
+}
+
+message SeasonInfo {
+  repeated SeasonData Datas = 1;
+}
+
+message AccountLevelInfo {
+  repeated LevelData Datas = 1;
+}
+
+message LevelData {
+  uint32         Level   = 1;   // 等级
+  uint32         NeedExp = 2;   // 到下一级需要的经验
+  repeated Award Awards  = 3;   // 奖励
+}
+
+//棋子信息表（用于任务进度计算）
+//{excel:棋子表-out:chessinfo-module:ChessModule}
+message ChessInfo {
+  repeated ChessData Datas = 1;
+}
+
+message ChessData {
+  uint32          Id                        = 1;    //棋子详细ID
+  repeated uint32 Races                     = 2;    //种族
+  repeated uint32 Professions               = 3;    //职业
+  uint32          Quality                   = 4;    //品质
+  uint32          Star                      = 5;    //星级
+  uint32          ChessId                   = 6;    //棋子ID
+  bool            ShowTheBase               = 7;   //原始棋子是否显示底座
+  CHESSSTATUS     RetreatEnvironment        = 8; //是否退环境
+  bool            ShowTheBaseTransformation = 9; //棋子变身是否显示底座
+  bool            ShowTheBaseSummon         = 10; //棋子召唤物是否显示底座
+  uint32          KernelChessId             = 11; //棋子内核id
+}
+
+//宝箱开启方式数据
+message OpenData {
+  CHEST_OPEN_TYPE Type     = 1;    //开启类型(高阶密藏、普通密藏)
+  uint32          PoolId   = 2;    //掉落池
+  uint32          KeyId    = 3;    //钥匙id
+  uint32          KeyNum   = 4;    //钥匙
+  string          ShowRate = 5;    //展示概率
+}
+
+
+//道具表
+message PropInfo {
+  repeated PropData Datas = 1;
+}
+
+message PropData {
+  uint32            Id                 = 1; //道具ID
+  ITEMTYPE          Type               = 2; //物品类型
+  int64             Indate             = 3; //道具本身有效期
+  int64             EffectIndate       = 4; //道具效果持续时间
+  uint32            Coefficient        = 5; //加成系数
+  repeated Award    UseAwards          = 6; //道具使用奖励
+  uint32            PoolId             = 7; //掉落池Id
+  uint32            RandCount          = 8; //随机宝箱单次掉落数量
+  bool              CanPutBack         = 9; //随机宝箱是否放回抽取
+  uint32            ExperienceTargetId = 10;//体验卡目标对象
+  string            ActivityGroupType  = 11;//道具归属活动组id
+  string            ShowDropRate       = 12;//掉落概率展示
+  uint32            FallId             = 13;//掉落id
+  uint32            KeyId              = 14;//钥匙id
+  uint32            KeyNum             = 15;//钥匙数量
+  DEDUCTIONTYPE     DeductionType      = 16;//抵扣券类型
+  string            PurchaseId         = 17;//购买方案id
+  uint32            DeductionId        = 18;//抵扣货币id
+  uint32            DeductionRate      = 19;//抵扣货币比例
+  uint32            DeductionNum       = 20;//抵扣货币数量
+  string            BoxOpenType        = 21;//宝箱打开方式
+  uint32            PassportTypeId     = 22;//通行证分段ID
+  string            PurchaseType       = 23; // ITEMTYPE 商城抵扣可用的物品类型,多类型用英文逗号隔开
+  string            PurchaseItemId     = 24; //商城抵扣购买物品id,多个id 用 `,` 分隔
+  EXPERIENCE_TYPE   ExperienceType     = 25; //体验卡类型
+  uint32            CumulativeRewardId = 27; //宝箱保底奖励表
+  bool              Reductionswitch    = 28; // 是否减价礼包
+  repeated uint32   ExtraPoolId        = 29; // 额外掉落池Id
+  repeated uint32   ExtraRandCount     = 30; // 额外随机宝箱单次掉落数量
+  repeated bool     ExtraCanPutBack    = 31; // 额外随机宝箱是否放回抽取
+  repeated string   ExtraShowDropRate  = 32; // 额外掉落概率展示
+  bool              ChoiceBoxSwitch    = 33; // 是否自选礼包
+  string            ActivateSeasonId   = 34; // 能激活的赛季ID
+  string            ActivateTypeId     = 35; // 能激活的通行证类型
+  uint32            TransformSwitch    = 36; // 重复激活卡转化物品开关
+  uint32            TransformItemId    = 37; // 重复激活卡转化物品ID
+  uint32            TransformItemNum   = 38; // 转化物品数量
+  bool              UnrepeatBoxSwitch  = 39; // 去重礼包标记
+  string            ActivateItemId     = 40; // 多选一激活卡付费项货币
+  string            ActivatePrice      = 41; // 多选一激活卡付费项货币
+  repeated OpenData OpenChest          = 42; // 开启方式
+  bool              SkipKeyAnimation   = 43; // 跳过钥匙动画
+  CHESOPENTYPE      ChestOpenType      = 44; // 宝箱开启类型(服务器专用)
+  string            ChestOpenTime      = 45; // 宝箱可开启时间
+}
+
+// 宝箱保底奖励表
+message CumulativeInfo {
+  repeated CumulativeData Datas = 1;
+}
+
+message CumulativeData {
+  uint32                   Id            = 1; // 保底ID
+  bool                     RewardReset   = 2; // 重置标记
+  repeated CumulativeAward Cumulative    = 3; // 保底奖励
+  repeated string          Rewardpicture = 4;
+}
+
+message CumulativeAward {
+  uint32 Reward = 1;
+  uint32 Num    = 2;
+  uint32 Cond   = 3;
+}
+
+//任务条件释义表
+message CondParaphraseInfo {
+  repeated CondParaphraseData Datas = 1;
+}
+
+message CondParaphraseData {
+  int32          Cond = 1;    //条件类型
+  repeated int32 Para = 2;    //参数
+}
+message MeleeData {
+  uint32         Week            = 1;
+  uint32         Rule            = 2;
+  Cond           Cond            = 3;
+  string         CondDesc        = 4;
+  repeated Award Awards          = 5;
+  string         Desc            = 6;
+  uint32         CampPlayerCount = 7; //每个阵营玩家数量
+  bool           ApplyAI         = 8; //是否适用AI局规则判断
+}
+
+message MeleeInfo {
+  repeated MeleeData Datas = 1;
+}
+
+//活动组表
+message ActivityGroupInfo {
+  repeated ActivityGroupData Datas = 1;
+}
+
+//活动表
+message ActivityInfo {
+  repeated ActivityData Datas = 1;
+}
+
+//活动公共属性表
+message ActivityAttrInfo {
+  repeated ActivityAttrData Datas = 1;
+}
+
+
+message PsActivity {
+  uint32 ModeId          = 1;  //模式id
+  string ActivityId      = 2;  // PS5活动
+  uint32 Lvl             = 3;  // 等级
+  uint32 CampPlayerCount = 4;  // 阵营玩家数量
+}
+//PS5活动表
+message PsActivityInfo {
+  repeated PsActivity Datas = 1;
+}
+
+//阵容表
+message LineUpInfo {
+  repeated LineUpData Datas = 1;
+}
+
+message LineUpData {
+  uint32          RaceId = 1;    //种族ID
+  string          Icon   = 2;    //图标
+  string          Desc   = 3;    //描述
+  uint32          Weight = 4;    //权重
+  repeated uint32 Modes  = 5;    //模式
+}
+
+//流派表
+message GenreInfo {
+  repeated GenreData Datas = 1;
+}
+
+message GenreData {
+  uint32                RaceId           = 1;    //种族ID
+  uint32                Id               = 2;    //流派ID
+  string                Name             = 3;    //流派名字
+  string                Desc             = 4;    //描述
+  float                 Difficulty       = 5;    //上手难度
+  string                ChessList        = 6;    //棋子列表
+  string                AdvantageList    = 7;    //阵容优势
+  string                WeaknessList     = 8;    //阵容劣势
+  string                PriorChessList   = 9;    //优先三星的棋子列表
+  repeated StandbyChess StandbyChessList = 10;   //备选棋子列表
+  string                ShareName        = 11;   //吃鸡分享阵容文本
+  string                ShareTex         = 12;   //吃鸡分享阵容描述文本
+  repeated uint32       Modes            = 13;   //模式
+  uint32                VideoId          = 14;   //视频id
+  string                CoreChess        = 15;   // 核心棋子
+  string                ChessLevel       = 16;   // 棋子星级
+  int32                 Display          = 17;   // 是否展示
+  string                ChessTeamPlan    = 18;   // 卡组
+  string                TypeId           = 19;   // 卡组所属方typeId
+}
+
+message StandbyChess {
+  string Left  = 1;
+  string Right = 2;
+}
+
+//扭蛋表gashapon
+message EggInfo {
+  repeated EggData Datas = 1;
+}
+
+message EggConsume {
+  uint32           Count    = 1;    //连抽次数
+  repeated Consume Consumes = 2;    //连抽消耗
+}
+
+message EggData {
+  uint32              Id                   = 1; //扭蛋ID
+  EGGTYPE             Type                 = 2; //扭蛋类型
+  string              Name                 = 3; //扭蛋名字
+  string              BeginShowTime        = 4; //展示开始时间
+  string              EndShowTime          = 5; //展示结束时间
+  string              BeginTime            = 6; //开始时间
+  string              EndTime              = 7; //结束时间
+  uint32              Order                = 8; //展示优先级
+  string              Desc                 = 9; //扭蛋描述
+  int32               MaxCount             = 10;//扭蛋最大抽取次数
+  repeated EggConsume BuyHeadPicConsume    = 11;//扭蛋头像购买消耗
+  uint32              GuaranteeCount       = 12;//扭蛋保底次数
+  repeated Consume    OriginalPrice        = 13;//扭蛋头像单次购买原价
+  bool                FirstGuarantee       = 14;//该扭蛋是否支持首抽保底功能
+  string              Icon                 = 15;//扭蛋图标
+  repeated Consume    EggLotteryConsumes   = 16;//扭蛋抽奖消耗
+  repeated Award      BuyHeadPicAwards     = 17;//购买扭蛋头像奖励
+  repeated Award      BuyHeadPicGiveAwards = 18;//购买扭蛋头像赠送奖励
+  string              SubName              = 19;//副标题
+  string              ShowDropRate         = 20;//概率展示
+}
+
+//商品表
+message GoodsInfo {
+  repeated GoodsDetail Datas = 1;
+}
+
+message GoodsDetail {
+  uint32           Id         = 1; //商品ID
+  string           Name       = 2; //商品名字
+  string           Desc       = 3; //商品描述
+  repeated Award   Awards     = 4; //商品内容
+  repeated Consume Consumes   = 5; //商品价格
+  string           Icon       = 6; //商品图标
+  string           Background = 7; //商品背景
+}
+
+//商品随机表
+message GoodsRandInfo {
+  repeated GoodsRandData Datas = 1;
+}
+
+message GoodsRandData {
+  SHOPTYPE         Type      = 1; //商店类型
+  bool             Forbid    = 2; //格子时候失效
+  repeated RandLib RandLibs  = 3; //商品库
+  uint32           Uid       = 4; //唯一ID
+  uint32           DropCount = 5; //掉落数量
+}
+
+message RandLib {
+  uint32 Id     = 1; //商品ID
+  uint32 Count  = 2; //商品数量
+  uint32 Weight = 3; //商品权重
+}
+
+//通行证商品表
+message PassportShopInfo {
+  repeated PassportShopData Datas = 1;
+}
+
+message PassportShopData {
+  uint32           Id            = 1;    //Id
+  repeated Award   Awards        = 2;    //商品内容
+  repeated Consume Consumes      = 3;    //商品价格
+  uint32           PassportLevel = 4;    //通行证登记限制
+  uint32           BuyLimit      = 5;    //购买限制
+  REFRESHTYPE      RefreshType   = 6;    //刷新方式
+  uint32           SortId        = 7;    //排序Id
+  uint32           SeasonId      = 8;    //赛季
+}
+
+//随机宝箱掉落池表
+message RandChestAwardInfo {
+  repeated RandChestAward Datas = 1;
+}
+
+//减免货币
+message Reduction {
+  int32 Id    = 1;//减免货币id
+  int32 Count = 2;//减免货币数量
+}
+
+
+message RandChestAward {
+  uint32             Id         = 1;    //奖励序列号
+  uint32             PoolId     = 2;    //掉落池池Id
+  Award              AwardItem  = 3;    //奖励
+  uint32             Weight     = 4;    //权重
+  uint32             ShowWeight = 5;    //展示权重
+  bool               IsHide     = 6;    //是否隐藏
+  bool               Isrepeat   = 7;
+  repeated Reduction Reduction  = 8;
+  bool               IsRarePool = 9; // 珍稀掉落 每个奖励独立抽取 权重为万分率
+}
+
+//渠道功能开关表
+message ChannelFunctionInfo {
+  repeated ChannelFunctionData Datas = 1;
+}
+
+//商城商品表
+message MallGoodsInfo {
+  repeated MallGoodsData Datas = 1;
+}
+
+//商城栏位表
+message MallTabInfo {
+  repeated MallTabData Datas = 1;
+}
+
+//商城公告表
+message MallNoticeInfo {
+  repeated MallNoticeData Datas = 1;
+}
+
+//AI局触发条件表
+message GameLimit {
+  PVPMODE Mode  = 1;    //模式
+  uint32  Count = 2;    //游戏局数
+}
+
+message RankLimit {
+  repeated PVPMODE Modes     = 1;    //模式
+  uint32           Rank      = 2;    //排名
+  bool             IncludeAI = 3;    //是否包含AI局
+  uint32           Count     = 4;    //第几局
+}
+
+message AITriggerInfo {
+  repeated AITriggerData Datas = 1;
+}
+
+message AITriggerData {
+  uint32             TriggerId     = 1;    //ID
+  AITRIGGERTYPE      TriggerType   = 2;    //触发条件类型
+  repeated PVPMODE   Modes         = 3;    //触发模式
+  uint32             MaxCount      = 4;    //最大游戏场次
+  uint32             MinMMR        = 5;    ////MMR范围
+  uint32             MaxMMR        = 6;    //MMR范围
+  uint32             ScoreRange    = 7;    //离当前段位分数范围
+  uint32             NoLoginDays   = 8;    //连续未登录天数
+  repeated GameLimit GameLimits    = 9;    //游戏场次限制
+  repeated RankLimit RankLimits    = 10;   //排名限制
+  uint32             MaxTeamAvgMMR = 11;   //最大队伍平均值MMR
+  uint32             MinTeamAvgMMR = 12;   //最小队伍平均值MMR
+}
+
+//AI局辅助表
+message AIAssistantInfo {
+  repeated AIAssistantData Datas = 1;
+}
+
+message AIAssistantData {
+  uint32             Id         = 1;    //效果ID
+  uint32             TriggerId  = 2;    //
+  repeated PVPMODE   Modes      = 3;    //辅助模式
+  uint32             PlayCount  = 4;    //第几局
+  uint32             MaxMMR     = 5;    //MMR限制
+  repeated RankLimit RankLimits = 6;    //排名限制
+  uint32             AiEvalMMr  = 7;    //ai结算的mmr
+}
+
+// 每日签到奖励表
+message DaySignAwardInfo {
+  repeated DaySignAward Datas = 1;
+}
+
+// 每日签到奖励
+message DaySignAward {
+  uint32         Day       = 1;    // 第几天
+  bool           IsSpecial = 3;    // 是否是特殊奖励
+  repeated Award Awards    = 2;    // 奖励内容
+}
+
+
+// 活动每日签到奖励表
+message ActDaySignAwardInfo {
+  repeated ActDaySignAward Datas = 1;
+}
+
+// 活动每日签到奖励
+message ActDaySignAward {
+  uint32         ActivityGroupId = 1;   // 活动组ID
+  uint32         Day             = 2;    // 第几天
+  bool           IsSpecial       = 3;    // 第几天
+  repeated Award Awards          = 4;    // 奖励内容
+  uint32         SignDay         = 5;    // 大奖配置规则
+}
+
+// 活动每日签到重签消耗表
+message ActReSignConsumeInfo {
+  repeated ActReSignConsume Datas = 1;
+}
+
+// 活动每日活动重签消耗
+message ActReSignConsume {
+  uint32           ActivityGroupId = 1;   // 活动组ID
+  uint32           ReSiginTimes    = 2;   // 重签次数
+  repeated Consume Conds           = 3;     // 商品价格
+}
+
+// 动态提示表
+message DynamicTipsInfo {
+  repeated DynamicTips Datas = 1;
+}
+
+// 动态提示
+message DynamicTips {
+  uint32          ID      = 1;
+  string          TipsDes = 2;
+  repeated int32  Cond    = 3;
+  repeated string Param   = 4;
+  int32           JumpID  = 5;
+}
+
+
+// 累计分享次数奖励表
+message MonthShareAwardInfo {
+  repeated MonthShareAward Datas = 1;
+}
+
+// 累计分享次数奖励
+message MonthShareAward {
+  uint32         Count  = 1;  // 月累计分享次数
+  repeated Award Awards = 2;  // 奖励
+}
+
+//棋子分享表
+message ChessShareInfo {
+  repeated ChessShareData Datas = 1;
+}
+
+message ChessShareData {
+  string Name         = 1; //名字
+  string X            = 2; //对应界面预制该节点的X坐标
+  string Y            = 3; //对应界面预制该节点的Y坐标
+  string ScaleX       = 4; //对应界面预制该节点的X坐标缩放值
+  string ScaleY       = 5; //对应界面预制该节点的Y坐标缩放值
+  string CharacterTex = 6;
+  string CharacterDec = 7;
+  uint32 Type         = 8;
+}
+
+// 国家表
+message CountryInfo {
+  repeated CountryData Datas = 1;
+}
+
+message CountryData {
+  string Country          = 1; //国家名字
+  string Continent        = 2; //洲
+  string CountryLog       = 3; //国旗图标
+  uint32 Sort             = 4; //大洲排序权重
+  string Area             = 5; //地理分区
+  uint32 Zone             = 6; //分区
+  string ActivityJumpLink = 7; //端游需要字段
+  uint32 DivisionId       = 8; //赛区分组ID
+}
+
+message ProvinceInfo {
+  repeated ProvinceData Datas = 1;
+}
+
+message ProvinceData {
+  uint32 ProvinceId        = 1;
+  string SDKKey            = 2;
+  string Province          = 3;
+  string ProvinceShorthand = 4;
+  string Content           = 5;
+  uint32 Region            = 6;
+}
+
+//集道具产出表
+message ItemOutputItem {
+  uint32         Id        = 1;
+  uint32         RoundRank = 2;
+  repeated Award Awards    = 3;
+  string         ModeList  = 4; //模式列表
+  uint32         GroupId   = 5; //活动组ID
+}
+
+message ItemOutputInfo {
+  repeated ItemOutputItem Datas = 1;
+}
+
+//集道具兑换表
+message ItemExchangeItem {
+  uint32           Id           = 1;  //Id
+  uint32           GroupId      = 2;  //活动组id
+  string           ItemDesc     = 3;  //描述
+  uint32           LimitedCount = 4;  //兑换次数限制
+  repeated Consume Conds        = 5;  //被兑换道具
+  repeated Award   Awards       = 6;  //兑换得到道具
+}
+
+message ItemExchangeInfo {
+  repeated ItemExchangeItem Datas = 1;
+}
+
+//通行证赛季表
+message PassportPeriodInfo {
+  repeated PassportPeriodData Datas = 1;
+}
+
+message PassportPeriodData {
+  uint32          Id                           = 1;    //赛季
+  string          PassportBeginDate            = 2;    //通行证开始时间
+  string          PassportEndDate              = 3;    //通行证结束时间
+  repeated string Name                         = 4;    //通行证名字
+  repeated string PopupADS                     = 5;    //弹窗广告
+  string          ImageADS                     = 6;    //图像广告
+  string          BuyPassportADS               = 7;    //购买通行证广告
+  repeated uint32 ShowAwards                   = 8;    //展示奖励
+  bool            DiamondRebate                = 9;    //甜甜圈购买是否返利
+  bool            CashRebate                   = 10;   //现金购买是否返利
+  uint32          MaxLevel                     = 11;   //每赛季最大等级限制
+  uint32          StartRemindLastDays          = 12;   //赛季未剩余提示天数
+  uint32          StartRemindLevel             = 13;   //开始提示等级
+  uint32          StartRemindLockLevel         = 14;   //开始提示未解锁等级
+  uint32          StartRemindType              = 15;   //推荐分阶段等级
+  uint32          TaskPoolId                   = 16;   //任务池id
+  uint32          DayFreeTaskCount             = 17;   //天免费任务数量
+  uint32          DayFreeDifficultTaskCount    = 18;   //天免费困难任务数量
+  uint32          DayChargeTaskCount           = 19;   //天付费任务数量
+  uint32          DayChargeDifficultTaskCount  = 20;   //天付费困难任务数量
+  uint32          WeekFreeTaskCount            = 21;   //周免费任务数量
+  uint32          WeekFreeDifficultTaskCount   = 22;   //周免费困难任务数量
+  uint32          WeekChargeTaskCount          = 23;   //周付费任务数量
+  uint32          WeekChargeDifficultTaskCount = 24;   //周付费困难任务数量
+  uint32          DayMaxPoint                  = 25;   //每天获取战星上限
+  uint32          WeekMaxPoint                 = 26;   //周获取战星上限
+}
+
+//团购返利奖励表
+message GroupPayItem {
+  uint32         Id      = 1;    //Id
+  uint32         Type    = 2;    //充值档位
+  uint32         Limits  = 3;    //购买次数限制
+  uint32         PayNum1 = 4;    //第1档购买人次
+  repeated Award Awards1 = 5;    //第1档达成奖励
+  uint32         PayNum2 = 6;    //第2档购买人次
+  repeated Award Awards2 = 7;    //第2档达成奖励
+  uint32         PayNum3 = 8;    //第3档购买人次
+  repeated Award Awards3 = 9;    //第3档达成奖励
+}
+
+message GroupPayInfo {
+  repeated GroupPayItem Datas = 1;
+}
+
+// 老黄历宜忌文本池
+message CalendarFitAvoidInfo {
+  repeated FitAvoidItem Datas = 1;
+}
+
+// 宜忌内容
+message FitAvoidItem {
+  uint32 Id         = 1;    // id
+  uint32 PoolId     = 2;    // 宜忌池子类型id
+  string LanguageId = 3;    // 宜忌文字id
+  uint32 Weight     = 4;    // 权重
+}
+
+//VNG货币表
+message VNGCcyItem {
+  uint32       Id       = 1;
+  string       Currency = 2;
+  CURRENCYTYPE Unit     = 3;
+}
+
+message VNGCcyInfo {
+  repeated VNGCcyItem Datas = 1;
+}
+
+//VNG货币换算表
+message VNGExchangeItem {
+  uint32 Id       = 1;
+  string Currency = 2;
+  uint32 Purchase = 3;
+  uint32 Diamond  = 4;
+}
+
+message VNGExchangeInfo {
+  repeated VNGExchangeItem Datas = 1;
+}
+
+//VNG渠道表首充表
+message VNGFirstPayItem {
+  uint32 Id                 = 1;
+  uint32 ExtraDiamond       = 2;
+  uint32 FirstRechargeGroup = 3;
+}
+
+message VNGFirstPayInfo {
+  repeated VNGFirstPayItem Datas = 1;
+}
+
+//老玩家回归登录奖励
+message ActReturnRewardItem {
+  uint32         Id         = 1;
+  uint32         OfflineDay = 2;
+  uint32         Day        = 3;
+  repeated Award Awards     = 4;
+  int32          GroupId    = 5; // 活动组表 组id
+}
+
+message ActReturnRewardInfo {
+  repeated ActReturnRewardItem Datas = 1;
+}
+
+//观战档位表
+message ObserveLevelInfo {
+  repeated ObserveLevelData Datas = 1;
+}
+
+message ObserveLevelData {
+  uint32  Id              = 1;
+  uint32  MaxObserveCount = 2;
+  PVPMODE Mode            = 3;
+}
+
+//微信大玩家特权表
+message WxVVipRightItem {
+  uint32 Id              = 1;
+  uint32 LvPlayer        = 2;    //大玩家等级
+  uint32 CondType        = 3;    //特权类型
+  uint32 Param1          = 4;    //特权类型参数
+  uint32 GiftId          = 5;    //礼包码id
+  string TextMailTitle   = 6;    //邮件title
+  string TextMailcontent = 7;    //邮件content
+  uint32 Announce        = 8;    //公告
+}
+
+message WxVVipRightInfo {
+  repeated WxVVipRightItem Datas = 1;
+}
+
+//礼包表
+message GiftItem {
+  uint32         Id     = 1;
+  repeated Award Awards = 2;
+}
+
+message GiftInfo {
+  repeated GiftItem Datas = 1;
+}
+
+//微信大玩家跑马灯
+message MarqueeItem {
+  uint32 Id               = 1;    //跑马灯id
+  string Announce         = 2;    //跑马灯key
+  uint32 AnnouncePriority = 3;    //跑马灯优先级
+  uint32 AnnounceRO       = 4;    //跑马灯生命周期
+}
+
+message MarqueeInfo {
+  repeated MarqueeItem Datas = 1;
+}
+
+//红包表
+message RedPktWeight {
+  uint32 Rights = 1;
+  uint32 Up     = 2;
+}
+
+message RedPacketItem {
+  uint32           Id            = 1; //红包id
+  repeated Consume Conds         = 2; //消耗道具
+  uint32           ClaimCount    = 3; //领取人数
+  uint32           ItemId        = 4; //领取道具id
+  uint32           ItemCount     = 5; //领取道具数量
+  uint32           PacketRankNum = 6; //红包领取数量显示
+}
+
+message RedPacketInfo {
+  repeated RedPacketItem Datas = 1;
+}
+
+//微信大玩家点赞奖励表
+message WxVVipRankRwdItem {
+  uint32         Id              = 1;
+  uint32         Rank            = 2;
+  repeated Award Awards          = 3;
+  string         TextMailTitle   = 4; //邮件标题
+  string         TextMailcontent = 5; //邮件内容
+  string         TextRank        = 6; //奖励排行区间（纯前端字段）
+}
+
+message WxVVipRankRwdInfo {
+  repeated WxVVipRankRwdItem Datas = 1;
+}
+
+//惩罚表
+message PunishmentTrigger {
+  PUNISHMENTBEHAVIOR Type         = 1;
+  uint32             OverlayCount = 2;    //叠加次数
+}
+
+message PunishmentInfo {
+  repeated PunishmentData Datas = 1;
+}
+
+message PunishmentData {
+  uint32                     Id          = 1;
+  uint32                     Count       = 2;    //叠加次数
+  repeated PUNISHMENTTYPE    Types       = 3;    //惩罚方式
+  uint32                     ExecuteTime = 4;    //执行期
+  uint32                     WatchTime   = 5;    //监视期
+  repeated PunishmentTrigger Triggers    = 6;    //触发行为
+}
+
+// 快捷聊天配置表
+message QuickChatInfo {
+  repeated QuickChatData Datas = 1;
+}
+
+message QuickChatData {
+  uint32 Id    = 1;
+  uint32 Group = 2;
+  string Key   = 3;
+}
+
+message LoadingRankInfo {
+  repeated LoadingRankData Datas = 1;
+}
+
+message LoadingRankData {
+  uint32 Id          = 1;
+  uint32 PoolId      = 2;
+  string LanguageId  = 3;
+  string Icon        = 4;
+  uint32 UnlockLevel = 5;
+}
+
+// 问卷表
+message QuestionnaireInfo {
+  repeated QuestionnaireData Datas = 1;
+}
+
+message QuestionnaireData {
+  uint32         ID      = 1;    // 问卷ID
+  string         Name    = 2;    // 问卷名称
+  uint32         GroupID = 3;    // 问卷对应的活动组id
+  repeated Award Awards  = 4;    // 奖励
+}
+
+// 问卷名单表
+message QuestionnairePlayerListInfo {
+  repeated QuestionnairePlayerList Datas = 1;
+}
+
+message QuestionnairePlayerList {
+  uint32 ID       = 1;  // 问卷id
+  string PlayerID = 2;  // 玩家id
+}
+
+// 问卷内容表
+message QuestionnaireContentInfo {
+  repeated QuestionnaireContent Datas = 1;
+}
+
+message QuestionnaireContent {
+  uint32 Id            = 1;  // 问卷id
+  uint32 QuestionId    = 2;  // 题目序号
+  uint32 OptionId      = 3;  // 选项ID
+  uint32 OptionType    = 4;  // 内容类型
+  uint32 QuestionType  = 5;  // 题目类型
+  bool   Compulsive    = 6;  // 是否必答
+  uint32 QuestionJump  = 7;  // 题目跳转
+  string Content       = 8;  // 选项内容
+  uint32 MultipleLimit = 9;  // 多选题选项限制
+}
+
+// 技能信息表
+message SkillInfo {
+  repeated SkillInfoItem Datas = 1;
+}
+
+message SkillInfoItem {
+  uint32 id          = 1;  // id
+  string LanguageKey = 2;  // 语言key
+  string KeyInfo     = 3;  // 信息数组
+}
+
+//AI难度表
+message AILevelInfo {
+  repeated AILevelData Datas = 1;
+}
+
+message AILevelData {
+  int32  MinAIRankMMR = 1;    //MMR下限 -1表示无下限
+  int32  MaxAIRankMMR = 2;    //MMR上限 -1表示无上限
+  uint32 Id           = 3;    //AI难度等级
+}
+
+//棋子皮肤系列表
+message ChessSkinSeriesInfo {
+  repeated ChessSkinSeriesData Datas = 1;
+}
+
+
+message SkinInfo{
+  string SkinModel = 1;  //棋子模型
+  string Skinicon  = 2;  //皮肤icon
+  string SkinPic   = 3;  //
+  string BookPic   = 4;
+}
+message ChessSkinSeriesData {
+  uint32            Id              = 1;    //系列ID
+  string            ChessSkinName   = 2;    //皮肤名字
+  ITEMQUALITY       ChessSkinStage  = 3;    //皮肤品质
+  repeated uint32   SkinIds         = 4;    //各星级的皮肤
+  uint32            ChessId         = 5;    //所属棋子ID
+  string            SkipInterface   = 6;    //获取功能跳转界面
+  uint32            SkipTab         = 7;    //获取功能跳转切页
+  string            ShowBeginTime   = 8;    //显示开始时间
+  string            ShowEndTime     = 9;    //显示结束时间
+  uint32            Lv1ExchangeType = 10;
+  uint32            Lv1ExchangeNum  = 11;
+  uint32            Lv2ExchangeType = 12;
+  uint32            Lv2ExchangeNum  = 13;
+  uint32            Lv3ExchangeType = 14;
+  uint32            Lv3ExchangeNum  = 15;
+  uint32            SkinSetId       = 16;  //皮肤套装ID
+  repeated SkinInfo SkinInfos       = 17; //皮肤数据
+  bool              HandBookShow    = 18;
+}
+
+//合成表
+message ComposeInfo {
+  repeated ComposeData Datas = 1;
+}
+
+message ComposeMaterial {
+  uint32 Id          = 1;    //材料物品ID
+  uint32 MaxUseCount = 2;    //每次合成最大使用数量
+  bool   Essential   = 3;    //是否是合成必不可少的材料
+}
+
+message ComposeData {
+  uint32                   ComposeId         = 1;    //合成ID
+  uint32                   Id                = 2;    //合成的物品ID
+  repeated ComposeMaterial Material          = 3;    //合成材料
+  uint32                   TotalComposeValue = 4;    //合成总共所需合成值
+  repeated Cond            ComposeLimit      = 5;    //合成前置条件
+  bool                     RepeatCompose     = 6;    //是否可以重复合成，即如果玩家拥有了该物品，是否允许合成
+}
+
+// 视频信息表
+message VideoConf {
+  repeated VideoInfo Datas = 1;
+}
+
+// 变强项配置表
+message MoreStrongerInfo {
+  repeated MoreStrongerData Datas = 1;
+}
+
+message MoreStrongerData {
+  uint32          Id        = 1; //ID
+  string          Name      = 2; //名称
+  string          Desc      = 3; //短描述
+  string          UIId      = 4; //跳转的界面ID
+  uint32          SubUIId   = 5; //跳转的子界面ID
+  repeated uint32 Level     = 6; //对应等级的权重
+  string          Icon      = 7; //icon
+  string          PcJumpUrl = 8; // pc跳转url
+}
+
+// 沉迷表
+message AddictionInfo {
+  repeated AddictionData Datas = 1;
+}
+
+message AddictionData{
+  uint32        ID                = 1; //ID
+  AddictionType Type              = 2; //类型
+  string        Country           = 3; //国家
+  string        NotAllowStartTime = 4; //不允许时间段
+  string        NotAllowEndTime   = 5; //不允许时间段
+  uint32        AgeMin            = 6; //年龄段
+  uint32        AgeMax            = 7; //年龄段
+  uint32        Interval          = 8; //时间间隔
+  string        SigninDesc        = 9; //登录弹窗文本
+  string        HallDesc          = 10; //游戏内弹窗文本
+  bool          PhoneOpen         = 11; //手机端开关
+  bool          PCOpen            = 12; // PC端开关
+}
+
+// Amazon礼包表
+message AmazonGiftInfo {
+  repeated AmazonGiftData Datas = 1;
+}
+
+message AmazonGiftData {
+  uint32         Id        = 1;
+  string         MailTitle = 2;
+  string         MailDesc  = 3;
+  repeated Award Awards    = 4;
+}
+
+// 掉落表
+message FallInfo {
+  repeated FallData Datas = 1;
+}
+
+message FallData {
+  uint32     ID               = 1;
+  FalledType FallType         = 2;
+  uint32     CommonFallPoolId = 3;
+  uint32     CritFallPoolId   = 4;
+  uint32     HopeCrit         = 5;
+  uint32     PopAddGroupId    = 6;
+  uint32     TimeAddGroupId   = 7;
+  uint32     LevelAddGroupId  = 8;
+  bool       CanPutBack       = 9;
+  uint32     ExtractNum       = 10;
+}
+
+// 暴击增量对应表
+message CritAddInfo {
+  repeated CritAddData Datas = 1;
+}
+
+message CritAddData {
+  uint32      ID      = 1;
+  uint32      GroupId = 2;
+  FallAddType AddType = 3;
+  uint32      AddX    = 4;
+  uint32      AddY    = 5;
+}
+
+//延迟分类表
+message NetDelayInfo {
+  repeated NetDelayData Datas = 1;
+}
+
+message NetDelayData {
+  DELAYTYPE Type         = 1;    //延迟类型
+  int32     MaxPing      = 2;    //当前类型最高延迟
+  int32     PriorityTime = 3;    //优先匹配当前类型的最大匹配时间
+}
+
+//区域匹配表
+message RegionMatchInfo {
+  repeated RegionMatchData Datas = 1;
+}
+
+message RegionMatchData {
+  string Region = 1;    //区域
+  bool   Open   = 2;    //是否开启区域匹配
+}
+
+//赛事表
+message TournamentInfo {
+  repeated TournamentData Datas = 1;
+}
+
+message TournamentData {
+  uint64             TournamentId               = 1;    //赛事ID
+  string             TournamentName             = 2;    //赛事名称
+  repeated string    TournamentDes              = 3;    //赛事描述
+  OWNERTYPE          Owner                      = 4;    //所有者
+  TOURNAMENTTYPE     TournamentType             = 5;    //赛事类型
+  uint32             TournamentZoneId           = 6;    //允许参与国籍组ID
+  bool               IsAdvertising              = 7;    //是否展示广告
+  string             AdImagePath                = 8;    //广告图路径
+  uint32             AttendTimeLimit            = 9;    //允许重复参与次数
+  repeated uint32    ResettingPointsIds         = 10;   //重置积分类型（积分ID）
+  string             TournamentStartTime        = 11;   //赛事开始时间
+  string             EnrollStartTime            = 12;   //报名开始时间
+  string             EnrollEndTime              = 13;   //报名结束时间
+  string             TournamentEndTime          = 14;   //赛事结束时间
+  PVPMODE            TournamentMode             = 15;   //赛事游戏模式
+  BATTLEGROUPTYPE    BattleGroupDistribution    = 16;   //战斗组分配方式
+  bool               CanSkipRoundMatching       = 17;   //是否允许跨轮匹配
+  uint32             SkipRoundMatchingTimeLimit = 18;   //跨轮匹配时间阈值
+  repeated uint32    TournamentAwardIds         = 19;   //赛事奖励
+  repeated uint64    TournamentClassIds         = 20;   //赛事包含的级别
+  repeated string    TournamentLabel            = 21;   //赛事标签
+  repeated string    TournamentLabelDes         = 22;   //赛事标签说明
+  uint32             RecommendProportion        = 23;   //推荐占比
+  uint32             RecommendRanking           = 24;   //推荐权重
+  repeated uint64    ResettingPointsTournaments = 25;   //重置积分的对象是哪些赛事的报名人员
+  TournamentTimeType ChampionshipType           = 26;   //赛事类型 区分周、月、季赛
+  uint32             ChampionshipGroup          = 27;   //表明哪些赛事是同一组
+}
+
+//赛事级别表
+message TournamentClassInfo {
+  repeated TournamentClassData Datas = 1;
+}
+
+message TournamentClassData {
+  uint64                TournamentClassId       = 1;    //赛事级别ID
+  string                TournamentClassName     = 2;    //赛事级别名称
+  int32                 PlayerMaxLimit          = 3;    //参与玩家上限
+  uint32                PlayerMinLimit          = 4;    //参与玩家下限
+  uint32                RankMaxLimit            = 5;    //最高段位限制
+  uint32                RankMinLimit            = 6;    //最低段位限制
+  repeated uint32       RankValidSeasons        = 7;    //段位有效赛季
+  repeated uint64       TournamentRoundIds      = 8;    //包含的轮次ID
+  repeated EnrollTicket EnrollTickets           = 9;    //所需物品信息
+  repeated uint32       TournamentClassAwardIds = 10;   //赛事级别奖励
+}
+
+message EnrollTicket {
+  uint32 Id         = 1;    //物品ID
+  uint32 NeedNum    = 2;    //需求数量
+  uint32 ConsumeNum = 3;    //消耗数量
+}
+
+//赛事轮次表
+message TournamentRoundInfo {
+  repeated TournamentRoundData Datas = 1;
+}
+
+message ActivationTimeRange {
+  string StartTime = 1;    //赛事轮次开始激活时间
+  string EndTime   = 2;    //赛事轮次开始暂停时间
+}
+
+message TournamentRoundData {
+  uint64                       TournamentRoundId       = 1;    //赛事轮次ID
+  string                       TournamentRoundName     = 2;    //赛事轮次名称
+  bool                         CanCheckPointsRanking   = 3;    //是否允许查看积分排名
+  string                       RoundStartTime          = 4;    //轮次开始时间
+  string                       RoundEndTime            = 5;    //轮次结束时间
+  repeated ActivationTimeRange ActivationTimeRanges    = 6;    //轮次激活时间范围
+  bool                         IsAllRise               = 8;    //是否全部晋级
+  uint32                       CheckPointId            = 9;    //检查积分ID
+  uint32                       RisePointLimit          = 10;   //晋级积分类型
+  uint32                       RiseMinRanking          = 11;   //积分排名晋级限制名次
+  uint32                       RankingLimits           = 12;   //排名范围
+  repeated uint64              TournamentGamesIds      = 13;   //所含对局信息
+  repeated uint32              TournamentRoundAwardIds = 14;   //赛事轮次奖励
+  string                       Observeicon             = 15;   //观战推荐页图标
+  string                       Observebg               = 16;   //观战推荐页背景
+  bool                         IsNotice                = 17;   //是否预告轮次
+  string                       NoticeTitle             = 18;  //预告副标题
+}
+
+//赛事对局表
+message TournamentGamesInfo {
+  repeated TournamentGamesData Datas = 1;
+}
+
+message TournamentGamesData {
+  uint64          TournamentGamesId      = 1;    //赛事对局ID
+  string          TournamentGamesName    = 2;    //赛事对局名字
+  bool            IsRemind               = 3;    //对局开始提醒
+  string          GameStartTime          = 4;    //对局开始时间
+  string          GameFixedEndTime       = 5;    //对局固定截止时间
+  uint32          GameIntervalEndTime    = 6;    //对局截止间隔时间
+  string          GameEndTime            = 7;    //对局结束时间
+  uint32          GameStartCountDown     = 8;    //战斗开始倒计时
+  repeated uint32 TournamentGameAwardIds = 9;    //赛事对局奖励
+}
+
+//赛事奖励表
+message TournamentAwardsInfo {
+  repeated TournamentAwardsData Datas = 1;
+}
+
+message TournamentAwardsData {
+  uint32              TournamentAwardId   = 1;    //赛事奖励ID
+  TOURNAMENTAWARDTYPE TournamentAwardType = 2;    //奖励类型
+  repeated Award      FixedAwards         = 3;    //固定奖励
+  uint32              TournamentPointId   = 4;    //检索积分类型
+  TOURNAMENTLAYER     AwardRankLimit      = 5;    //积分排行范围
+  repeated RangeAward RangeAwards         = 6;    //范围奖励
+}
+
+//范围奖励
+message RangeAward {
+  uint32         Min    = 1;
+  uint32         Max    = 2;
+  repeated Award Awards = 3;    //奖励
+}
+
+// 视频CG表
+message VideoCGInfo {
+  repeated VideoCGData Datas = 1;
+}
+
+// 视频CG表
+message VideoCGData {
+  int32  Id              = 1;
+  int32  Cgtype          = 2;
+  string Cgname          = 3;
+  string CgStarttime     = 4;
+  string CgEndtime       = 5;
+  int32  SkipGoods       = 6; //跳转的商品id
+  int32  SkipType        = 7; //跳转的类型
+  int32  CgFirstPlayTime = 8; //每次打开游戏首次登陆背景动画播放节点
+  bool   IsCgSubTitle    = 9; //是否有字幕
+}
+
+// 入口公告表
+message EntranceNoticeData {
+  int32  Id      = 1;
+  string PicName = 2;
+  string Country = 3;
+  uint32 Zone    = 4; // uint32为兼容老协议的Zone类型
+}
+
+message EntranceNotice {
+  repeated EntranceNoticeData Datas = 1;
+}
+
+message ChatHistoryMessageData {
+  CHATTYPE ID              = 1;
+  int64    SaveDateLimit   = 2; // 频道服务器消息缓存时间; 0 是无限大
+  string   SaveTime        = 3; // 频道消息客户端缓存时间
+  int32    SaveClientLimit = 4; // 历史增加客户端缓存时间
+}
+
+message ChatHistoryMessage {
+  repeated ChatHistoryMessageData Datas = 1;
+}
+
+
+//AB测试
+message ABTestInfo {
+  repeated ABTestData Datas = 1;
+}
+
+message ABTestWeight {
+  int32  Rate  = 1;
+  uint32 Value = 2;
+}
+
+message ABTestData {
+  uint32                Id              = 1; //ID
+  ABTESTTYPE            Type            = 2; //AB测试类型
+  repeated ABTestWeight Weight          = 3; //购买此通行证消耗
+  string                EffectBeginTime = 4; //生效开始时间
+  string                EffectEndTime   = 5; //生效结束时间
+  string                EffectCountry   = 6; //开放国家(空代表全开放)
+  bool                  Open            = 7; //开关
+  string                EffectPlatform  = 8; //开放平台(空代表全开放)
+}
+
+//观战推荐评分表
+message ObserveScoreInfo {
+  repeated ObserveScoreData Datas = 1;
+}
+
+message ObserveScoreData {
+  PVPMODE Mode                  = 1; //战斗模式
+  uint32  MMRCoefficient        = 2; //MMR系数
+  uint32  Top1Coefficient       = 3; //吃鸡率系数
+  uint32  Top2Coefficient       = 4; //前二率系数
+  uint32  Top3Coefficient       = 5; //前三率系数
+  uint32  AveragePvpCoefficient = 6; //每周每日平均场次系数
+  uint32  AttendanceCoefficient = 7; //观众人数系数
+}
+
+//观战任务表
+message ObserveTaskInfo {
+  repeated ObserveTaskData Datas = 1;
+}
+
+message ObserveTaskData {
+  uint32         Id                = 1;    //任务ID
+  TIMEFLAG       RefreshType       = 2;    //刷新类型
+  string         Title             = 3;    //任务标题
+  string         Desc              = 4;    //任务描述
+  Cond           Cond              = 5;    //条件
+  repeated Award Awards            = 6;    //奖励
+  uint32         RandomDropPoolIds = 7;    //随机掉落池ID
+  uint32         ResetDuration     = 8;    //重置周期
+  uint32         RandCount         = 9;    //随机宝箱单次掉落数量
+  bool           CanPutBack        = 10;    //随机宝箱是否放回抽取
+}
+
+message CommunityRedirection {
+  repeated CommunityRedirectionData Datas = 1;
+}
+
+enum PackChannel {
+  ChannelTypeNull = 0;
+  ChanGoogle      = 1;
+  ChanOverseaIOS  = 2;
+  ChanTencent     = 3;
+  ChanOverseaPC   = 4;  // 海外pc
+  ChanInlandPC    = 5; // 国内pc
+  PS              = 6;
+  InlandPhone     = 7; // 国内手游
+  ChanVNG         = 8; // vng
+}
+
+message CommunityRedirectionData {
+  int32       ID          = 1;
+  PackChannel ChannelType = 2;
+  string      TitleDesc   = 3;
+  string      Icon        = 4;
+  string      Url         = 5;
+  string      AppLink     = 6;
+  string      Language    = 7;
+  bool        OpenID      = 8;
+  string      Scheme      = 9;
+}
+
+message SteamRoportData {
+  int32  Reporttype     = 1;
+  string Reporttypekey  = 2;
+  string Reporttypetext = 3;
+}
+
+message SteamRoport {
+  repeated SteamRoportData Datas = 1;
+}
+
+message SteamMapLanguageData {
+  int32  Id     = 1;
+  string MapKey = 2;
+}
+
+message SteamMapLanguage {
+  repeated SteamMapLanguageData Datas = 1;
+}
+
+// 升级宝箱活动表
+message ChestLevelupData {
+  uint32         GroupId       = 1;
+  uint32         OrderID       = 2;
+  uint32         UnlockScoreID = 3;
+  uint32         UnlockScore   = 4;
+  string         ChestsName    = 5;
+  repeated Award Awards        = 6;
+  string         Icon          = 7;
+}
+
+// 升级宝箱活动表
+message ChestLevelupInfo {
+  repeated ChestLevelupData Datas = 1;
+}
+
+enum FUNCID{
+  FUNCID_NULL                     = 0;
+  FUNCID_WORKSHOP                 = 1000;
+  FUNCID_WORKSHOP_CREATE_ROOM     = 1001;
+  FUNCID_WORKSHOP_JOIN_ROOM       = 1002;
+  FUNCID_TOURNAMENT               = 1100;
+  FUNCID_GUILD                    = 1200;
+  FUNCID_GUILD_JOIN               = 1201;
+  FUNCID_GUILD_CREATE             = 1202;
+  FUNCID_POP_PICTURE              = 1300;
+  FUNCID_ACTIVITY                 = 1400;
+  FUNCID_ACTIVITY_NEW_PLAYER      = 1401;
+  FUNCID_ACTIVITY_RETURN          = 1402;
+  FUNCID_MALL                     = 1500;
+  FUNCID_PASSPORT                 = 1600;
+  FUNCID_PVPMODE                  = 1700;
+  FUNCID_PVPMODE_AUTO_CHESS       = 1701;
+  FUNCID_PVPMODE_AUTO_CHESS_RANK  = 1702;
+  FUNCID_PVPMODE_CUSTOM           = 1703;
+  FUNCID_PVPMODE_NEW_PLAYER       = 1704;
+  FUNCID_PVPMODE_MELEE            = 1705;
+  FUNCID_PVPMODE_TEAM_BATTLE      = 1706;
+  FUNCID_PVPMODE_TEAM_BATTLE_RANK = 1707;
+  FUNCID_PVPMODE_COMBAT_TRAINING  = 1708;
+  FUNCID_PVPMODE_NEW_PLAYER_GUIDE = 1709;
+  FUNCID_PVPMODE_TEACH_BATTLE     = 1711;     // 关卡教学
+  FUNCID_PVPMODE_AI_TRAIN         = 1712;     // 实战训练
+  FUNCID_PVPMODE_BIGWINNER        = 1713;     // 大赢家
+  FUNCID_PVPMODE_FOURVSFOUR       = 1715;     // 团队休闲
+  FUNCID_PVPMODE_FOURVSFOUR_RANK  = 1716;    // 团队排位
+  FUNCID_VIDEO                    = 1800;
+  FUNCID_VIDEO_POP_UP             = 1801;     // 拍脸视频
+  FUNCID_CARD_GROUP               = 1900;     // 棋组
+}
+
+enum FUNCUNLOCKTYPE{
+  FUNCUNLOCKTYPE_NULL  = 0;
+  FUNCUNLOCKTYPE_LEVEL = 1;
+  FUNCUNLOCKTYPE_CUP   = 2;
+}
+
+// 功能解锁表
+message FunctionUnlockData {
+  FUNCID         MainID          = 1;
+  FUNCID         SubfunctionID   = 2;
+  bool           Open            = 3;
+  FUNCUNLOCKTYPE UnlockType      = 5;
+  uint32         UnlockParameter = 8;
+  bool           PopupOpen       = 9;
+  string         UIStylePhone    = 10;
+  string         UIStylePC       = 11;
+  uint32         EntranceType    = 12;
+  string         UnlockTitle     = 13;
+  string         UnlockDesc      = 14;
+  string         UnlockPic       = 15;
+  uint32         UIStylePhoneID  = 16;
+}
+
+// 功能解锁表
+message FunctionUnlockInfo {
+  repeated FunctionUnlockData Datas = 1;
+}
+
+// 广告表
+message AdvertiseData {
+  uint32 Id                       = 1;
+  uint32 AdvertPage               = 2;
+  uint32 AdvertAwardPool          = 3;
+  uint32 AdvertAwardRandCount     = 4;
+  bool   AdvertAwardCanPutBack    = 5;
+  uint32 CumulativeRewardId       = 6;
+  string AdvertStartTime          = 7;
+  string AdvertEndTime            = 8;
+  uint32 AdvertEffectiveCD        = 9;
+  uint32 AdvertEffectiveCount     = 10;
+  uint32 AdvertCountRefreshSecond = 11;
+  uint32 AdvertCountRefreshDay    = 12;
+  string AdvertChannel            = 13;
+  string AdvertChannelIOS         = 14;
+  string AdvertChannelAndroid     = 15;
+  string AdvertAPPid              = 16;
+  string SdkType                  = 17;
+  uint32 SdkWeight                = 18;
+  uint32 Group                    = 19; // 统计分组
+}
+
+// 广告表
+message AdvertiseInfo {
+  repeated AdvertiseData Datas = 1;
+}
+
+// 公会权限
+enum GUILDRIGHTTYPE {
+  GUILDRIGHTTYPE_NULL = 0;
+  APPROVE             = 1; // 审批
+  RECRUIT             = 2; // 招募
+  INVITE              = 3; // 邀请
+  MODIFY_NAME         = 4;
+  MODIFY_SIGN         = 5;
+  MODIFY_TAGS         = 6;
+  MODIFY_NOTICE       = 7;
+  MODIFY_PERMIT       = 8;
+  KICKOFF             = 9;
+  APPOINT_VICE        = 10; // 任命副社长
+  APPOINT_OFFICER     = 11;// 任命主将
+  MAX                 = 100;
+}
+
+// 棋社表
+message GuildCommonInfo {
+  Consume     CreateGuildConsume       = 1;
+  Consume     GuildRenameConsume       = 2;
+  Consume     ChangePatternConsume     = 3;
+  uint32      GuildRenameCd            = 5;
+  uint32      ChangePatternCd          = 8;
+  uint32      MaxAnnouncement          = 9;
+  uint32      MaxRecruit               = 10;
+  ITEMQUALITY ShowLowestItemQuality    = 11;
+  string      ShowItemType             = 12;
+  uint32      RejoinCd                 = 13;
+  uint32      MaxApplyMessage          = 14;
+  uint32      MaxApplyMessageTime      = 15;
+  uint32      MaxInvitationMessage     = 16;
+  uint32      MaxInvitationMessageTime = 17;
+  string      AteventJurisdiction      = 18;
+  string      ViceAteventJurisdiction  = 19;
+  string      ManagerJurisdiction      = 20;
+  string      MemberJurisdiction       = 21;
+  uint32      OncePullLog              = 22;
+  uint32      MaxLogStorage            = 23;
+  uint32      OncePullList             = 24;
+  uint32      MaxRecommendPlayer       = 25;
+  uint32      AteventCriticalDay       = 26;
+  string      ShowRank                 = 27;
+  string      ShowSeasonPass           = 28;
+}
+
+message GuildLevelData {
+  int32 GuildLevel     = 1;
+  int32 GuildExp       = 2;
+  int32 MaxMember      = 3;
+  int32 MaxViceAtevent = 4;
+  int32 MaxManager     = 5;
+}
+
+// 棋社等级表
+message GuildLevelInfo {
+  repeated GuildLevelData Datas = 1;
+}
+
+message GuildTagData {
+  int32           Id              = 1;
+  string          Icon            = 3;
+  string          Desc            = 4;
+  int32           PatternType     = 2;
+  uint32          UnlockCondition = 5;
+  repeated uint32 ConditionValue  = 6;
+}
+
+// 棋社图标签表
+message GuildTagInfo {
+  repeated GuildTagData Datas = 1;
+}
+
+message RepriceRandChestData {
+  int32 Id            = 1;
+  int32 BoxId         = 2;
+  int32 Reward        = 3;
+  int32 Num           = 4;
+  int32 Sortweight    = 5;
+  int32 Reductiontype = 6;
+  int32 Reduction     = 7;
+  bool  Isrepeat      = 8;
+}
+
+message RepriceRandChest {
+  repeated RepriceRandChestData Datas = 1;
+}
+
+// 任务列表
+message Tasks {
+  repeated TaskInfo Data = 1;
+}
+
+message TaskInfo {
+  uint32            Id               = 1; //任务ID
+  TASKTYPE          Type             = 2; //任务类型
+  string            Title            = 3; //任务标题
+  string            Desc             = 4; //任务描述
+  uint32            Unit             = 5; //任务条件单位
+  Cond              Cond             = 6; //任务完成条件
+  repeated Award    Awards           = 7; //任务完成奖励
+  uint32            RankLimit        = 8;//完成回合要求
+  uint32            CondGroup        = 9;//任务组
+  uint32            PreCondGroup     = 10;//前置任务组
+  bool              ProgressInherit  = 11;//进度是否继承前置任务进度
+  repeated Consume  TaskCardConsumes = 12;//任务卡消耗
+  bool              IsCharge         = 13;//是否是付费任务  0-免费  1-付费
+  bool              IsDifficult      = 14;//是否是困难任务
+  uint32            SeriesID         = 15;//序列ID
+  TrophyTask        Trophy           = 16;// @update ps4 成就奖杯
+  uint32            Week             = 17; //周
+  uint32            Season           = 18; //赛季+
+  PassportShareType QuestShareType   = 19; //通行证任务分享奖励类型:1,通用;2 特殊 此处未使用，仅作表格解析兼容
+  string            MissionStartTime = 20; // 任务开始时间
+  string            MissionEndTime   = 21; // 任务开始时间
+  uint32            QuestLevel       = 22; //通行证等级分享类型
+  bool              IsActive         = 23; //是否是主动领取奖励任务
+}
+
+// ps4成就奖杯
+message TrophyTask {
+  uint32 ID    = 10; //奖杯id
+  uint32 Level = 11; //奖杯级别
+  bool   DLC   = 12; //是否正片
+  string Logo  = 13; //是否正片
+  bool   Hide  = 14; //是否隐藏
+  string Link  = 15; //图标链接
+}
+
+message TeachInfo {
+  string Text = 1; //文本
+  string Pic  = 2; //图片
+}
+
+message TeachTask {
+  string Desc = 1; //描述
+  Cond   Cond = 2; //任务条件释义类型
+}
+//
+message TeachPassData {
+  uint32             Id        = 1;  //关卡id
+  uint32             ChapterId = 2;  //章节id
+  string             PassName  = 3;  //关卡名称
+  string             PassPic   = 4;  //关卡图片
+  repeated TeachInfo Teachs    = 5;  //教学文本/图片信息
+  repeated TeachTask Task      = 6;  //任务描述
+  uint32             Level     = 7;  //解锁等级
+  uint32             PrePassId = 8;  //解锁前置关卡
+  repeated Award     Awards    = 9;  //关卡奖励
+  uint32             MapId     = 10;  //地图ID
+  uint32             Exp       = 11;  //经验
+  uint32             PlayerNum = 12;  //玩家人数
+}
+
+// 战役关卡表
+message TeachPassInfo {
+  repeated TeachPassData Datas = 1;
+}
+
+message TeachCapterData {
+  uint32 Id   = 1;
+  string Name = 2;
+}
+
+// 战役章节表
+message TeachCapterInfo {
+  repeated TeachCapterData Datas = 1;
+}
+
+message BigWinnerSeasonData {
+  uint32 Id              = 1;  //赛季Id
+  string SeasonBeginDate = 2;  //赛季开始时间
+  string SeasonEndDate   = 3;  //赛季结束时间
+  bool   BackConsume     = 4;  //返还消耗
+}
+
+//大赢家赛季
+message BigWinnerSeasonInfo{
+  repeated BigWinnerSeasonData Datas = 1;
+}
+
+message BigWinnerData {
+  uint32          Id                      = 1;  //场次id
+  string          Name                    = 2;  //场次名称
+  string          Icon                    = 3;  //场次图标
+  string          IconBg                  = 4;  //图标背景
+  string          Info                    = 5;  //场次简介
+  string          Desc                    = 6;  //场次描述
+  uint32          MinScore                = 7;  //最低积分
+  uint32          MaxScore                = 8;  //最高积分
+  uint32          TicketScore             = 9;  //门票积分
+  uint32          RecommendScore          = 10;  //推荐积分
+  uint32          LimitScore              = 11;  //限制积分
+  uint32          ExpandMatchTime         = 12;  //大玩家扩大匹配时间
+  uint32          RefreshCost             = 13;  //刷新消耗
+  uint32          Open                    = 14;  //是否开放
+  uint32          MapId                   = 15;  //内核模式Id
+  uint32          SysPercent              = 16;  //系统抽成
+  repeated uint32 RankRewardList          = 17;//分配比例
+  string          ConfigName              = 18;  //大赢家内核配置文件
+  uint32          WaitTime                = 19;  // 等待加入AI时间
+  uint32          PlayerCountCycleTime    = 20;  // 人数需求减少周期
+  uint32          PlayerCountEnlargeValue = 21;  // 人数需求减少单位值
+  uint32          MinPlayerCount          = 22; // 人数需求减少极限值
+}
+
+// 大赢家玩法表
+message BigWinnerInfo{
+  repeated BigWinnerData Datas = 1;
+}
+
+// 大赢家通用配置表
+message BigWinnerCommonInfo{
+  string ScoreRule       = 1;  //积分规则
+  string RoundRule       = 2;  //场次规则
+  int32  DailyAward      = 3;  //低保积分
+  uint32 DailyAwardLimit = 4;  //低保积分限制
+  string AddSource       = 5;  //附赠来源
+  uint32 MoneyAddRate    = 6;  //糖果附赠积分比例
+  uint32 DiamondAddRate  = 7;  //甜甜圈附赠积分比例
+  uint32 MoneyMallId     = 8;  //糖果商品ID
+  uint32 DiamondMallId   = 9;  //甜甜圈商品ID
+}
+
+// multimailtool 工具读取excel表格导出bin文件按(MultiMailData格式)
+message MultiMailFile {
+  string         PlayerID    = 1; //玩家ID
+  string         Title       = 2; //邮件标题
+  string         Content     = 3; //邮件内容
+  uint32         SurviveTime = 4; //有效时间(天)(0:30天过期)
+  repeated Award Awards      = 5; //奖励
+}
+
+message MultiMailFileInfo {
+  repeated MultiMailFile Datas = 1;
+}
+
+message MultiMailData {
+  string          Title       = 1; //邮件标题
+  string          Content     = 2; //邮件内容
+  uint32          SurviveTime = 3; //有效时间(秒)
+  repeated Award  Awards      = 4; //奖励
+  bool            IsRedis     = 5; //是否是redis邮件
+  repeated string PlayerID    = 6; //玩家IDList
+}
+
+message MultiMailDataInfo {
+  repeated MultiMailData Datas = 1;
+}
+
+//手游大界面和分页 对应 PC UI类型
+message PCPhoneUIContrast {
+  string UIStylePhone      = 1; // 跳转手游UI大界面
+  uint32 UIStylePhoneID    = 2; // 跳转手游UI大界面ID
+  uint32 UIStylePhoneTABID = 3; // 跳转手游手游UI分页ID
+  string UIStylePC         = 4; // 跳转PC UI类型
+}
+
+message PCPhoneUIContrastInfo {
+  repeated PCPhoneUIContrast Data = 1;
+}
+
+//棋子故事表
+message ChessStoryData {
+  uint32 TextParagraphID  = 1; // 文本段ID
+  uint32 ChessID          = 2; // 所属棋子ID
+  string TextParagraphKey = 3; // 文本key
+  string TextIcon         = 4; // 图片资源名
+  uint32 ISTitle          = 5; // 是否为标题
+  uint32 AlignmentType    = 6; // 对齐方式
+}
+
+message ChessStoryInfo {
+  repeated ChessStoryData Datas = 1;
+}
+
+// 勋章
+message Medal {
+  uint32       MedalId        = 1;
+  MedalType    MedalType      = 2;
+  uint32       MedalSeriesId  = 3;
+  uint32       MedalSetId     = 4;
+  uint32       MedalSetSort   = 5;
+  uint32       MedalMissionId = 6; // 成就任务
+  bool         IsOncecolumn   = 7; // 是否占用一个勋章栏位
+  uint32       MedalRealNum   = 8; // 真实编号数量
+  uint32       MedalNumspace  = 9; // 递增步长
+  bool         MedalrepeatGet = 10; // 能否重复获得
+  bool         IsMedalHide    = 11; // 未获取是否隐藏
+  bool         IsMedalNum     = 12; // 是否拥有勋章编号
+  string       MedalTextColor = 13; //勋章文本颜色
+  uint32       IsMedalData    = 14; // 勋章积分类型 1、大赢家勋章积分
+  uint32       MedalSetType   = 15; // 勋章套组排版类型
+  MedalSubType MedalSubType   = 16; //子类型
+}
+
+message MedalList {
+  repeated Medal Datas = 1;
+}
+
+// 徽章类型
+enum MedalType {
+  MedalTypeCommon   = 0; // 通用
+  MedalTypeCareer   = 1; // 生涯
+  MedalTypeMATCH    = 2; // 赛事
+  MedalTypeActivity = 3; // 活动
+  MedalTypeSet      = 4; // 套组
+}
+//勋章子类型
+enum MedalSubType{
+  MEDAL_NORMAL      = 0;    //通用
+  MEDAL_ACHIEVEMENT = 1; //成就
+  MEDAL_COLLECT     = 2;     //收集
+  MEDAL_CUMULATE    = 3;    //累计
+}
+
+message TextPool {
+  uint32 DefaultText = 1;    //默认台词池
+  uint32 NormalText  = 2;    //普通台词池
+  uint32 SeniorText  = 3;    //高级台词池
+}
+
+message AwardGroup {
+  uint32 Id      = 1;    //奖励组id
+  uint32 AwardId = 2;    //奖励组奖品id
+  string Rule    = 3;    //奖励组规则
+  uint32 Count   = 4;    //奖励组奖品数量
+  Loc    Loc     = 5;    //奖励组位置
+}
+
+//拼图活动
+message PuzzleActivity {
+  uint32              GroupId         = 1;    //活动组ID
+  uint32              Id              = 2;    //活动ID
+  uint32              InitBoardRow    = 3;    //初始化拼盘行
+  uint32              InitBoardColumn = 4;    //初始化拼盘列
+  uint32              OutPutPool      = 5;    //概率产出池Id
+  uint32              PoolId          = 6;    //掉落池池Id
+  bool                CanPutBack      = 7;    //是否可放回
+  uint32              UltimateAwardID = 8;    //大奖id
+  TextPool            TextPool        = 9;    //台词池
+  repeated AwardGroup AwardGroup      = 10;   //奖励组
+}
+
+message PuzzleActivityInfo {
+  repeated PuzzleActivity Datas = 1;
+}
+
+message PoolItem {
+  uint32           Id     = 1;    //物品ID
+  OUTPUT_ITEM_TYPE Type   = 2;    //物品类型
+  int32            Limit  = 3;    //物品限制
+  uint32           Weight = 4;    //物品权重
+  int32            Count  = 5;    //物品数量
+}
+
+//概率产出池表
+message NormalOutPut {
+  uint32            Id           = 1;    //ID
+  string            ModeList     = 2;    //模式列表
+  uint32            ExpectedProb = 3;    //期望概率
+  uint32            Refresh      = 4;    //刷新周期 1、日 2、周 3、月
+  repeated PoolItem Item         = 5;    //拼图道具
+}
+
+message NormalOutPutInfo {
+  repeated NormalOutPut Datas = 1;
+}
+
+
+//通用文本池
+message NormalTextPool {
+  repeated NormalText Datas = 1;
+}
+message NormalText {
+  uint32 Id         = 1; //Id
+  uint32 PoolId     = 2; //池子Id
+  string LanguageId = 3; //文本id
+  uint32 Weight     = 4; //权重
+}
+
+// 新手训练玩法表
+message NewPlayerModeInfo{
+  repeated NewPlayerModeData Datas = 1;
+}
+
+message NewPlayerModeData {
+  uint32 Id          = 1; // 玩法ID
+  uint32 ABTestValue = 2; // 对应ABTest值
+  string ConfigName  = 3; // 内核配置文件
+  uint32 PlayerNum   = 4; // 玩家人数
+}
+
+// 实战训练玩法表
+message TeachModeInfo{
+  repeated TeachModeData Datas = 1;
+}
+
+message TeachModeData {
+  uint32 Id          = 1; // 玩法ID
+  string Name        = 2; // 玩法名称
+  string Icon        = 3; // 玩法图标
+  string IconBg      = 4; // 图标背景
+  string Info        = 5; // 玩法简介
+  string Desc        = 6; // 玩法描述
+  string ConfigName  = 7; // 内核配置文件
+  string RecommendId = 8; // 阵容ID
+  string Info2       = 9; // 玩法简介2
+}
+
+//pve挑战活动表
+message PveChallengeInfo {
+  repeated PveChallengeData Datas = 1;
+}
+
+
+message AwardToken {
+  uint32 ID    = 1;
+  uint32 Count = 2;
+}
+
+message ConsumeToken {
+  uint32 ID    = 1;
+  uint32 Count = 2;
+}
+
+enum PVE_RANK_SCORE_TYPE {
+  PVE_RANK_INIT         = 0;
+  PVE_RANK_HP_TIME      = 1; // 血量-时间
+  PVE_RANK_KERNEL_SCORE = 2; // 内核积分
+}
+
+message PveChallengeData {
+  uint32              GroupId         = 1;    //活动组ID
+  uint32              Id              = 2;    //活动ID
+  uint32              FreeCount       = 3;    //免费有效次数
+  uint32              PayCount        = 4;    //购买有效次数
+  uint32              MoneyType       = 5;    //购买货币
+  uint32              Price           = 6;    //购买价格
+  uint32              PoolId          = 7;    //抽奖奖池
+  uint32              SubModel        = 8;    //子模式id
+  string              MapKey          = 9; //平台关联地图唯一key
+  uint32              CostCount       = 10; //消耗挑战次数
+  uint32              DailySocreLimit = 11; //每日积分上限
+  uint32              AwardCount      = 12; //奖励抽奖次数
+  PVE_RANK_SCORE_TYPE ScoreType       = 13; //奖励排名类型
+  repeated AwardToken AwardToken      = 14; //奖励代币count
+  uint32              TotalRankID     = 15; //总排行榜
+  uint32              DailyRankID     = 16; //每日排行榜奖励
+}
+
+message PVERankData {
+  uint32             Id               = 1;  //排行榜ID
+  string             EmailTitle       = 2;  //标题
+  string             EmailContent     = 3;  //内容
+  uint32             PVERankPageLimit = 4; //pveRank每页限制
+  uint32             PVERankNum       = 5; //pveRank阈值
+  uint32             RankFlash        = 6; //pveRank刷新
+  repeated RankAward RankAward        = 7;    //排位奖励
+}
+
+message PVERankInfo {
+  repeated PVERankData Datas = 1;
+}
+
+message PVETalentData {
+  uint32 Id              = 1;  //天赋ID
+  uint32 ActivityGroupId = 2; //关联活动组ID
+  uint32 SeriesId        = 3; //天赋系列
+  uint32 RankFlash       = 4; //pveRank刷新
+  string Name            = 5;
+  string Desc            = 6;
+  string Value           = 7;
+  uint32 Level           = 8;
+  uint32 Consume         = 9;    //排位奖励
+}
+
+
+message PVETalentInfo {
+  repeated PVETalentData Datas = 1;
+}
+
+
+message RankAward {
+  string Level  = 1; //排名档位
+  string Reward = 2; //排名奖励
+  string Num    = 3; //奖励数量
+}
+
+// 拼写错误，暂不修改
+message RandDiscoutDatum {
+  uint32 ID       = 1;    // 奖励序列号
+  uint32 PoolID   = 2;    // 池Id
+  uint32 Rate     = 3;    // 概率
+  uint32 Weight   = 4;    // 权重
+  int64  Duration = 5;    // 持续时间
+  int32  Times    = 6;    // 可用次数
+  uint32 ItemID   = 7;    // 可以折扣的物品id
+}
+
+message RandDiscoutData {
+  repeated RandDiscoutDatum Datas = 1;
+}
+
+
+//回流引导
+message ReturnGuidData {
+  repeated ReturnGuid Datas = 1;
+}
+
+message ReturnGuid {
+  uint32          Id                = 1;
+  RETURN_GUID_TAG Tag               = 2; // tag枚举
+  string          Content           = 3; // 内容
+  string          Title             = 4; // 标题
+  uint32          SkipTab           = 5; // 跳转手游id
+  string          IconName          = 6; // 图片名称
+  uint32          IconSite          = 7; // 图片位置 1居左 2居右
+  string          VersionUpdateTime = 8; // 任务开始时间
+  string          SkipInterface     = 9; // 跳转大界面得名称
+  int32           ContentDeviation  = 10; //内容文本偏移量
+}
+
+
+// 物品评分表
+message ItemCommentData {
+  repeated ItemComment Datas = 1;
+}
+
+message ItemComment {
+  uint32 ID          = 1;
+  uint32 ItemType    = 2; // 物品分类
+  int32  CommentRank = 3; // 引导评论最低品质
+}
+
+message SmeltExcludeItem {
+  ITEMTYPE ItemType = 1; //类型
+  uint32   Quality  = 2; //质量(>=)
+}
+// 熔炼奖池
+message SmeltAwardData {
+  uint32                    Id        = 1;
+  string                    StartTime = 2; //开始时间
+  string                    EndTime   = 3; //结束时间
+  uint32                    Condition = 4; //条件
+  uint32                    AwardPool = 5; //奖励池
+  repeated SmeltExcludeItem Exclude   = 6; //排除类型
+}
+
+// 熔炼随机宝箱池表
+message SmeltAwardInfo {
+  repeated SmeltAwardData Datas = 1;
+}
+
+//棋子皮肤表
+message ChessSkinRelationInfo {
+  repeated ChessSkinRelationData Datas = 1;
+}
+
+
+message ChessSkinRelationData {
+  uint32 Id            = 1;    //皮肤ID
+  uint32 ChessId       = 2;    //所属棋子ID
+  string ShowBeginTime = 3;    //显示开始时间
+  string ShowEndTime   = 4;    //显示结束时间
+  uint32 SkinOrder     = 5;    //排序
+}
+
+//排位连胜表
+message RankRepeatedAwardInfo{
+  uint32 CupMax      = 1; //最高有效段位
+  uint32 MinRound    = 2; //最低连胜场次
+  uint32 StartPoint  = 3; //起始加成分
+  uint32 BonusPoint  = 4; //连胜叠加分
+  uint32 ExtraCount  = 5; //叠加有效场次
+  string ModeSupport = 6; //支持模式
+}
+
+//------------------------------ 物品鉴定  Begin ---------------------------
+// 随机抽取池表
+message RandPickUpPoolInfo {
+  repeated RandPickUpPoolData Datas = 1;
+}
+
+enum RANDPICKUPPOOLTYPE {
+  RANDPICKUPPOOLTYPE_NULL          = 0;
+  RANDPICKUPPOOLTYPE_NORMAL        = 1;
+  RANDPICKUPPOOLTYPE_RANGE         = 2;
+  RANDPICKUPPOOLTYPE_RANGE_DECIMAL = 3;
+}
+
+message RandPickUpPoolData {
+  uint32             Id     = 1; // Id
+  uint32             PoolID = 2; // 池id
+  repeated uint32    Val    = 3; // 值
+  uint32             weight = 4; // 权重
+  RANDPICKUPPOOLTYPE Type   = 5; // 池类型
+  string             extra  = 6; // 扩展信息
+}
+
+
+// 词缀表
+message ItemAffixInfo {
+  repeated ItemAffixData Datas = 1;
+}
+
+enum ITEMAFFIXTYPE {
+  ITEMAFFIXTYPE_NULL                = 0;
+  ITEMAFFIXTYPE_CHESSPLAYER         = 1;
+  ITEMAFFIXTYPE_SCENE               = 2;
+  ITEMAFFIXTYPE_CHESSSKIN_COMMON    = 3;
+  ITEMAFFIXTYPE_CHESSSKIN_EXCLUSIVE = 4;
+}
+
+enum ITEMAFFIXCONDTYPE {
+  ITEMAFFIXCONDTYPE_ = 0;
+}
+
+
+enum ITEMAFFIXTRIGGERTYPE {
+  ITEMAFFIXTriggerType_          = 0;
+  ITEMAFFIXTriggerType_ROUND     = 1; // 回合出发
+  ITEMAFFIXTRIGGERTYPE_IMMEDIATE = 2; //即时触发
+}
+message ItemAffixData {
+  uint32               Id          = 1;
+  string               Name        = 2;
+  ITEMAFFIXTYPE        Type        = 3;
+  ITEMAFFIXCONDTYPE    CondType    = 4;
+  string               AffixDesc   = 5;
+  uint32               ItemID      = 6;
+  string               Icon        = 7;
+  string               NodeNumber  = 8;
+  string               Mode        = 9;
+  repeated string      Effect      = 10;
+  ITEMAFFIXTRIGGERTYPE TriggerType = 11;
+}
+
+message IdentifyItemTypeAttrPair {
+  ITEMTYPE Type  = 1;
+  string   Attrs = 2;
+}
+// 物品鉴定表
+message ItemIdentifyInfo {
+  repeated Consume                  ActiveIdentify            = 1; // 手动鉴定消耗
+  string                            IdentifyAttributeList     = 2; // 鉴定属性列表
+  repeated IdentifyItemTypeAttrPair IdentifyItem              = 3; // 物品类型属性支持列表
+  Consume                           ConsumeItemAffixSaver     = 4; // 物品词缀封存消耗
+  Award                             ConsumeItemAffixCover     = 5; // 物品词缀封存奖励
+  repeated string                   ChessSeriesSkinSuffixName = 6; // 棋子皮肤系列星级后缀
+  repeated ItemIdentifyQuality      Quality                   = 7; // 物品磨损度品质关系
+}
+
+message ItemIdentifyQuality {
+  repeated uint32 Val  = 1;
+  string          Name = 2;
+}
+
+
+// 物品鉴定属性列表
+enum ITEMIDENTIFYATTR {
+  ITEMIDENTIFYATTR_AFFIXCNT = 0; // 词缀数量
+  ITEMIDENTIFYATTR_AFFIX    = 1; // 词缀
+  ITEMIDENTIFYATTR_ABRASION = 2; // 磨损度
+  ITEMIDENTIFYATTR_NUMBER   = 3; // 发行编号
+  ITEMIDENTIFYATTR_TEXTURE	= 4; // 磨损贴图
+}
+
+
+// 物品鉴定途径
+//enum ITEMIDENTIFYTYPE {
+//  ITEMIDENTIFYATTRSOURCE_AUTO   = 0; // 自动鉴定
+//  ITEMIDENTIFYATTRSOURCE_HANDLE = 1; // 手动
+//  ITEMIDENTIFYATTRSOURCE_CHEST  = 2; // 宝箱
+//}
+
+// 物品鉴定抽取池对应关系表
+message ItemIdentifyRandPoolRelationInfo {
+  repeated ItemIdentifyRandPoolRelationData Datas = 1;
+}
+
+message ItemIdentifyRandPoolRelationData {
+  uint32          ID                 = 1;
+  uint32          ItemID             = 2;
+  ITEMTYPE        ItemType           = 3;
+  //  ITEMIDENTIFYTYPE IdentifyType       = 4; // 废弃
+  uint32          IdentifyProp       = 5; // 消耗道具id, 可以是消耗品物品id，或者给消耗方式定义的编号
+  uint32          AffixCntPool       = 6;
+  string          AffixPool          = 7;
+  repeated uint32 QualityPool        = 8;
+  uint32          AffixExclusivePool = 9; // 专属词缀池
+  uint32          IdentifyPropCnt    = 10; // 消耗道具id数量
+  SOURCE          Source             = 11; // 鉴定方式
+  uint32          SmeltLevel         = 12; // 汰换等级
+  bool            CanIdentify        = 13; // 是否能鉴定
+  uint32		  TexturePool		 = 14; // 贴图池
+}
+
+// 物品发行编号表
+message ItemPublishNumberInfo {
+  repeated ItemPublishNumberData Datas = 1;
+}
+
+message ItemPublishNumberData {
+  uint32 Id           = 1;
+  uint32 ItemId       = 2;
+  string Prefix       = 3;
+  uint32 InitialDigit = 4; // 数字位数
+}
+//------------------------------ 物品鉴定  end ---------------------------
+
+// 新手答题表
+message NoviceAnswerInfo {
+  repeated NoviceAnswerData Datas = 1;
+}
+
+message NoviceAnswerData {
+  uint32          ID            = 1; //id
+  string          Question      = 2;//问题
+  repeated string Options       = 3; // 选项
+  uint32          CorrectOption = 4; // 答案
+  uint32          Weight        = 5; // 权重
+}
+
+
+enum DestinyActionTrigger {
+  Trigger_NULL    = 0;
+  Trigger_Buy     = 1; // 购买
+  Trigger_Victory = 2; // 胜利
+}
+
+message DestinyAction {
+  DestinyActionTrigger Trigger  = 1;//触发条件
+  string               Name     = 2;
+  uint32               Priority = 3;
+  string               Voice    = 4;
+}
+
+message ChessDestinyData {
+  uint32                 ID     = 1; //id
+  repeated uint32        A      = 2;
+  repeated uint32        B      = 3;
+  repeated DestinyAction Action = 4;
+  string   Effects              = 5;
+}
+
+message ChessDestinyInfo {
+  repeated ChessDestinyData Datas = 1;
+}
+
+
+message DynamicResourceData {
+  uint32 ID        = 1;//对应物品表id
+  string Resources = 2;// 上层资源名
+}
+
+message DynamicResourceInfo {
+  repeated DynamicResourceData Datas = 1;
+}
+
+message DynamicHeadData{
+  uint32 ID        = 1;//对应物品表id
+  string Resources = 2;// 资源名
+  uint32 Frames    = 3; //手游播放帧数
+}
+
+message DynamicHeadDataInfo {
+  repeated DynamicHeadData Datas = 1;
+}
+
+message AuctionInfo {
+  repeated AuctionData Datas = 1;
+}
+
+message AuctionData {
+  uint32 ItemID    = 1; // (tag.json)="code,omitempty"
+  float  SellPrice = 2; // (tag.json)="sellPrice,omitempty"
+  float  BuyPrice  = 3; // (tag.json)="buyPrice,omitempty"
+  float  SellMoney = 4; // (tag.json)="priceOfCash,omitempty"
+  float  BuyMoney  = 5; // (tag.json)="inquiryPriceOfCash,omitempty"
+  uint32 InquiryCount = 6; // (tag.json)="inquiryCount,omitempty"
+  uint32 MoneyRequiredCount = 7; // (tag.json)="inquiryCountOfCash,omitempty"
+  uint32 RequiredCount = 8; // (tag.json)="requiredCount,omitempty"
+}
+message PveInfo {
+  repeated PveData Datas = 1;
+}
+
+message PveData {
+  uint32        ID                            = 1;
+  string        MapKey                        = 2; //地图key
+  uint32        ChessLimit                    = 3; //棋子上限
+  uint32        SkillLimit                    = 4; //技能上限
+  uint32        RankPageLimit                 = 5; //单页显示上限
+  uint32        RankNum                       = 6; //总上限
+  uint32        RankFlash                     = 7; //刷新间隔
+  uint32        SkillPassMinLimit             = 8; //被动技能最少装配
+  uint32        SkillInitiativeMinLimit       = 9; //主动技能最少装配
+  uint32        IsQuickEntry                  = 10;//是否为快捷入口
+  uint32        ActiveId                      = 11;//附属活动id
+  uint32        DayActivityLimit              = 12;//附属活动每日积分限制
+  uint32        MaxScore                      = 13;//玩家最多积分
+  string        ClassicMode                  = 14;//子地图经典模式key
+  string        NightmareMode                 =15;//子地图噩梦模式key
+}
+
+message PveChessInfo {
+  repeated PveChessData Datas = 1;
+}
+
+message PveChessData {
+  uint32               PveId    = 1;
+  uint32               ChessId  = 2;   //棋子id
+  repeated PveConsume  Consumes = 3;  //消耗列表
+  bool                 IsInit   = 4;  //是否初始化
+}
+
+message PveSkillInfo {
+  repeated PveSkillData Datas = 1;
+}
+
+message PveSkillData {
+  uint32                    PveId         = 1;
+  uint32                    SkillId       = 2;  //技能id
+  repeated PveConsume       Consumes      = 3;  //消耗列表
+  bool                      IsInit        = 4;  //是否初始化
+  PVESKILLTYPE              SkillType     = 5;  //技能类型
+  bool                      SpecialSkill  = 6;  //是否为特俗技能描述
+
+}
+
+message PveBuffInfo {
+  repeated PveBuffData Datas = 1;
+}
+
+message PveBuffData {
+  uint32                ID                     = 1;
+  uint32                PveId                  = 2;
+  PVE_BUFF_TYPE         BuffType               = 3;  //buff 类型
+  uint32                SeriesId               = 4;  //传给内核对应的id
+  repeated PveConsume   Consumes               = 5;  //消耗列表
+  string                TitleKey               = 6;  //多语言title key
+  string                ContentKey             = 7;  //多语言content key
+  repeated Award        PropAwards             = 8;  //道具buff 奖励
+  uint32                PropLimit              = 9;  //道具buff 上限
+  uint32                VipSurviveTime         = 10;  //vip buff 激活持续时间
+  string                VipActivateIds         = 11;  //vip 激活buff
+  uint32                IntegralBonus          = 12;  //debuff 激活加成
+  string                Icon                   = 13; //icon
+  string                ContentKeyValue        = 14;//多语言key 中的 替换内容
+  uint32                BuffLock               = 15;//debuf 同一种只能有一个
+  uint32                SeriesLevel            = 16;//buff等级
+}
+
+message PvpTaskInfo {
+  repeated PvpTaskData Datas = 1;
+}
+
+message PvpTaskData {
+  uint32                Id                     = 1;
+  uint32                MissionId              = 2;	 //任务id
+  uint32				MissionType			   = 3;  //任务类型
+  string         		MissionTitleKey        = 4;  //任务标题key
+  string                MissionDesKey          = 5;  //任务条件key
+  string				MissionRewardKey       = 6;  //任务奖励key
+  string                MissionRequirement     = 7;  //多语言title key
+  string                MissionReward          = 8;  //多语言content key
+}
+
+//{excel:棋组槽位表 out:chesssetslotinfo module:CardGroupModule}
+message ChessSetSlotInfo { 	
+  repeated ChessSetSlotData Datas = 1;
+}
+
+message ChessSetSlotData {
+  uint32                TypeId              = 1;
+  string                Mode                = 2; //对应的模式
+  repeated ChessQuality Quality             = 3; //棋子槽位数量
+  string                JsonName            = 4; //对应内核的json名字
+}
+
+message ChessQuality {
+  CHESS_QUALITY      Id    = 1; //棋子质量
+  uint32             Count = 2; //数量
+}
+
+message ChessInitDeckInfo {
+  repeated ChessInitDeckData Datas = 1;
+}
+
+message ChessInitDeckData {
+  uint32             ID                = 1;
+  uint32             TypeId            = 2; //
+  string             TitleKey          = 3;
+  string             InitChessIds      = 4;
+  string             SuitAllChessId    = 5 ;//初始化99 的卡槽
+}
+
+message ChessFetterLimitInfo {
+  repeated ChessFetterLimitData Datas = 1;
+}
+
+message ChessFetterLimitData {
+  uint32             ID            = 1; //羁绊
+  uint32             LimitNum      = 2; //棋子羁绊限制数量
+}
+
+message MentorShipData {
+  repeated MentorShipReach      MentorReach         = 1 ; //师傅达成条件
+  repeated MentorShipReach      PupilReach          = 2 ; //徒弟达成条件
+  repeated Award                GraduateAwards      = 3 ; //徒弟出师获取得奖励
+  repeated MentorPunish         Punish              = 4 ; //解除关系惩罚
+  uint32                        PageLimit           = 5 ; //推荐列表分页
+  uint32                        ListNum             = 6 ; // 师傅/徒弟  推荐列表 数量
+  uint32                        ListRandNum         = 7 ; // 师傅推荐列表 随机玩家
+  repeated MentorLevel          MentorLevel         = 8 ; // 师傅等级
+  repeated MentorShipTag        MentorShipTag       = 9 ; // 玩家标签
+  repeated MentorAddn           MentorAddn          = 10; //加成系数
+  uint32                        MentorInviteLimit   = 11; //师傅 每日 邀请 次数
+  uint32                        MentorTextMaxLen    = 12; // 师徒所有文本长度限制
+  uint32                        AutoGraduateConfirmHour = 13;// 策划要配小时 我搞不定 自己算吧
+  uint32                        InviteMsgSurvive    = 14;//邀请信息存活时间
+  uint32                        GraduateNumLimit    = 15;//毕业人数 存储上线
+  uint32                        ActiveAddRecommendTime    = 16;//上榜活跃时间 天
+  repeated Award                MentorGraduateAwards      = 17 ; //师傅出师获取得奖励
+  int64                        IntimacyUpdateFrequency   = 18 ; //亲密度时间增加
+  int64                        IntimacyUpdateValue       = 19 ; //亲密度时间比率
+  int64                        IntimacyLimit             = 20 ; //亲密度上限
+}
+
+message MentorPunish {
+  int64              Time = 1; //惩罚时间 s
+  int64              Cond = 2; //被解除的玩家 活跃天数 是否达到这个值
+  MENTORSHIP         Type = 3; //惩罚的类型
+}
+
+message MentorLevel {
+  MENTORLEVEL       Id    = 1 ; //等级id
+  string            Key   = 2 ; //多语言key
+  uint32            Count = 3;  // 徒弟数量
+  uint32            NextLevelCond = 4; //下一等级的数量
+}
+
+message MentorShipTag {
+  uint32            Id   = 1 ;//等级id
+  string            Key  = 2 ; //多语言key
+}
+
+message MentorShipTaskInfo {
+  repeated MentorShipTaskData Datas = 1;
+}
+
+message MentorShipTaskData {
+  uint32            Id       = 1  ;// 任务i
+  Cond              Cond     = 2  ;// 任务条件
+  repeated Award    Awards   = 3  ;// 奖励
+  string            Icon     = 4  ;// 奖励的icon
+  MENTORSHIPTASK    Type     = 5  ;// 任务所属类型
+}
+
+message MentorShipReach {
+  repeated uint32   Para = 1; //条件
+  MENTORREACH       Type = 2;//类型
+}
+
+message MentorAddn {    // 师徒加成系数
+   MENTORADDN    Type       = 1; //加成类型
+   uint32        Coe        = 2; //加成系数
+   MENTORSHIP    TargetType = 3; //加成对象
+   string        Mode       = 4; //模式列表
+}
+
+message RuleInfo {
+  repeated RuleData Data = 1;
+}
+message RuleData {
+  uint32  Id = 1;
+  uint32  TypeId =2;
+  string  Picture =3;
+  string Rule  =4;
+}
+
+//龙渊限时掉落活动
+message LyActivityLimit {
+  uint32                Id              = 1;    //活动ID
+  uint32                GroupId         = 2;    //活动组ID
+  int64                 RefreshPlayer   = 3;    //玩家上限重置时间，单位是分钟，开始时间为活动开启时间
+  int64                 RefreshTotal    = 4;    //全服上限重置时间，单位是分钟，开始时间为活动开启时间
+  string                PvpMode         = 5;    //可掉落模式
+  string                Probability     = 6;    //对应掉落模式概率
+  repeated LyAwardPool  Pool            = 7;    //掉落池
+}
+
+message LyActivityLimitInfo {
+  repeated LyActivityLimit Datas = 1;
+}
+
+message LyAwardPool {
+  uint32           Id           = 1;    //物品ID
+  ITEMTYPE         Type         = 2;    //物品类型
+  int32            LimitPlayer  = 3;    //个人掉落物品上限
+  int64            LimitTotal   = 4;    //全服掉落物品上限
+  uint32           Weight       = 5;    //物品权重
+  int32            Count        = 6;    //物品掉落数量
+}
+
+message WebUrlInfo {
+  repeated WebUrlData Datas =1;
+}
+message WebUrlData {
+  uint32         ID = 1;
+  string         CN = 2; //国内网址
+  string         Overseas = 3; //海外网址
+}
+
+message BoardExclusiveSoundInfo {
+  repeated BoardExclusiveSoundData Datas =1;
+}
+message BoardExclusiveSoundData {
+  uint32         ID = 1;//对应棋盘ID
+  string         OutsideName = 2; //局外BGM名
+  string         OutsideResources = 3; //资源名
+  string         InsideName = 4; //局内BGM名
+  string         InsideResources = 5; //资源名
+}
+

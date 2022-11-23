@@ -1,0 +1,354 @@
+syntax = "proto3";
+package msg;
+import "result.proto";
+import "common.proto";
+//pvp更新数据
+enum PVPUPDATE{
+  UPDATE_NAME          = 0;  //名字
+  UPDATE_PASSPORT_TYPE = 1;  //通行证类型Id
+  UPDATE_CHESS_PLAYER  = 2;  //棋手和棋手的装备
+  UPDATE_SCENE         = 3;  //棋盘
+  UPDATE_CHESS_SKIN    = 4;  //棋子皮肤
+  UPDATE_HEAD_PIC      = 5;  //头像
+  UPDATE_SHOW_ITEMS    = 6;  //装扮
+  UPDATE_EMOTION       = 7;  //更新表情
+}
+
+//地图模式
+enum MAPTYPE {
+  MAPTYPE_NULL            = 0;
+  MAPTYPE_MELEE           = 1;  //塔防
+  MAPTYPE_OCCUPY_ZONE     = 2;  //区域占领
+  MAPTYPE_ESCORT_RESOURCE = 3;  //护送资源
+  MAPTYPE_FOOTBALL        = 4;  //足球模式
+  MAPTYPE_FLAG            = 5;  //夺旗模式
+  MAPTYPE_TWOWAY_ESCORT   = 6;  //双向护送
+  MAPTYPE_RUGBY           = 7;  //橄榄球
+  MAPTYPE_ROBBERY         = 8;  //抢金币
+  MAPTYPE_KILL_BOSS       = 9;  //杀Boss
+  MAPTYPE_KILL            = 10; //死亡
+  MAPTYPE_HOOK            = 11; //钩子
+  MAPTYPE_HITBACK         = 12; //术士战争
+  MAPTYPE_ESCAPE_KILL     = 13; //大逃杀
+  MAPTYPE_PVE             = 14; //pve
+  MAPTYPE_ROBOT_CHICKEN   = 15; //抢鸡
+  MAPTYPE_MOBA            = 16; //传统5v5
+  MAPTYPE_MOBA_EXT        = 17; //扩展5v5
+  MAPTYPE_MAX_NUM         = 18; //
+}
+
+enum ORDERSTATE{
+  ORDERSTATE_NULL          = 0;
+  ORDERSTATE_CREATE        = 1; //订单创建
+  ORDERSTATE_INVALID       = 2; //非法订单
+  ORDERSTATE_VERIFY_FAIL   = 3; //订单验证失败
+  ORDERSTATE_OTHER         = 4; //订单其他错误
+  ORDERSTATE_DELIVERY      = 5; //订单已发货
+  ORDERSTATE_OVERTIME      = 6; //订单超时
+  ORDERSTATE_DELIVERY_FAIL = 7; //订单发货失败
+  ORDERSTATE_GM_DELIVERY   = 8; //订单补发货
+}
+
+enum GREEN_STATE{
+  GREEN_STATE_PASS     = 0;
+  GREEN_STATE_CHECKING = 1;
+  GREEN_STATE_REVIEW   = 2;
+  GREEN_STATE_BLOCK    = 3;
+  GREEN_STATE_DIRTY    = 4;
+}
+
+enum CODETYPE{
+  CODETYPE_NULL  = 0;
+  CODETYPE_CDKEY = 2; //一次性兑换码（绑定礼包不可重复领取）
+}
+
+enum CDKCONDSTATUS{
+  CDKCONDSTATUS_ALL    = 0; //所有
+  CDKCONDSTATUS_UN_USE = 1; //未使用
+  CDKCONDSTATUS_USE    = 2; //已使用
+}
+
+enum LANGUAGETYPE {
+  LANGUAGE_NULL                = 0;     //无
+  LANGUAGE_CHINESE             = 1;     //简中
+  LANGUAGE_JAPANESE            = 2;     //日语
+  LANGUAGE_CHINESE_TRADITIONAL = 3;     //繁中
+  LANGUAGE_ENGLISH             = 4;     //英语
+  LANGUAGE_FRENCH              = 5;     //法语
+  LANGUAGE_SPANISH             = 6;     //西班牙语
+  LANGUAGE_RUSSIAN             = 7;     //俄语
+  LANGUAGE_KOREAN              = 8;     //韩语
+  LANGUAGE_GERMAN              = 9;     //德语
+  LANGUAGE_PORTUGUESE          = 10;    //葡萄牙语
+  LANGUAGE_VIETNAMESE          = 11;    //越南语
+  LANGUAGE_THAI                = 12;    //泰语
+  LANGUAGE_INDONESIAN          = 13;    //印尼语
+  LANGUAGE_Q                   = 14;    //印尼语
+  LANGUAGE_TURKISH             = 15;    //土耳其语
+  LANGUAGE_SPANISH_EUROPE      = 16;    //欧洲西班牙语
+  LANGUAGE_ITALIAN             = 17;    //意大利语
+  LANGUAGE_ARABIC              = 18;    //阿拉伯语
+  LANGUAGE_COUNT               = 19;    //语言数量
+}
+
+//金币收入和金币消耗混在一起(与PC同步一致)
+enum MONEYSOURCE{
+  INTEREST        = 0;
+  WIN             = 1;
+  STREAK_WIN      = 2;
+  STREAK_FAIL     = 3;
+  SELL_CHESS      = 4;
+  ROUND_MONEY     = 5;
+  MS_BUY_CHESS    = 6; //购买棋子
+  MS_BUY_EXP      = 7; //研读棋谱
+  MS_REFRESH_SHOP = 8; //刷新棋子
+  MS_CHEAT        = 9; //
+}
+
+enum PAYSOURCE{
+  READ_CHESS    = 0;        //研读棋谱
+  RECRUIT_CHESS = 1;        //刷新棋子
+  BUY_CHESS     = 2;        //购买棋子
+}
+
+enum FRIENDTYPE {
+  FOLLOW_EACH_OTHER = 0;    //互关
+  FOLLOW            = 1;    //关注
+  FANS              = 2;    //粉丝
+  BLACKLIST         = 3;  //黑名单
+  THIRD_PARTY       = 4;    //第三方好友关系(如微信,QQ好友)
+  COMPETITOR        = 5;    //选手
+  MENTORSHIP_RELATION        = 6;    //师徒
+}
+
+enum DIAMONDTRANSACTIONTYPE {
+  TRANSACTION_NULL    = 0;    //
+  TRANSACTION_CHARGE  = 1;    //充值获得
+  TRANSACTION_FREE    = 2;    //免费获得
+  TRANSACTION_CONSUME = 3;    //消耗
+}
+
+// 潘多拉活动类型
+enum PANDORAACTIVITYTYPE {
+  PANDORA_ACTIVITY_NULL     = 0;
+  PANDORA_ACTIVITY_LUCKSTAR = 1;  //幸运星
+  PANDORA_ACTIVITY_PASSPORT = 2;  //通行证
+}
+
+// 手q成就上报类型
+enum QQScoreType {
+  Null             = 0;    // 0
+  Level            = 1;    // 1	等级	bcover=1	不过期	变化时上报
+  Money            = 2;    // 2	金钱（钻石、金币、点卷）	bcover=1	不过期	变化时上报
+  CptScore         = 3;    // 3	流水得分(用于排行榜数据)	bcover=0	与游戏结算时间一致	变化时上报	上报对局结算排名与1000重复
+  Exp              = 4;    // 4	经验	bcover=1	不过期	变化时上报
+  LoginTime        = 8;    // 8	最近登录时间	bcover=1	不过期	上报格式：Unix时间戳
+  Channel          = 12;   // 12	平台类型，（涉及礼包发货， 表示字段和在idip上面的ID一致） 0-ios ,1-安卓	bcover=1	不过期	所有游戏，其他数据项上报时必须同时上报此项
+  SinglePlayTime   = 14;   // 14	单次游戏时长	bcover=1	不过期	上报单位：秒。（累计游戏时长手Q平台计算）
+  TotalGame        = 23;   // 23	总局数	bcover=1	不过期	变化时上报
+  RegisterTime     = 25;   // 25	用户注册时间	bcover=1	不过期	以前报成3001，需更改为25
+  Zone             = 26;   // 26	大区信息（涉及礼包发货， 表示字段和在idip上面的ID一致）	bcover=1	不过期	上报大区ID，多区多服游戏其他数据项上报时，必须同时上报此项
+  Area             = 27;   // 27	服务器信息（涉及礼包发货， 表示字段和在idip上面的ID一致）	bcover=1	不过期	上报服务器ID，多区多服游戏其他数据项上报时，必须同时上报此项
+  Cid              = 28;   // 28	角色ID（涉及礼包发货， 表示字段和在idip上面的ID一致）	bcover=1	不过期	多区多服游戏，其他数据项上报时，必须同时上报此项，同区多角色不去重
+  RoleName         = 29;   // 29	角色名称	bcover=1	不过期	创建角色时上报，且每条流水上报时同时上报此项
+  TotalRmb         = 43;   // 43	累积充值金额	bcover=1	不过期	累计充值金额变动时进行上报	单位：元（功能有，未开放，现在不会有上报）
+  SingleChargeRmb  = 44;   // 44	单笔充值金额	bcover=1	不过期	有充值发生时进行上报	单位：元（功能有，未开放，现在不会有上报）
+  ChargeTime       = 46;   // 46   46	充值时间	bcover=2	不过期	变化时上报
+  LoginChannelID   = 201;  // 201	登录渠道号	bcover=1	不过期	与最近登录时间相同上报，用户当前登录时候用的渠道包的渠道号
+  RegisterChannID  = 202;  // 202	注册渠道号	bcover=1	不过期	当时注册时候，用的渠道包的渠道号
+  TodayOnlineTime  = 6000; // 6000	当天累计游戏时长	是	不过期	"上报格式：unix时间戳（单位：秒）周期上报，每5分钟上报一次，上报用户当日的累计游戏时长。（例：用户前5分钟在线1分钟，上报一次1分钟；下一个5分钟在线2分钟，则上报一次3分钟。）"
+  CurGameRank      = 1000; // 1000	对局结算排名（1-8名）	bcover=1	不过期	变化时上报
+  TotalCompetition = 1001; // 1001	对局总场次	bcover=1	不过期	变化时上报
+  PassportTaskCnt  = 1002; // 1002	完成战阶任务个数	bcover=1	不过期	变化时上报
+  UnlockChessNum   = 1003; // 1003	棋子外观解锁个数	bcover=1	不过期	变化时上报
+  Cup              = 1004; // 1004	当前段位	bcover=0	不过期	变化时上报
+  CurSeasonMaxMMR  = 1005; // 1005	当前最高mmr分值（单独提供mmr对应的段位文档）	bcover=0	不过期	变化时上报
+  MaxMMR           = 1006; // 1006	历史最高mmr分值（单独提供mmr对应的段位文档）	bcover=0	不过期	变化时上报
+  PassportLevel    = 1007; // 1007	玩家当前赛季通行证等级	bcover=1	不过期	变化时上报
+  CurRankCptCnt    = 1008; // 1008	玩家当前赛季排位模式总局数	bcover=0	不过期	变化时上报
+  CurRankMvpPro    = 1009; // 1009	玩家当前赛季排位模式吃鸡率	bcover=0	不过期	变化时上报
+  CurRankTop3Pro   = 1010; // 1010	玩家当前赛季排位模式前三率	bcover=0	不过期	变化时上报
+  CurRankAvgRank   = 1011; // 1011	玩家当前赛季排位模式平均排名	bcover=0	不过期	变化时上报
+  CurRankAvgRnd    = 1012; // 1012	玩家当前赛季排位模式场均回合	bcover=0	不过期	变化时上报
+  CurTotalCptCnt   = 1013; // 1013	玩家当前赛季全部模式总局数	bcover=0	不过期	变化时上报
+  CurTotalMvpPro   = 1014; // 1014	玩家当前赛季全部模式吃鸡率	bcover=0	不过期	变化时上报
+  CurTotalTop3Pro  = 1015; // 1015	玩家当前赛季全部模式前三率	bcover=0	不过期	变化时上报
+  CurTotalAvgRank  = 1016; // 1016	玩家当前赛季全部模式平均排名	bcover=0	不过期	变化时上报
+  CurTotalAvgRnd   = 1017; // 1017	玩家当前赛季全部模式场均回合	bcover=0	不过期	变化时上报
+  TotalRankCptCnt  = 1018; // 1018	玩家全部赛季排位模式总局数	bcover=0	不过期	变化时上报
+  TotalRankMvpPro  = 1019; // 1019	玩家全部赛季排位模式吃鸡率	bcover=0	不过期	变化时上报
+  TotalRankTop3Pro = 1020; // 1020	玩家全部赛季排位模式前三率	bcover=0	不过期	变化时上报
+  TotalRankAvgRank = 1021; // 1021	玩家全部赛季排位模式平均排名	bcover=0	不过期	变化时上报
+  TotalRankAvgRnd  = 1022; // 1022	玩家全部赛季排位模式场均回合	bcover=0	不过期	变化时上报
+  TotalCptCnt      = 1023; // 1023	玩家全部赛季全部模式总局数	bcover=0	不过期	变化时上报
+  TotalMvpPro      = 1024; // 1024	玩家全部赛季全部模式吃鸡率	bcover=0	不过期	变化时上报
+  TotalTop3Pro     = 1025; // 1025	玩家全部赛季全部模式前三率	bcover=0	不过期	变化时上报
+  TotalAvgRank     = 1026; // 1026	玩家全部赛季全部模式平均排名	bcover=0	不过期	变化时上报
+  TotalAvgRnd      = 1027; // 1027	玩家全部赛季全部模式场均回合	bcover=0	不过期	变化时上报
+}
+
+//微信大玩家特权类型
+enum WxVVipRTYPE {
+  WX_VVIP_NULL     = 0;    //
+  ACC_LOGIN        = 1;    //累计登录
+  ACC_BATTLE       = 2;    //累计场次
+  ACC_RANK_TOP1    = 3;    //累计吃鸡
+  WEEKLY_GIFT      = 4;    //周礼包
+  DAILY_GIFT       = 5;    //日礼包
+  LVL_UPGRADE      = 6;    //玩家升级
+  SINGLE_CUP_UP    = 7;    //玩家单排升段
+  RANK_TOP1_SINGLE = 8;    //单排成功吃鸡（每日首次）
+  DOUBLE_CUP_UP    = 9;    //玩家双排升段至
+  COLOR_EGG        = 10;   //抽取扭蛋
+  RANK_TOP1_DOUBLE = 11;   //双排排成功吃鸡（每日首次）
+  RED_PACKET       = 12;   //红包
+}
+
+enum GMACTIONTYPE {
+  BIND_ACCOUNT   = 0; //绑定账号
+  UNBIND_ACCOUNT = 1; //解绑账号
+  LOGOFF_ACCOUNT = 2; //注销账号
+}
+
+//观战任务类型
+enum OBSERVETASKTYPE {
+  OBSERVE_TASK_NULL        = 0;
+  OBSERVE_TASK_TIME        = 1; //不重置的观战时长任务
+  OBSERVE_TASK_TIME_DAILY  = 2; //每日重置的观战时长任务
+  OBSERVE_TASK_TIME_WEEKLY = 3; //每周重置的观战时长任务
+}
+
+// Cl5获取类型
+enum Cl5Type{
+  RelationStar = 0; // 微信关系链
+  BlessBag     = 1; // 福袋
+}
+
+// 分区id
+enum ZoneID {
+  NONE    = 0;   // 无分区
+  TX      = 1;     // 腾讯
+  ZoneTwo = 2;// 分区2 后面都是无意义
+}
+
+// 欢乐豆模式锁定代币返回类型
+enum RETURNCURRENCYTYPE {
+  PVPEND_RETURN = 0;  //pvp结束返回
+  UPDATE_RETURN = 1;  //心跳检测返回
+  LOCK_RETURN   = 2;  //锁定时返回
+}
+
+//交易
+//交易状态
+enum EXCHANGE_STATE {
+  EXCHANGE_STATE_NULL         = 0;
+  EXCHANGE_STATE_REQ_SELL     = 1;  //上架申请
+  EXCHANGE_STATE_SELL_OK      = 2;  //确认上架-成功
+  EXCHANGE_STATE_SELL_CANCEL  = 3;  //确认上架-取消
+  EXCHANGE_STATE_SELL_ERROR   = 4;  //确认上架-错误
+  EXCHANGE_STATE_REQ_BUY      = 5;  //发货申请
+  EXCHANGE_STATE_BUY_OK       = 6;  //确认发货-成功
+  EXCHANGE_STATE_BUY_CANCEL   = 7;  //确认发货-取消
+  EXCHANGE_STATE_BUY_ERROR    = 8;  //确认发货-错误
+  EXCHANGE_STATE_ORDER_CANCEL = 9;  //平台取消订单
+}
+
+enum EXCHANGE_ORDER_OPT {
+  EXCHANGE_ORDER_BUY    = 0;  //购买
+  EXCHANGE_ORDER_CANCEL = 1;  //取消
+  EXCHANGE_ORDER_GIFT   = 2;  //赠送
+}
+
+//勋章积分类型积分
+enum SCORETYPE{
+  COMMON_SCORE     = 0; //通用积分
+  BIG_WINNER_SCORE = 1; //大赢家积分
+  BIG_WINNER_ITEM  = 2; //持有的大赢家物品
+  MAX_QUEEN_MMR    = 3; //皇后勋章赛季结算最高mmr分
+}
+//产出通用枚举
+enum OutPutType {
+  NORMAL_TYPE   = 0; //正常
+  ACTIVITY_TYPE = 1; //活动
+  ACTIVITY_TYPE_LY = 2; //掌上龙渊限时活动
+}
+
+enum MAILTYPE {
+  MAIL_NORMAL = 0;//通用邮件
+  MAIL_RANK   = 1;//排行榜邮件
+}
+
+//mailserver-rankserver发奖
+message RocketMailAward {
+  int64               Start       = 1; // 开始
+  int64               End         = 2; // 结束
+  repeated Award      Awards      = 3; // 奖励
+  SOURCE              AwardSource = 4; // 奖励原因
+  string              RedisKey    = 6; // rediskey
+  int64               SurviveTime = 7; // 存活时间
+  string              Title       = 8; // 邮件标题
+  string              Content     = 9; // 邮件内容
+  bool                Reverse     = 10;// true升序 false倒序
+  MAILTYPE            MailType    = 11;// true升序 false倒序
+  string              UuId        = 13;//唯一键  有则代表只会发一次
+  map<string, string> Dict        = 14;//多语言字典
+}
+
+message MailExr{
+  int64  RankStart    = 1; //排行榜开始排名
+  int64  RankEnd      = 2; //排行榜结束排名
+  string RankRedisKey = 4; //排行榜redis key
+  bool   Reverse      = 5; //true升序 false倒序
+}
+
+//创意工坊modeType
+enum MODETYPE {
+  NORMAL_RELAX = 0;  //标准休闲
+  BIG_WINNER   = 1;  //大赢家前身 现在没使用
+}
+
+// 背包类型
+enum BAGTYPE {
+  NORMAL_BAG = 0; //普通背包
+}
+
+//宝箱开启抽离中间层
+message OpenRandChest{
+  repeated Consume Consumes = 1;
+  repeated Award   Awards   = 2;    //自选礼包已选择的物品
+  CHEST_OPEN_TYPE  OpenType = 3;  //开启方式(高阶密藏、低阶密藏)
+}
+
+message OpenRandChestAward {
+  repeated Award   Awards         = 1;    //抽奖奖励
+  repeated Consume Consumes       = 2;
+  repeated Award   CumulateAwards = 3; // 保底奖励
+  repeated Award   RareAwards     = 4;    // 珍稀奖励
+}
+
+enum AUTHORITYLEVEL {
+  LEVEL_CANCEL  = 0; //取消权限
+  LEVEL_1 		= 1; //等级1
+  LEVEL_2 		= 2; //等级2
+  LEVEL_3 		= 3; //等级3
+}
+
+//vip 设置
+enum ExVip {
+  //没有vip
+  NO_VIP = 0;
+  //普通vip
+  NORMAL_VIP = 1;
+  //超级VIP
+  SUPER_VIP = 2;
+}
+
+enum PVPSTATUSTYPE {
+  PVPSTATUS_WAIT_PLAYERS_READY    = 0;//等待玩家准备中
+  PVPSTATUS_WAIT_CLIENTS_READY    = 1;//等待客户端准备中
+  PVPSTATUS_RUNNING               = 2;//进行中
+  PVPSTATUS_STOP                  = 3;//停止中 通常由于所有玩家均掉线造成
+  PVPSTATUS_WAIT_END              = 4;//等待结束
+  PVPSTATUS_END                   = 5;//结束
+  PVPSTATUS_WAIT_DESTORY          = 6;//等待销毁
+}
