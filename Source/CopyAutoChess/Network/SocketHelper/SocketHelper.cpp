@@ -32,6 +32,9 @@ void FSocketHelper::connect(const FString ip, int32 port)
 
 	//创建客户端socket
 	m_socket = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateSocket(NAME_Stream, TEXT("default"), false);
+	ensureMsgf(m_socket, TEXT("创建套接字失败"));
+	int32 sendBufferSize = 0;
+	m_socket->SetSendBufferSize(1024 * 15, sendBufferSize);
 
 	//连接成功
 	if (m_socket->Connect(*addr))
@@ -101,6 +104,11 @@ void FSocketHelper::sendMsg(msg::CSMsgID reqMsgId, const msg::CSReqBody& msgBody
 	}
 	uint8* bufferEncrypt = m_sendBufferTempSerialize.buffer;
 
+	char dataStr[22];
+	memcpy((uint8*)dataStr, bufferEncrypt, 8);
+	dataStr[8] = '\0';
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("m_socket->Send Success! msgId : %d, bodySize : %d, bufferEncrypt : %s"), reqMsgId, bodySize, dataStr);
+
 	//2.压缩
 	if (needCompress)
 	{
@@ -110,6 +118,10 @@ void FSocketHelper::sendMsg(msg::CSMsgID reqMsgId, const msg::CSReqBody& msgBody
 		bufferEncrypt = m_sendBufferTempZip.buffer;
 		bodySize = temLen;
 	}
+
+	memcpy((uint8*)dataStr, bufferEncrypt, 8);
+	dataStr[8] = '\0';
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("m_socket->Send Success! msgId : %d, bodySize : %d, bufferEncrypt compress : %s"), reqMsgId, bodySize, dataStr);
 
 	//3.加密
 	int encryptLen = (16 - bodySize%16) + bodySize;
@@ -127,6 +139,10 @@ void FSocketHelper::sendMsg(msg::CSMsgID reqMsgId, const msg::CSReqBody& msgBody
 	AES_cbc_encrypt(m_sendBufferTempEncrypt.buffer, m_sendBufferTempEncryptOut.buffer, encryptLen, &aes, m_sendBufferKey.buffer, AES_ENCRYPT);
 	bodySize = encryptLen;
 
+	memcpy((uint8*)dataStr, m_sendBufferTempEncryptOut.buffer, 16);
+	dataStr[16] = '\0';
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("m_socket->Send Success! msgId : %d, bodySize : %d, Out.buffer : %s, key : %s"), reqMsgId, bodySize, dataStr, key.c_str());
+
 	//4.构造包头
 	msg::CSHead head;
 	head.set_msgid(reqMsgId);
@@ -141,12 +157,18 @@ void FSocketHelper::sendMsg(msg::CSMsgID reqMsgId, const msg::CSReqBody& msgBody
 	uint8* ptr = data;
 	//head size
 	ptr[0] = (uint8)head.ByteSize();
+	ptr++;
 	//head data
 	if (!head.SerializeToArray(ptr, head.ByteSize()))
 	{
 		return;
 	}
 	ptr += head.ByteSize();
+
+	memcpy((uint8*)dataStr, data, 5);
+	dataStr[5] = '\0';
+	UE_LOG(LogCopyAutoChess, Warning, TEXT("m_socket->Send Success! msgId : %d, headSize : %d, bodySize : %d, headdata : %s"), reqMsgId, head.ByteSize(), bodySize, dataStr);
+
 	//body data
 	memcpy(ptr, m_sendBufferTempEncryptOut.buffer, bodySize);
 
@@ -154,12 +176,17 @@ void FSocketHelper::sendMsg(msg::CSMsgID reqMsgId, const msg::CSReqBody& msgBody
 	int32 sendDataSize = dataSize;
 	while (sendDataSize > 0)
 	{
+		memcpy((uint8*)dataStr, data, 21);
+		dataStr[21] = '\0';
+		UE_LOG(LogCopyAutoChess, Warning, TEXT("m_socket->Send Success! msgId : %d, headSize : %d, bodySize : %d, dataStr : %s"), reqMsgId, head.ByteSize(), bodySize, dataStr);
+
 		int32 sendSizeOnce = 0;
 		if (!m_socket->Send(data, dataSize, sendSizeOnce))
 		{
 			UE_LOG(LogCopyAutoChess, Error, TEXT("m_socket->Send Error!"));
 			return;
 		}
+
 		sendDataSize -= sendSizeOnce;
 		data += sendSizeOnce;
 	}
