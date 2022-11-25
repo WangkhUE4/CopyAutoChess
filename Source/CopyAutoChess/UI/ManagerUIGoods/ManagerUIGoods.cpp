@@ -27,8 +27,8 @@ void AManagerUIGoods::testPrint(const FString inStr)
 	//test socket connect
 	ISocketHelper*  ptr = new FSocketHelper();
 	ptr->testPrint();
-	//ptr->connect("47.108.85.170", 3063);
-	ptr->connect("172.20.12.40", 3063);
+	ptr->connect("47.108.85.170", 3063);
+	//ptr->connect("172.20.12.40", 3063);
 	//delete ptr;
 	//ptr = nullptr;
 
